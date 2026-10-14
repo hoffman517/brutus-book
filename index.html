@@ -347,57 +347,35 @@
       object-fit: contain;
     }
 
-    /* Frozen Frenzy Easter egg: overlay only, transform/opacity animation.
-       Idle state is fully transparent and pointer-transparent — no layout
+    /* Daily Easter egg: overlay only, transform/opacity animation. The
+       tap target and payload live in the window.DAILY_EGG config block —
+       this CSS is just the marker that blooms over the tapped spot in the
+       hero scene (JS positions it from the config at fire time). Idle
+       state is fully transparent and pointer-transparent — no layout
        shift, no effect on the picks below. */
-    .daily-hero img { cursor: pointer; }
-
-    .egg-lamp-glow {
+    .egg-ring {
       position: absolute;
-      left: 85%;
-      top: 20%;
-      z-index: 2;
-      width: min(360px, 52%);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 205, 92, .9) 0%, rgba(255, 176, 64, .38) 30%, rgba(255, 160, 48, 0) 68%);
-      filter: blur(2px);
-      mix-blend-mode: screen;
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, -50%) scale(.94);
-    }
-
-    .egg-lamp-glow.is-pulsing {
-      animation: egg-lamp-pulse 1.7s ease-in-out 1;
-    }
-
-    @keyframes egg-lamp-pulse {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(.94); }
-      28% { opacity: .95; transform: translate(-50%, -50%) scale(1.05); }
-      58% { opacity: .55; transform: translate(-50%, -50%) scale(1.02); }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
-    }
-
-    .egg-puck {
-      position: absolute;
-      left: 0;
-      bottom: 12px;
       z-index: 3;
-      display: block;
-      width: 48px;
-      height: 19px;
+      width: 54px;
+      height: 54px;
+      margin: -27px 0 0 -27px;
+      border: 3px solid rgba(255, 214, 120, .95);
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px rgba(255, 190, 80, .25), 0 6px 18px rgba(0, 0, 0, .35);
       opacity: 0;
       pointer-events: none;
-      transform: translateX(-64px);
-      will-change: transform;
+      transform: scale(.55);
     }
 
-    .egg-puck svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .45));
+    .egg-ring.is-firing {
+      animation: egg-ring-bloom 1.15s ease-out 1;
+    }
+
+    @keyframes egg-ring-bloom {
+      0% { opacity: 0; transform: scale(.55); }
+      22% { opacity: 1; transform: scale(1.06); }
+      55% { opacity: .95; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.28); }
     }
 
     /* Flow layout (2026-10-14 fix): the caption takes its own space under
@@ -1807,7 +1785,7 @@
         text-shadow: 0 2px 8px rgba(0,0,0,.7);
       }
       .egg-caption { font-size: .72rem; }
-      .egg-puck { width: 42px; height: 17px; bottom: 9px; }
+      .egg-ring { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
       .date { font-size: .67rem; letter-spacing: .08em; }
       .record-badge { gap: 7px; padding-inline: 10px; font-size: .68rem; }
       .section-note { max-width: 16ch; }
@@ -1874,11 +1852,10 @@ and loads nothing.
       <section id="card-panel" data-view="today" role="tabpanel" aria-labelledby="tab-today card-title">
         <div class="egg-slot">
           <figure class="daily-hero" id="daily-hero">
-            <img src="assets/brutus-daily-2026-10-14.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper at his desk — Wednesday's card on the whiteboard: Kennesaw State -3, Sam Houston +1.5, Brewers @ Dodgers under 7.5, Stars moneyline +130" width="1600" height="1067">
-            <span class="egg-lamp-glow" id="egg-lamp-glow" aria-hidden="true"></span>
-            <span class="egg-puck" id="egg-puck" aria-hidden="true"><svg viewBox="0 0 48 19" focusable="false"><path d="M2 6.5v6c0 3 9.8 5.4 22 5.4s22-2.4 22-5.4v-6c0 3-9.8 5.4-22 5.4S2 9.5 2 6.5Z" fill="#141518"></path><ellipse cx="24" cy="6.5" rx="22" ry="5.4" fill="#373b42"></ellipse><ellipse cx="24" cy="6.5" rx="14.5" ry="3.1" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1"></ellipse></svg></span>
+            <img src="assets/brutus-daily-2026-10-14.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper seated low at his desk beside a big whiteboard carrying Wednesday's card: Kennesaw State -3, Sam Houston +1.5, Brewers @ Dodgers under 7.5, Stars moneyline +130" width="1600" height="1067">
+            <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
           </figure>
-          <p class="egg-caption" id="egg-caption" role="status">NLCS Game 3 and two NHL games tonight — tap the lamp, Brutus is grinding.</p>
+          <p class="egg-caption" id="egg-caption" role="status"></p>
         </div>
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-14T13:52:00-04:00">Picks as of Wednesday, October 14 — 1:52 PM ET</time></p>
         <div class="section-heading card-heading">
@@ -4449,86 +4426,60 @@ and loads nothing.
   </script>
 
   <script>
-    // Frozen Frenzy Easter egg: tapping the daily Brutus hero image pulses
-    // the desk-lamp glow once, slides a hockey puck across the bottom edge
-    // of the hero and off the other side, and fades a caption in under the
-    // hero for a few seconds. Pure presentation — transform/opacity only,
-    // overlays, no layout shift, no sound, no data touched. Replays on
-    // every tap/click (mobile tap and desktop click are the same event).
+    // DAILY EGG — the daily build sets this ONE config block: what to tap
+    // in the hero scene and what it says. Rotating the egg (new target
+    // and/or payload every card) = editing this block only; the handler
+    // below is generic. zone/spot are fractions of the hero image
+    // (x right, y down); spot is where the marker ring blooms.
+    window.DAILY_EGG = {
+      date: '2026-10-14',
+      target: 'puck',
+      zone: { x0: 0.44, y0: 0.885, x1: 0.555, y1: 0.985 },
+      spot: { x: 0.496, y: 0.939 },
+      caption: "🏒 You found the puck — nice hands. Lab secret: two games tonight are on Brutus' shadow list — tracked and graded, but NOT bet: Canadiens @ Capitals (7:30 PM ET) and Stars @ Avalanche (8:30 PM ET). Both are second nights of back-to-backs, and spots like those have to prove themselves in the dark before they ever earn a real pick. (The Stars play on the card above is a separate call — price and goalies, not the back-to-back.)"
+    };
+  </script>
+  <script>
+    // Daily Easter egg handler — data-driven from window.DAILY_EGG above.
+    // Tapping the configured spot in the hero scene (today: the hockey
+    // puck on the desk) blooms a ring over it and reveals the day's hidden
+    // note under the hero for a few seconds. Pure presentation — no data
+    // touched. Replays on every qualifying tap; taps anywhere else on the
+    // hero do nothing (the retired lamp egg's whole-image trigger is gone).
     (function () {
+      var cfg = window.DAILY_EGG;
       var hero = document.getElementById('daily-hero');
       var img = hero ? hero.querySelector('img') : null;
-      var glow = document.getElementById('egg-lamp-glow');
-      var puck = document.getElementById('egg-puck');
+      var ring = document.getElementById('egg-ring');
       var caption = document.getElementById('egg-caption');
-      if (!hero || !img || !glow || !puck || !caption) return;
+      if (!cfg || !hero || !img || !ring || !caption) return;
+      caption.textContent = cfg.caption;
 
-      var run = 0;
       var timers = [];
-      var anims = [];
+      function later(fn, ms) { timers.push(window.setTimeout(fn, ms)); }
 
-      function clearTimers() {
+      img.addEventListener('click', function (event) {
+        var rect = img.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        var fx = (event.clientX - rect.left) / rect.width;
+        var fy = (event.clientY - rect.top) / rect.height;
+        var z = cfg.zone;
+        if (fx < z.x0 || fx > z.x1 || fy < z.y0 || fy > z.y1) return;
+
         timers.forEach(function (timer) { window.clearTimeout(timer); });
         timers = [];
-      }
-
-      function cancelAnims() {
-        anims.forEach(function (anim) { try { anim.cancel(); } catch (error) {} });
-        anims = [];
-      }
-
-      function later(fn, ms) {
-        timers.push(window.setTimeout(fn, ms));
-      }
-
-      img.addEventListener('click', function () {
-        run += 1;
-        var myRun = run;
-        clearTimers();
-        cancelAnims();
-
         var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-        glow.classList.remove('is-pulsing');
-        puck.style.opacity = '0';
-        puck.style.transform = 'translateX(-64px)';
-        caption.classList.remove('is-visible');
-        // Restart the CSS lamp pulse from its first frame on replay.
-        void glow.offsetWidth;
+        ring.style.left = (cfg.spot.x * 100) + '%';
+        ring.style.top = (cfg.spot.y * 100) + '%';
+        ring.classList.remove('is-firing');
+        // Restart the ring animation from its first frame on replay.
+        void ring.offsetWidth;
+        if (!reduced) ring.classList.add('is-firing');
 
-        if (!reduced) {
-          glow.classList.add('is-pulsing');
-
-          if (puck.animate) {
-            var width = hero.clientWidth || hero.getBoundingClientRect().width || 600;
-            puck.style.opacity = '1';
-            var slide = puck.animate([
-              { transform: 'translateX(-64px)' },
-              { transform: 'translateX(' + (width + 64) + 'px)' }
-            ], { duration: 1900, easing: 'cubic-bezier(.22,.61,.36,1)', delay: 140, fill: 'forwards' });
-            anims.push(slide);
-            slide.onfinish = function () {
-              if (myRun !== run) return;
-              puck.style.opacity = '0';
-            };
-          }
-        }
-
-        later(function () {
-          if (myRun !== run) return;
-          caption.classList.add('is-visible');
-        }, reduced ? 60 : 320);
-
-        later(function () {
-          if (myRun !== run) return;
-          caption.classList.remove('is-visible');
-        }, reduced ? 2400 : 3550);
-
-        later(function () {
-          if (myRun !== run) return;
-          glow.classList.remove('is-pulsing');
-          puck.style.opacity = '0';
-        }, 4200);
+        caption.classList.add('is-visible');
+        later(function () { caption.classList.remove('is-visible'); }, 6000);
+        later(function () { ring.classList.remove('is-firing'); }, 1400);
       });
     }());
   </script>

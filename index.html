@@ -308,8 +308,8 @@
       height: auto;
     }
 
-    /* Easter-egg slot: wrapper keeps the hero's original spacing while
-       letting the caption sit under the hero without shifting layout. */
+    /* Easter-egg slot: wrapper keeps the hero's original spacing; the
+       caption sits in flow under the hero (see .egg-caption). */
     .egg-slot {
       position: relative;
       margin: 0 0 28px;
@@ -400,14 +400,14 @@
       filter: drop-shadow(0 4px 5px rgba(0, 0, 0, .45));
     }
 
+    /* Flow layout (2026-10-14 fix): the caption takes its own space under
+       the hero instead of floating over the "Picks as of" line, so when the
+       egg fires both stay fully readable. */
     .egg-caption {
-      position: absolute;
-      left: 50%;
-      top: calc(100% + 7px);
-      z-index: 6;
+      display: none;
       width: max-content;
       max-width: min(92vw, 620px);
-      margin: 0;
+      margin: 10px auto 0;
       padding: 6px 13px;
       border: 1px solid rgba(255, 255, 255, .14);
       border-radius: 999px;
@@ -418,15 +418,10 @@
       font-weight: 600;
       line-height: 1.35;
       text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, -3px);
-      transition: opacity .45s ease, transform .45s ease;
     }
 
     .egg-caption.is-visible {
-      opacity: 1;
-      transform: translate(-50%, 0);
+      display: block;
     }
 
     .section-heading {
@@ -1585,7 +1580,9 @@
       padding: 5px;
       border: 1px solid #68727a;
       border-radius: 12px;
-      background: rgba(10, 12, 15, .97);
+      /* Fully opaque (2026-10-14 fix): content scrolling beneath the sticky
+         bar must never ghost through it. */
+      background: #0a0c0f;
       box-shadow: 0 12px 36px rgba(0, 0, 0, .42);
     }
 
@@ -1876,7 +1873,7 @@ and loads nothing.
         </div>
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-14T13:52:00-04:00">Picks as of Wednesday, October 14 — 1:52 PM ET</time></p>
         <div class="section-heading card-heading">
-          <h2 class="section-title" id="card-title">Today's Card</h2><span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW</span>
+          <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW</span></h2>
           <div class="card-heading-actions">
             <p class="section-note" id="sort-note">Ranked by confidence · ET</p>
             <div class="share-actions">
@@ -2031,9 +2028,9 @@ and loads nothing.
     </footer>
   </div>
 
-  <!-- Drill-down dossiers (Oct 13 pick games only). Content is the standalone
-       dossier files from sports-betting/dossiers/, verbatim in substance;
-       the script below moves each panel into its pick card behind a toggle. -->
+  <!-- Drill-down dossiers (pick games: Oct 13 graded + the Oct 14 card).
+       Content follows sports-betting/dossiers/README.md; the script below
+       moves each panel behind a toggle on its card / history row. -->
   <div class="dossier-store" hidden>
     <section class="dossier-panel" data-dossier-for="Delaware @ Middle Tennessee">
       <p class="d-sub">Conference USA · Tuesday, October 13, 2026 · 7:00 PM ET · Johnny “Red” Floyd Stadium, Murfreesboro, TN (outdoor)</p>
@@ -2379,6 +2376,261 @@ and loads nothing.
         <li><b>Staleness flag:</b> the only ratings table we hold for these teams is last season’s — excluded from the decision, which is why it appears above as captured-but-not-considered rather than silently absent.</li>
       </ul>
       <p class="d-fineprint">Generated from the pick card, decision snapshot, feature matrix, odds snapshots, intel log, and graded pick record for this game. Anything not in those files is shown as not captured — never filled in.</p>
+    </section>
+    <section class="dossier-panel" data-dossier-for="Kennesaw State @ Missouri State">
+      <p class="d-sub">Conference USA · Wednesday, October 14, 2026 · 7:30 PM ET · Robert W. Plaster Stadium, Springfield, MO (outdoor)</p>
+      <p class="d-state"><span class="d-state-lab">The Case · Locked</span><strong>Kennesaw State −3 (−111, Fanatics) · Conf 2 · 0.5u</strong>Locked at the 1:52 PM ET card. The verdict is appended at grading; this case is never edited.</p>
+      <div class="d-linestrip">
+        <div class="d-linebox"><span class="lab">Opened</span><span class="val">Not recorded</span><span class="det">No opening line in the pick file — the first housed number is ours</span></div>
+        <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">Kennesaw State −3</span><span class="det">Fanatics −111 · 1:52 PM ET card</span></div>
+        <div class="d-linebox"><span class="lab">Close</span><span class="val">—</span><span class="det">Lands at grading from our own pre-game snapshots</span></div>
+      </div>
+      <h3 class="d-h">The Story</h3>
+      <p class="d-story">Two 1-4 Conference USA teams in Springfield, and we laid the field goal with the road team for two independent reasons: the outside consensus — Action Network's best bet, with the Tony's Picks panel in strong agreement — and a run-game matchup, with Missouri State having allowed 30-plus points in four of five games and Kennesaw State's dual-threat quarterback Ricky Collins coming off 293 passing yards and 62 rushing yards against Jacksonville State. The honest counter is on the card too: a respected model makes this a 27-24 game, exactly the number we laid, so the push is live and the stake stayed at conf 2.</p>
+      <h3 class="d-h">The Evidence — everything we held, and whether it counted</h3>
+      <p class="d-group">Why we bet it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Outside consensus</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">Action Network's published best bet is Kennesaw State −3 or better; the Tony's Picks panel was in strong agreement on −3 (two official plays plus a lean).</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #1 — the snapshot's <i>sharp_consensus</i> tag; logged as intel claim #18 at 0.8 probability.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Run-game matchup — the talent gap</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">Missouri State has allowed 30+ points in four of five games and gives up heavy rushing yardage. Collins: 246 rushing yards and 4 rushing TDs this season, coming off 293 passing + 62 rushing against Jacksonville State.</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #2 — the snapshot's <i>talent_gap</i> tag. The favorites rule required two independent angles; these are the two.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Price &amp; staking math</span><span class="d-pill sup">Considered · Supported</span></div>
+        <p class="d-data">Breakeven 52.6% at −111 (Fanatics, best of the books RG.org tracks); our estimate 56% — a +3.4-point edge. Confidence 2 set the 0.5u stake.</p>
+        <p class="d-why"><b>Why it counted:</b> cleared the juice check, but sized down, not up — Kelly's conversion is more conservative than our estimate, and the card was capped at conf 2 with the season's favorites bucket (−110 to −199) underwater at 10-12.</p>
+      </div>
+      <p class="d-group">What we weighed against it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Counter-indicator — a model makes it exactly 3</span><span class="d-pill opp">Considered · Opposed</span></div>
+        <p class="d-data">SportsJaw's model projects Kennesaw State 27, Missouri State 24 — a margin right on the −3, so the push is live and there is no cushion beyond the key number. Kennesaw State is 1-4 with consecutive one-score losses.</p>
+        <p class="d-why"><b>Why it counted:</b> the step-9b pass shrank a would-be conf 3 to conf 2. No vs_sharp flag; turnover-luck: no flag with a passed backtest.</p>
+      </div>
+      <p class="d-group">What we had but didn't use</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Weather</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">Springfield coverage mentioned possible thunderstorms around the game (Tony's Picks); no wind or rain figure strong enough to price. The run's verified hourly pull was for Los Angeles, not Springfield.</p>
+        <p class="d-why"><b>Why not:</b> no weather edge claimed and not tagged weather_edge — noted in the pick file rather than left silent.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Entering records &amp; rest</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">Both teams 1-4. The feature matrix gives Kennesaw State 6 rest days to Missouri State's 5, and Missouri State a 3-3-0 entering ATS mark.</p>
+        <p class="d-why"><b>Why not:</b> captured in the matrix; neither the snapshot nor the written reasoning gives them a role.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Public betting splits</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">No splits recorded for this game; the pick card says “Splits via not recorded.”</p>
+        <p class="d-why"><b>Why not:</b> not captured for this game.</p>
+      </div>
+      <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
+      <p class="d-story">Not yet. This is Act 1 — the case exactly as locked at 1:52 PM ET. The verdict is appended here at grading, claim by claim; the case above is never edited after the fact.</p>
+      <h3 class="d-h">Data Quality — this game</h3>
+      <ul class="d-dq">
+        <li><b>Families in this dossier: 5 of 7 captured with data.</b> Missing: public betting splits for this game, and a recorded opening line.</li>
+        <li><b>Day data quality: YELLOW</b> in the run's own check (no red issues); the snapshot's context flags record <i>data_quality_yellow</i> and the card-wide conf-2 cap. The Q42 day data score for Oct 14 is computed on the completed slate — not yet available at lock.</li>
+        <li><b>Snapshot state: complete</b> — input_unverified is false, breakeven stored (52.6%), intel claim #18 carries its 0.8 probability, odds pull timestamped 1:50 PM ET.</li>
+        <li><b>Pending resolution: none flagged for this pick</b> — Collins is the confirmed starter and engine. What would change the read (from the pick file): Collins ruled out or limited, or the line reaching −3.5 at the major books.</li>
+      </ul>
+      <p class="d-fineprint">Built Wed Oct 14, 2026 — 2:52 PM ET. Act 1 (The Case), generated from the pick card and decision snapshot for this game. The verdict is appended at grading; anything not in those files is shown as not captured — never filled in.</p>
+    </section>
+    <section class="dossier-panel" data-dossier-for="Western Kentucky @ Sam Houston">
+      <p class="d-sub">Conference USA · Wednesday, October 14, 2026 · 8:00 PM ET · Elliott T. Bowers Stadium, Huntsville, TX (outdoor)</p>
+      <p class="d-state"><span class="d-state-lab">The Case · Locked</span><strong>Sam Houston +1.5 (−108, Bleacher Report odds listing) · Conf 2 · 0.5u</strong>Locked at the 1:52 PM ET card. The verdict is appended at grading; this case is never edited.</p>
+      <div class="d-linestrip">
+        <div class="d-linebox"><span class="lab">The market</span><span class="val">Split both ways</span><span class="det">FanDuel listed Sam Houston −1.5; Bleacher Report listed Western Kentucky −1.5</span></div>
+        <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">Sam Houston +1.5</span><span class="det">Bleacher Report listing −108 · 1:52 PM ET card</span></div>
+        <div class="d-linebox"><span class="lab">Close</span><span class="val">—</span><span class="det">Lands at grading from our own pre-game snapshots</span></div>
+      </div>
+      <h3 class="d-h">The Story</h3>
+      <p class="d-story">The market couldn't agree on this game — one major listing made Sam Houston the favorite, another made Western Kentucky the favorite — and our models were firmer than both: the ensemble makes Sam Houston −2.7 and v0.2 makes it −4.4 at home. So we took the +1.5. The matchup supports it: Western Kentucky owns the nation's worst run defense, and Sam Houston's Landyn Locke (11 TD, 3 INT) runs the offense that attacks it. The counters are real — two true freshmen on Sam Houston's left side, a 35-3 loss last week, and an unconfirmed WKU quarterback — which is why this is conf 2 and not more.</p>
+      <h3 class="d-h">The Evidence — everything we held, and whether it counted</h3>
+      <p class="d-group">Why we bet it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Models — a 4.2-point disagreement</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">Ensemble: Sam Houston −2.7. Model v0.2: Sam Houston −4.4 (total 54.7). The market split between Western Kentucky −1.5 and Sam Houston −1.5 depending on the book; we hold +1.5.</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #1 — the snapshot's <i>model_edge</i> tag; both model outputs are stored in the snapshot.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Consensus &amp; the run-defense matchup</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">VSIN, USA Today College SportsWire and SportsGambler all take Sam Houston. Western Kentucky allows about 6 yards per carry — the nation's worst run defense, per VSIN. Locke: 11 TD against 3 INT.</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #2 — the snapshot's <i>sharp_consensus</i> tag; logged as intel claim #19 at 0.75 probability.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Price &amp; staking math</span><span class="d-pill sup">Considered · Supported</span></div>
+        <p class="d-data">Breakeven 51.9% at −108; our estimate 55% — a +3.1-point edge. Confidence 2, 0.5u.</p>
+        <p class="d-why"><b>Why it counted:</b> cleared the juice check — and the +1.5 itself is the value; the pick file is explicit that the team at any price is not the play.</p>
+      </div>
+      <p class="d-group">What we weighed against it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Counter-indicator — freshmen, a blowout loss, and the other QB</span><span class="d-pill opp">Considered · Opposed</span></div>
+        <p class="d-data">Sam Houston starts two true freshmen on the left side of its offensive line (Bearkat Bites) and lost 35-3 at Liberty last week. If Brock Glenn starts for Western Kentucky, his mobility (95 rushing yards against Missouri State) attacks a Sam Houston defense allowing 5.5 yards per carry.</p>
+        <p class="d-why"><b>Why it counted:</b> the step-9b pass shrank this to conf 2. No vs_sharp — the consensus is with us.</p>
+      </div>
+      <p class="d-group">What we had but didn't use</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Weather</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">~79°F at kickoff, clear, wind ~9 mph (Bleacher Report game page, Huntsville).</p>
+        <p class="d-why"><b>Why not:</b> below every threshold — no weather edge.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Entering records &amp; rest</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">Western Kentucky 2-4, Sam Houston 1-4; rest even at five days each in the feature matrix; Sam Houston's entering ATS mark 3-2-0.</p>
+        <p class="d-why"><b>Why not:</b> captured; no documented role in the decision.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Public betting splits</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">No splits recorded for this game; the pick card says “Splits via not recorded.”</p>
+        <p class="d-why"><b>Why not:</b> not captured for this game.</p>
+      </div>
+      <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
+      <p class="d-story">Not yet. This is Act 1 — the case exactly as locked at 1:52 PM ET. The verdict is appended here at grading, claim by claim; the case above is never edited after the fact.</p>
+      <h3 class="d-h">Data Quality — this game</h3>
+      <ul class="d-dq">
+        <li><b>Families in this dossier: 6 of 7 captured with data.</b> Missing: public betting splits for this game.</li>
+        <li><b>Day data quality: YELLOW</b> in the run's own check (no red issues); the Q42 day data score for Oct 14 is computed on the completed slate — not yet available at lock.</li>
+        <li><b>Snapshot state: complete</b> — input_unverified is false, breakeven stored (51.9%), intel claim #19 carries its 0.75 probability, odds pull timestamped 1:50 PM ET.</li>
+        <li><b>Pending resolution:</b> Western Kentucky had not confirmed its starting quarterback at lock (Glenn vs Tisdale Jr.) — a fact this bet's counter-case turns on. The snapshot carries no pending-resolution flag (a process miss, logged for the overnight run); a pregame confirmation check is scheduled for 7:15 PM ET to verify the starter and that +1.5 is still gettable (Q39).</li>
+      </ul>
+      <p class="d-fineprint">Built Wed Oct 14, 2026 — 2:52 PM ET. Act 1 (The Case), generated from the pick card and decision snapshot for this game. The verdict is appended at grading; anything not in those files is shown as not captured — never filled in.</p>
+    </section>
+    <section class="dossier-panel" data-dossier-for="Brewers @ Dodgers">
+      <p class="d-sub">MLB · NLCS Game 3 · Wednesday, October 14, 2026 · 8:00 PM ET · Dodger Stadium, Los Angeles (outdoor) · Milwaukee leads the series 2-0</p>
+      <p class="d-state"><span class="d-state-lab">The Case · Locked</span><strong>Under 7.5 (−114, DraftKings) · Conf 2 · 0.5u</strong>Locked at the 1:52 PM ET card. The verdict is appended at grading; this case is never edited.</p>
+      <div class="d-linestrip">
+        <div class="d-linebox"><span class="lab">Opened</span><span class="val">Not recorded</span><span class="det">No opening total in the pick file — the first housed number is ours</span></div>
+        <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">Under 7.5</span><span class="det">DraftKings −114 (FanDuel −118) · 1:52 PM ET card</span></div>
+        <div class="d-linebox"><span class="lab">Close</span><span class="val">—</span><span class="det">Lands at grading from our own pre-game snapshots</span></div>
+      </div>
+      <h3 class="d-h">The Story</h3>
+      <p class="d-story">Milwaukee's bullpen has allowed one earned run through six postseason games, both of the first two games of this series turned into bullpen games by the fifth inning, and Game 1 finished 2-1. That's the spine of this under, with Blake Snell (1.90 ERA in nine regular-season starts) facing Robert Gasser — and the Tony's Picks panel's strongest position of the day behind it. The counters are named on the card: Snell's last start was a walk-fest, Gasser has been hit by the Dodgers before, and Game 2 produced 11 runs. Conf 2, not more.</p>
+      <h3 class="d-h">The Evidence — everything we held, and whether it counted</h3>
+      <p class="d-group">Why we bet it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Pitching &amp; bullpens</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">Snell: 1.90 ERA across nine regular-season starts. Gasser: 3.87 ERA. Milwaukee's bullpen: one earned run allowed through six postseason games; Games 1-2 both became bullpen games by the fifth inning.</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #1 — the snapshot's <i>pitching_matchup</i> tag, which is 3-1 on the season; logged as intel claim #20 at 0.8 probability.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Panel consensus &amp; series form</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">The Tony's Picks panel's strongest position was Under 7.5 (three of four cappers). Game 1 finished 2-1. The Dodgers' offense is scuffling — Ohtani 3-for-20 this postseason (RG.org).</p>
+        <p class="d-why"><b>Why it counted:</b> lead angle #2 — the snapshot's <i>sharp_consensus</i> tag.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Injuries &amp; lineup</span><span class="d-pill sup">Considered · Supported</span></div>
+        <p class="d-data">Ohtani is managing a left knee issue (RG.org). No other absence reported in the Game 3 previews checked.</p>
+        <p class="d-why"><b>Why it counted:</b> supporting color only — the pick file states injury/intel notes support rather than lead on this system, and the snapshot carries no injury tag for this pick.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Price &amp; staking math</span><span class="d-pill sup">Considered · Supported</span></div>
+        <p class="d-data">Breakeven 53.3% at −114 (DraftKings listing via SI; FanDuel −118); our estimate 56% — a +2.7-point edge. Confidence 2, 0.5u. The 7.5's push-free cushion is part of the play.</p>
+        <p class="d-why"><b>Why it counted:</b> cleared the juice check at the better of the two housed prices.</p>
+      </div>
+      <p class="d-group">What we weighed against it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Counter-indicator — command and history</span><span class="d-pill opp">Considered · Opposed</span></div>
+        <p class="d-data">Snell walked five in 3.2 innings in his NLDS start — a real command mechanism against an under. Gasser's career numbers against the Dodgers are poor (SportsbookWire splits). Game 2 also produced 11 runs.</p>
+        <p class="d-why"><b>Why it counted:</b> the step-9b pass shrank this to conf 2; the bullpen profile, the Game 1 script and the panel consensus carry it.</p>
+      </div>
+      <p class="d-group">What we had but didn't use</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Home-plate umpire</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">The NLCS Game 3 assignment was not posted in the sources or data checked at card time; data/ref_tendencies.json carries no assignment for this game.</p>
+        <p class="d-why"><b>Why not:</b> not captured at lock — noted in the pick file (step 6b) rather than left silent.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Weather</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">~70°F at first pitch, clear, wind ~3 mph, rain 0% (Weather.com hourly, Los Angeles).</p>
+        <p class="d-why"><b>Why not:</b> neutral — no weather edge claimed.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Public betting splits</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">No splits recorded for this game; the pick card says “Splits via not recorded.”</p>
+        <p class="d-why"><b>Why not:</b> not captured for this game.</p>
+      </div>
+      <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
+      <p class="d-story">Not yet. This is Act 1 — the case exactly as locked at 1:52 PM ET. The verdict is appended here at grading, claim by claim; the case above is never edited after the fact.</p>
+      <h3 class="d-h">Data Quality — this game</h3>
+      <ul class="d-dq">
+        <li><b>Families in this dossier: 6 of 8 captured with data.</b> Missing: the home-plate umpire assignment, and public betting splits for this game.</li>
+        <li><b>Day data quality: YELLOW</b> in the run's own check (no red issues); the Q42 day data score for Oct 14 is computed on the completed slate — not yet available at lock.</li>
+        <li><b>Snapshot state: complete</b> — input_unverified is false, breakeven stored (53.3%), intel claim #20 carries its 0.8 probability, odds pull timestamped 1:50 PM ET.</li>
+        <li><b>Pending resolution:</b> Snell and Gasser were the announced pairing at lock; a late pitching change on either side is this pick's stated kill condition, and the total dropping to 7.0 at the majors ends the play. The 7:15 PM ET pregame check re-verifies both starters (Q39). The umpire assignment was still unposted at lock.</li>
+      </ul>
+      <p class="d-fineprint">Built Wed Oct 14, 2026 — 2:52 PM ET. Act 1 (The Case), generated from the pick card and decision snapshot for this game. The verdict is appended at grading; anything not in those files is shown as not captured — never filled in.</p>
+    </section>
+    <section class="dossier-panel" data-dossier-for="Stars @ Avalanche">
+      <p class="d-sub">NHL · Wednesday, October 14, 2026 · 8:30 PM ET · Ball Arena, Denver (indoor)</p>
+      <p class="d-state"><span class="d-state-lab">The Case · Locked</span><strong>Stars moneyline (+130, FanDuel) · Conf 1 · 0.25u</strong>Locked at the 1:52 PM ET card. The verdict is appended at grading; this case is never edited.</p>
+      <div class="d-linestrip">
+        <div class="d-linebox"><span class="lab">Morning</span><span class="val">+130 to +132</span><span class="det">FanDuel, tracked via RG.org / FanDuel Research across the morning</span></div>
+        <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">Stars ML +130</span><span class="det">FanDuel · 1:52 PM ET card</span></div>
+        <div class="d-linebox"><span class="lab">Close</span><span class="val">—</span><span class="det">Lands at grading from our own pre-game snapshots</span></div>
+      </div>
+      <h3 class="d-h">The Story</h3>
+      <p class="d-story">A thin edge at a good price — the conf 1 definition. Both teams played last night (Colorado won 3-2 in Dallas), but Colorado is the short-benched side: Cale Makar missed last night for personal reasons and is a game-time decision, Zachary L'Heureux was out, and the Avalanche skated 17 men. In net it's confirmed Casey DeSmith (.923 in his one start) against likely Scott Wedgewood (.897), and Dallas out-shot and out-hit Colorado in the loss. The stake is the card's smallest because the counters — Wedgewood's history against Dallas, altitude on night two, and Dallas missing Wyatt Johnston — are as real as the spot.</p>
+      <h3 class="d-h">The Evidence — everything we held, and whether it counted</h3>
+      <p class="d-group">Why we bet it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Price &amp; the short-bench spot</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">RG.org flagged the Stars moneyline as the standout price on its five-book board this morning. Both teams are on a back-to-back (the feature matrix confirms it), but Colorado played with 17 skaters last night: Makar (personal) a game-time decision, L'Heureux (upper body) out.</p>
+        <p class="d-why"><b>Why it counted:</b> the lead angle — the snapshot's <i>schedule_spot</i> tag; the lineup facts are logged as intel claim #21 at 0.75 probability.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Goalies</span><span class="d-pill led">Considered · Led</span></div>
+        <p class="d-data">Casey DeSmith (Stars) is confirmed: .923 save percentage, 2.06 GAA in his one start. Scott Wedgewood (Avalanche) is the likely starter: .897 in his one start. Dallas also out-shot and out-hit Colorado last night and scored on its only power play in the 3-2 loss.</p>
+        <p class="d-why"><b>Why it counted:</b> the second leg of the spot — a confirmed-vs-likely goalie gap in our favor.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Price &amp; staking math</span><span class="d-pill sup">Considered · Supported</span></div>
+        <p class="d-data">Breakeven 43.5% at +130; our estimate 46% — a +2.5-point edge. Honest note from the pick file: numberFire's estimate (Avalanche 56.6%) puts Dallas essentially on the breakeven, so the edge rests on the goalie/lineup spot.</p>
+        <p class="d-why"><b>Why it counted:</b> cleared the juice check, sized at the conf-1 minimum (0.25u) precisely because the edge is thin.</p>
+      </div>
+      <p class="d-group">What we weighed against it</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Counter-indicator — Wedgewood's history, altitude, Johnston</span><span class="d-pill opp">Considered · Opposed</span></div>
+        <p class="d-data">Wedgewood was excellent against Dallas last season (1.30 GAA across four appearances, per SportsbookWire) — a direct mechanism against us. Colorado is at home at altitude on the second night. Dallas is without Wyatt Johnston (illness, per SportsbookWire).</p>
+        <p class="d-why"><b>Why it counted:</b> the step-9b pass shrank this to conf 1; the price keeps it on the card.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">The injury tag's record</span><span class="d-pill opp">Considered · Opposed</span></div>
+        <p class="d-data">Our injury_edge tag is 3-9 on the season, and under the Q49 audit it carries zero directional weight on its own.</p>
+        <p class="d-why"><b>Why it counted:</b> the lineup facts here only support the schedule spot — the pick file marks them “supporting only,” and the snapshot's injury_edge tag leads nothing.</p>
+      </div>
+      <p class="d-group">What we had but didn't use</p>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">The retracted back-to-back angle</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">Both teams on a back-to-back is this pick's context — but the NHL October B2B under angle is retracted (dead in the modern era), and this is a moneyline, not a total.</p>
+        <p class="d-why"><b>Why not:</b> explicitly not used, per the pick file — named here so the B2B context is never mistaken for that angle.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Models</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">The snapshot carries no NHL model output for this game (model fields null); the one outside estimate, numberFire's, is accounted for in the price row as a caution.</p>
+        <p class="d-why"><b>Why not:</b> no model number played a role in the decision.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Weather</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">Indoor — Ball Arena.</p>
+        <p class="d-why"><b>Why not:</b> not applicable.</p>
+      </div>
+      <div class="d-row">
+        <div class="d-rowhead"><span class="d-fam">Public betting splits</span><span class="d-pill not">Not considered</span></div>
+        <p class="d-data">No splits recorded for this game; the pick card says “Splits via not recorded.”</p>
+        <p class="d-why"><b>Why not:</b> not captured for this game.</p>
+      </div>
+      <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
+      <p class="d-story">Not yet. This is Act 1 — the case exactly as locked at 1:52 PM ET. The verdict is appended here at grading, claim by claim; the case above is never edited after the fact.</p>
+      <h3 class="d-h">Data Quality — this game</h3>
+      <ul class="d-dq">
+        <li><b>Families in this dossier: 8 of 9 captured with data.</b> Missing: public betting splits for this game.</li>
+        <li><b>Day data quality: YELLOW</b> in the run's own check (no red issues); the Q42 day data score for Oct 14 is computed on the completed slate — not yet available at lock.</li>
+        <li><b>Snapshot state: complete</b> — input_unverified is false, breakeven stored (43.5%), intel claim #21 carries its 0.75 probability, odds pull timestamped 1:50 PM ET.</li>
+        <li><b>Pending resolution:</b> two facts were open at lock — Makar's game-time decision and Colorado's starter (Wedgewood likely, Blackwood possible). The pick's stated kill condition (Makar in plus a Blackwood start, or the price below +120) is exactly what the 7:15 PM ET pregame check tests (Q39).</li>
+      </ul>
+      <p class="d-fineprint">Built Wed Oct 14, 2026 — 2:52 PM ET. Act 1 (The Case), generated from the pick card and decision snapshot for this game. The verdict is appended at grading; anything not in those files is shown as not captured — never filled in.</p>
     </section>
   </div>
 
@@ -2811,11 +3063,11 @@ and loads nothing.
 
       renderVisibleCards();
 
-      // Drill-down dossiers: move each stored panel into the pick card whose
-      // matchup it names (Oct 13 pick games only), behind a toggle button.
-      // Runs once, right after the cards render, so filters/sort/live code
-      // all see the finished cards.
-      (function attachDrillDowns() {
+      // Drill-down dossiers: move each stored panel behind a toggle on the
+      // card (today's grid) or the history row (graded days) whose matchup
+      // it names. Called once, after both renders (see the call site), so
+      // filters/sort/live code all see the finished cards.
+      function attachDrillDowns() {
         var store = document.querySelector('.dossier-store');
         if (!store) return;
         var pill = document.getElementById('dossier-pill');
@@ -2890,6 +3142,7 @@ and loads nothing.
           var matchup = card.getAttribute('data-away') + ' @ ' + card.getAttribute('data-home');
           var panel = panels[matchup];
           if (!panel) return;
+          delete panels[matchup]; // consumed: the history pass must not re-take it
           var panelId = 'dossier-' + index;
           var toggle = document.createElement('button');
           toggle.type = 'button';
@@ -2929,9 +3182,57 @@ and loads nothing.
           card.appendChild(toggle);
           card.appendChild(wrap);
         });
+
+        // Graded days render as history rows, not grid cards — without this
+        // pass their panels match nothing and are discarded with the store
+        // (the 2026-10-14 launch-day defect). Same toggles, same pill, same
+        // scroll restoration, shared entries list.
+        document.querySelectorAll('#history-list .history-pick[data-matchup]').forEach(function (row, hIndex) {
+          var panel = panels[row.getAttribute('data-matchup')];
+          if (!panel) return;
+          delete panels[row.getAttribute('data-matchup')];
+          var panelId = 'dossier-h' + hIndex;
+          var toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'drill-toggle';
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-controls', panelId);
+          toggle.innerHTML = '<span>Drill down — the full dossier</span><span class="drill-chevron" aria-hidden="true">⌄</span>';
+          var wrap = document.createElement('div');
+          wrap.className = 'dossier';
+          wrap.id = panelId;
+          wrap.hidden = true;
+          wrap.appendChild(panel);
+          var entry = { card: row, toggle: toggle, wrap: wrap, panel: panel };
+          entries.push(entry);
+          var endClose = document.createElement('button');
+          endClose.type = 'button';
+          endClose.className = 'dossier-end-close';
+          endClose.textContent = '✕ Close dossier';
+          endClose.setAttribute('aria-controls', panelId);
+          endClose.addEventListener('click', function () {
+            closeEntry(entry, true);
+          });
+          panel.appendChild(endClose);
+          toggle.addEventListener('click', function () {
+            var open = toggle.getAttribute('aria-expanded') === 'true';
+            if (open) {
+              closeEntry(entry, false);
+              savedScrollY = null;
+            } else {
+              var anyOpen = entries.some(function (e) { return !e.wrap.hidden; });
+              if (!anyOpen) savedScrollY = window.scrollY;
+              closeOthers(entry);
+              setOpen(entry, true);
+              updatePill();
+            }
+          });
+          row.after(toggle);
+          toggle.after(wrap);
+        });
         updatePill();
         store.remove();
-      })();
+      }
 
       function allPicks() {
         return BRUTUS_DATA.days.reduce(function (accumulator, day) {
@@ -2973,7 +3274,11 @@ and loads nothing.
           if (pick.result === 'win') summary.wins += 1;
           if (pick.result === 'loss') summary.losses += 1;
           if (pick.result === 'push') summary.pushes += 1;
-          if (pick.result === 'win' || pick.result === 'loss' || pick.result === 'push') summary.risked += getStake(pick);
+          // House convention (pick_tracker / angle_scorecard): a push refunds
+          // the stake, so pushes never count toward staked. Every ROI and
+          // staked total on this page uses this one denominator — the
+          // canonical season line (+0.33u on 15.25u staked, not 15.75u).
+          if (pick.result === 'win' || pick.result === 'loss') summary.risked += getStake(pick);
           summary.units = roundUnits(summary.units + profitForPick(pick));
           return summary;
         }, { wins: 0, losses: 0, pushes: 0, risked: 0, units: 0 });
@@ -3079,7 +3384,7 @@ and loads nothing.
             '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
             '<div class="history-details"' + (open ? '' : ' hidden') + '>' + day.picks.map(function (pick, index) {
               var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : 'P') + ' ' + signedUnits(profitForPick(pick));
-              return '<div class="history-pick"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';
+              return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';
             }).join('') + '</div></article>';
         }).join('');
 
@@ -3110,6 +3415,7 @@ and loads nothing.
 
       renderStats();
       renderHistory();
+      attachDrillDowns();
 
       var buttons = document.querySelectorAll('.filter');
       var cards = document.querySelectorAll('.pick-card');

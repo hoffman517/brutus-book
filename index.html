@@ -1621,6 +1621,7 @@
       text-transform: uppercase;
     }
 
+    .breakdown-note { margin: -8px 2px 12px; color: var(--muted); font-size: .7rem; line-height: 1.5; }
     .breakdown-list { display: grid; gap: 8px; }
     .breakdown-row {
       display: grid;
@@ -1970,9 +1971,9 @@ and loads nothing.
         <div class="performance-grid">
           <article class="performance-card"><h3>By sport</h3><div class="breakdown-list" id="sport-breakdown"></div></article>
           <article class="performance-card"><h3>By bet type</h3><div class="breakdown-list" id="type-breakdown"></div></article>
-          <article class="performance-card"><h3>By confidence</h3><div class="breakdown-list" id="confidence-breakdown"></div></article>
+          <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
           <article class="performance-card"><h3>By date</h3><div class="breakdown-list" id="date-breakdown"></div></article>
-          <article class="performance-card"><h3>By odds</h3><div class="breakdown-list" id="odds-breakdown"></div></article>
+          <article class="performance-card"><h3>By odds</h3><p class="breakdown-note">By the price on our ticket — totals included: Favorites −101 or shorter · Pick'em −100 to +109 · Dogs +110 or longer.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
           <article class="performance-card"><h3>Last 10 picks</h3><div class="form-strip" id="last-ten" aria-label="Last 10 graded picks"></div><p class="source-note" id="form-note">No graded picks yet.</p></article>
         </div>
       </section>

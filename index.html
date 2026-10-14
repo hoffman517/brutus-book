@@ -1021,6 +1021,15 @@
     }
 
     .drill-toggle:hover { color: #ff5b5b; }
+    /* In the History list the toggle sits under a compact one-line row —
+       it must read as a button, not a caption: full bar, border, fill. */
+    #history-list .drill-toggle {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid #2e4038;
+      border-radius: 10px;
+      background: #101613;
+    }
     .drill-toggle .drill-chevron { font-size: 1rem; transition: transform .18s ease; }
     .drill-toggle[aria-expanded="true"] .drill-chevron { transform: rotate(180deg); }
 
@@ -2030,7 +2039,7 @@ and loads nothing.
   <div class="dossier-store" hidden>
     <section class="dossier-panel" data-dossier-for="Delaware @ Middle Tennessee">
       <p class="d-sub">Conference USA · Tuesday, October 13, 2026 · 7:00 PM ET · Johnny “Red” Floyd Stadium, Murfreesboro, TN (outdoor)</p>
-      <p class="d-state win"><span class="d-state-lab">Final</span><strong>MTSU 33, Delaware 30 — WIN</strong>The home dog won outright · grading pending (scheduled tonight)</p>
+      <p class="d-state win"><span class="d-state-lab">Final</span><strong>MTSU 33, Delaware 30 — WIN</strong>The home dog won outright · graded +0.68u</p>
       <div class="d-linestrip">
         <div class="d-linebox"><span class="lab">Opened</span><span class="val">MTSU +2.5</span><span class="det">Monday buyback point, via Action Network</span></div>
         <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">MTSU +1.5</span><span class="det">FanDuel −110 · 1:52 PM ET card</span></div>
@@ -2183,10 +2192,11 @@ and loads nothing.
         <p class="d-why"><b>Why not:</b> no rest edge either way, and the weather sat below every threshold.</p>
       </div>
       <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
-      <div class="d-vrow"><div class="vt"><div class="t">Defense + the +3</div><div class="d">Game still live at build (FIU up 30-24, 9:37 left in the 4th). Verdict lands at the final; grading is scheduled tonight.</div></div><span class="d-pill meh">Pending</span></div>
-      <div class="d-vrow"><div class="vt"><div class="t">Model dissent (ensemble leaned Jax State)</div><div class="d">The ensemble’s side is losing at build — but the game isn’t final, and neither is this verdict.</div></div><span class="d-pill meh">Pending</span></div>
-      <div class="d-vrow"><div class="vt"><div class="t">FIU’s road-offense flag</div><div class="d">FIU has 30 points on the road so far tonight — against a flag built on 19 points across two road games. Settled at the final.</div></div><span class="d-pill meh">Pending</span></div>
-      <div class="d-vrow"><div class="vt"><div class="t">Moneyline steam toward Jax State</div><div class="d">The steam side trails late. Pending the final whistle.</div></div><span class="d-pill meh">Pending</span></div>
+      <p class="d-why"><b>Act 2 appended Wed Oct 14, 2026 at grading.</b> At first build (Tue Oct 13, 10:47 PM ET) the game was still live and every row below read Pending. One correction the final exposed: Act 1’s live line had FIU up 30-24 — FIU scored 24 all game, so the live state captured at build was wrong. The graded final is Jax State 27, FIU 24.</p>
+      <div class="d-vrow"><div class="vt"><div class="t">Defense + the +3</div><div class="d">Final: Jax State 27, FIU 24 — a loss by exactly three. The full field goal we shopped for (BetRivers, DraftKings and Fanatics held +3; FanDuel hung only +2.5) turned a loss into a push and a refunded stake. The defense half was shakier — Jax State’s 27 points more than doubled FIU’s 12.2-points-allowed average — but the number, the part we could shop, did its job exactly.</div></div><span class="d-pill right">Right</span></div>
+      <div class="d-vrow"><div class="vt"><div class="t">Model dissent (ensemble leaned Jax State)</div><div class="d">The ensemble leaned Jax State −4.4, and Jax State won the game — the dissent read the side correctly and earned the cut to Confidence 2 and a half unit. Its margin overshot (Jax State won by 3, not 4.4), so against the +3 the pick still pushed: right about the winner, wrong about the cover.</div></div><span class="d-pill right">Right</span></div>
+      <div class="d-vrow"><div class="vt"><div class="t">FIU’s road-offense flag</div><div class="d">FIU scored 24 on the road — clear of the 19 points across the two road losses the flag was built on, so the collapse never came; 24 still wasn’t enough to win. The game was decided by Jax State’s offense against the +3, not by this flag.</div></div><span class="d-pill meh">Didn’t matter</span></div>
+      <div class="d-vrow"><div class="vt"><div class="t">Moneyline steam toward Jax State</div><div class="d">The steam was right: the money ran to −162 and Jax State won outright. It cost the bet nothing — the +3 absorbed the exact 3-point margin and the stake came back.</div></div><span class="d-pill right">Right</span></div>
       <h3 class="d-h">Data Quality — this game</h3>
       <ul class="d-dq">
         <li><b>Families in this dossier: 8 of 11 captured with data.</b> Missing: public betting splits, a tracked-handicapper pick, and a recorded probability on intel claim #15.</li>
@@ -2267,9 +2277,10 @@ and loads nothing.
         <p class="d-why"><b>Why not:</b> not applicable.</p>
       </div>
       <h3 class="d-h">Post-Game Verdict — did the evidence prove right?</h3>
-      <div class="d-vrow"><div class="vt"><div class="t">Model projection (6.14 runs)</div><div class="d">Four runs through eight innings is on pace — but the game is live (top of the 9th at build). Verdict at the final; grading is scheduled tonight.</div></div><span class="d-pill meh">Pending</span></div>
-      <div class="d-vrow"><div class="vt"><div class="t">Pitching matchup</div><div class="d">Settled at the final.</div></div><span class="d-pill meh">Pending</span></div>
-      <div class="d-vrow"><div class="vt"><div class="t">Messick’s command flag</div><div class="d">Whether the walk risk showed up is a final-box-score question. Pending.</div></div><span class="d-pill meh">Pending</span></div>
+      <p class="d-why"><b>Act 2 appended Wed Oct 14, 2026 at grading.</b> At first build (Tue Oct 13, 10:47 PM ET) the game was in the top of the 9th and every row below read Pending. Final: Rays 3, Guardians 1 — the under won, +0.43u.</p>
+      <div class="d-vrow"><div class="vt"><div class="t">Model projection (6.14 runs)</div><div class="d">Final total: 4 runs (Rays 3, Guardians 1) — under the model’s 6.14 projection and never close to the 7 we bought. Direction and magnitude both held.</div></div><span class="d-pill right">Right</span></div>
+      <div class="d-vrow"><div class="vt"><div class="t">Pitching matchup</div><div class="d">The game played to the matchup we bet: four total runs and no big inning from either lineup. The Messick–Peralta pairing was the game.</div></div><span class="d-pill right">Right</span></div>
+      <div class="d-vrow"><div class="vt"><div class="t">Messick’s command flag</div><div class="d">The flagged risk — ALDS walk trouble fueling a crooked inning — never turned into runs: Cleveland allowed 3 all night and the under was never in danger. Messick’s walk count isn’t in our captured files, so the command question itself stays ungraded; what the bet needed — no runs — is what happened.</div></div><span class="d-pill meh">Didn’t matter</span></div>
       <h3 class="d-h">Data Quality — this game</h3>
       <ul class="d-dq">
         <li><b>Families in this dossier: 9 of 11 captured with data.</b> Missing: the home-plate umpire assignment, and a recorded probability on intel claim #16.</li>
@@ -3236,6 +3247,19 @@ and loads nothing.
           row.after(toggle);
           toggle.after(wrap);
         });
+
+        // Leaving the view leaves the dossier (2026-10-14): a tab switch
+        // closes any open dossier and hides the pill — the pill may only
+        // float over the view that contains its open dossier.
+        document.querySelectorAll('.tab-button').forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            entries.forEach(function (entry) {
+              if (!entry.wrap.hidden) setOpen(entry, false);
+            });
+            savedScrollY = null;
+            updatePill();
+          });
+        });
         updatePill();
         store.remove();
       }
@@ -3636,7 +3660,7 @@ and loads nothing.
         context.font = '500 28px "IBM Plex Sans", sans-serif';
         var layouts = PICKS.map(function (pick) {
           var whyLines = wrapTextLines(context, pick.why, contentWidth - 112);
-          return { whyLines: whyLines, height: 176 + Math.max(0, whyLines.length - 1) * 36 + 32 };
+          return { whyLines: whyLines, height: 200 + Math.max(0, whyLines.length - 1) * 36 + 30 };
         });
         var picksHeight = layouts.reduce(function (sum, layout) { return sum + layout.height; }, 0) + (Math.max(0, PICKS.length - 1) * pickGap);
         var footerY = firstPickY + picksHeight + 24;
@@ -3714,23 +3738,23 @@ and loads nothing.
 
           context.textAlign = 'right';
           context.fillStyle = '#BB0000';
-          fittedFont(context, pick.line, '700', 42, '"Bebas Neue", Impact, sans-serif', 360);
-          context.fillText(pick.line, width - left, y + 68);
+          fittedFont(context, pick.line, '700', 42, '"Bebas Neue", Impact, sans-serif', 330);
+          context.fillText(pick.line, width - left - 14, y + 68);
           context.fillStyle = '#d7dde1';
           context.font = '800 21px "IBM Plex Sans", sans-serif';
-          context.fillText(pick.odds, width - left, y + 101);
+          context.fillText(pick.odds, width - left - 14, y + 101);
           context.fillStyle = '#aeb8b3';
           context.font = '700 17px "IBM Plex Sans", sans-serif';
-          context.fillText(pick.bet + ' · ' + new Array(pick.conf + 1).join('★') + new Array(6 - pick.conf).join('☆') + ' · ' + pick.conf + '/5', width - left, y + 129);
+          context.fillText(pick.bet + ' · ' + new Array(pick.conf + 1).join('★') + new Array(6 - pick.conf).join('☆') + ' · ' + pick.conf + '/5', width - left - 14, y + 129);
           context.fillStyle = '#98a49e';
           context.font = '700 17px "IBM Plex Sans", sans-serif';
-          context.fillText(stakeShort(pick) + (pick.book ? ' · ' + pick.book : ''), width - left, y + 157);
+          context.fillText(stakeShort(pick) + (pick.book ? ' · ' + pick.book : ''), width - left - 14, y + 158);
 
           context.textAlign = 'left';
           context.fillStyle = '#aeb7bd';
           context.font = '500 28px "IBM Plex Sans", sans-serif';
           layout.whyLines.forEach(function (textLine, lineIndex) {
-            context.fillText(textLine, left + 91, y + 176 + (lineIndex * 36));
+            context.fillText(textLine, left + 91, y + 200 + (lineIndex * 36));
           });
         });
 

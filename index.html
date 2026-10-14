@@ -4583,7 +4583,7 @@ and loads nothing.
           if (document.visibilityState !== 'hidden') startPolling();
           document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'hidden') stopPolling();
-            else startPolling();
+            else { refreshLiveScores(); startPolling(); }
           });
         }
       } catch (error) { /* silent fallback: live module never breaks the page */ }

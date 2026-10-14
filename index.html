@@ -1924,7 +1924,7 @@ and loads nothing.
               <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
-            <p class="matchup">Kennesaw State @ Missouri State</p>
+            <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_kenn.png" alt="Kennesaw State logo" width="34" height="34"></span><p class="matchup">Kennesaw State @ Missouri State</p><span class="team-logo"><img src="assets/team_logos/ncaaf_most.png" alt="Missouri State logo" width="34" height="34"></span></div>
             
             <div class="wager-line"><span class="bet">KENNESAW STATE -3</span><span class="odds">−111</span><span class="price-book">Price: Fanatics</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
             <p class="conditions">Outdoor · Springfield, MO · No weather edge claimed</p>
@@ -1938,7 +1938,7 @@ and loads nothing.
               <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
-            <p class="matchup">Western Kentucky @ Sam Houston</p>
+            <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_wku.png" alt="Western Kentucky logo" width="34" height="34"></span><p class="matchup">Western Kentucky @ Sam Houston</p><span class="team-logo"><img src="assets/team_logos/ncaaf_shsu.png" alt="Sam Houston logo" width="34" height="34"></span></div>
             
             <div class="wager-line"><span class="bet">SAM HOUSTON +1.5</span><span class="odds">−108</span><span class="price-book">Price: Bleacher Report odds listing</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
             <p class="conditions">Outdoor · ~79°F, clear · Wind 9 mph</p>
@@ -1952,7 +1952,7 @@ and loads nothing.
               <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
-            <p class="matchup">Brewers @ Dodgers</p>
+            <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/mlb_mil.png" alt="Milwaukee Brewers logo" width="34" height="34"></span><p class="matchup">Brewers @ Dodgers</p><span class="team-logo"><img src="assets/team_logos/mlb_lad.png" alt="Los Angeles Dodgers logo" width="34" height="34"></span></div>
             <p class="series-line">NLCS · Game 3 · MIL leads series 2–0</p>
             <div class="wager-line"><span class="bet">UNDER 7.5</span><span class="odds">−114</span><span class="price-book">Price: DraftKings</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Total</span></div>
             <p class="conditions">Dodger Stadium · Outdoor · ~70°F, clear · Wind 3 mph</p>
@@ -1966,7 +1966,7 @@ and loads nothing.
               <div class="confidence" aria-label="Confidence 1 out of 5"><i class="on"></i><i></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
-            <p class="matchup">Stars @ Avalanche</p>
+            <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/nhl_dal.png" alt="Dallas Stars logo" width="34" height="34"></span><p class="matchup">Stars @ Avalanche</p><span class="team-logo"><img src="assets/team_logos/nhl_col.png" alt="Colorado Avalanche logo" width="34" height="34"></span></div>
             
             <div class="wager-line"><span class="bet">STARS ML</span><span class="odds">+130</span><span class="price-book">Price: FanDuel</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.25u</span><span class="market">Moneyline</span></div>
             <p class="conditions">Denver · Colorado on the second night of a back-to-back · Makar game-time decision</p>
@@ -3035,7 +3035,11 @@ and loads nothing.
         'Delaware @ Middle Tennessee': { away: ['assets/team_logos/ncaaf_del.png', 'Delaware logo'], home: ['assets/team_logos/ncaaf_mtsu.png', 'Middle Tennessee logo'] },
         'FIU @ Jacksonville State': { away: ['assets/team_logos/ncaaf_fiu.png', 'FIU logo'], home: ['assets/team_logos/ncaaf_jxst.png', 'Jacksonville State logo'] },
         'Guardians @ Rays': { away: ['assets/team_logos/mlb_cle.png', 'Cleveland Guardians logo'], home: ['assets/team_logos/mlb_tb.png', 'Tampa Bay Rays logo'] },
-        'Blues @ Senators': { away: ['assets/team_logos/nhl_stl.png', 'St. Louis Blues logo'], home: ['assets/team_logos/nhl_ott.png', 'Ottawa Senators logo'] }
+        'Blues @ Senators': { away: ['assets/team_logos/nhl_stl.png', 'St. Louis Blues logo'], home: ['assets/team_logos/nhl_ott.png', 'Ottawa Senators logo'] },
+        'Kennesaw State @ Missouri State': { away: ['assets/team_logos/ncaaf_kenn.png', 'Kennesaw State logo'], home: ['assets/team_logos/ncaaf_most.png', 'Missouri State logo'] },
+        'Western Kentucky @ Sam Houston': { away: ['assets/team_logos/ncaaf_wku.png', 'Western Kentucky logo'], home: ['assets/team_logos/ncaaf_shsu.png', 'Sam Houston logo'] },
+        'Brewers @ Dodgers': { away: ['assets/team_logos/mlb_mil.png', 'Milwaukee Brewers logo'], home: ['assets/team_logos/mlb_lad.png', 'Los Angeles Dodgers logo'] },
+        'Stars @ Avalanche': { away: ['assets/team_logos/nhl_dal.png', 'Dallas Stars logo'], home: ['assets/team_logos/nhl_col.png', 'Colorado Avalanche logo'] }
       };
 
       function matchupMarkup(pick) {

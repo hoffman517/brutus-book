@@ -4306,7 +4306,7 @@ and loads nothing.
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
           }
           lastPlay = String(lastPlay || '').trim();
-          if (lastPlay.length > 90) lastPlay = lastPlay.slice(0, 89) + '…';
+          if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
             partial: !(poss && typeof sit.down === 'number' && Number.isFinite(sit.down)) };
@@ -4354,7 +4354,7 @@ and loads nothing.
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
           }
           lastPlay = String(lastPlay || '').trim();
-          if (lastPlay.length > 90) lastPlay = lastPlay.slice(0, 89) + '…';
+          if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
             partial: !(poss && (sit.downDistanceText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };

@@ -210,6 +210,17 @@
       text-align: right;
     }
 
+    .masthead-about {
+      position: relative;
+      z-index: 1;
+      margin-top: 14px;
+      color: rgba(255, 255, 255, .86);
+      font-size: .8rem;
+      line-height: 1.5;
+    }
+
+    .masthead-about p { margin: 0; }
+
     main { display: grid; gap: 40px; margin-top: 38px; }
 
     .handicapper-hero {
@@ -1048,6 +1059,10 @@
     .d-state.win .d-state-lab { color: #69e898; }
     .d-state.live { background: #3a2f10; color: #f3ddab; }
     .d-state.live .d-state-lab { color: #eec25e; }
+    .d-state.loss { background: #401718; color: #f3c1c1; }
+    .d-state.loss .d-state-lab { color: #ff8a8a; }
+    .d-state.push { background: #2b2e31; color: #d3d8db; }
+    .d-state.push .d-state-lab { color: #9aa3ab; }
 
     .d-linestrip {
       display: grid;
@@ -1622,6 +1637,7 @@
     }
 
     .breakdown-note { margin: -8px 2px 12px; color: var(--muted); font-size: .7rem; line-height: 1.5; }
+    .conventions-note { margin: 12px 2px 0; color: var(--muted); font-size: .74rem; line-height: 1.55; }
     .breakdown-list { display: grid; gap: 8px; }
     .breakdown-row {
       display: grid;
@@ -1842,6 +1858,10 @@ and loads nothing.
         </div>
         <p class="book-note">Wednesday’s card is live: two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a plus-price Stars moneyline in Denver — 1.75u risked, nothing above conf 2. Yesterday graded 3–0–1 for +1.59u. Season: 14–12–1 (53.8%) for +0.33u.</p>
       </div>
+      <div class="masthead-about">
+        <p>Brutus is an AI analyst — every pick is posted before the game and graded win or lose.</p>
+        <p>1u = our standard bet; stakes run 0.25u–1u by confidence.</p>
+      </div>
     </header>
 
     <nav class="tab-nav" role="tablist" aria-label="Dashboard views">
@@ -1967,6 +1987,7 @@ and loads nothing.
           <div class="stat"><span class="stat-value" id="overall-roi">—</span><span class="stat-label">ROI</span></div>
           <div class="stat"><span class="stat-value" id="overall-units">0.00u</span><span class="stat-label">Units</span></div>
         </div>
+        <p class="conventions-note">How to read these numbers: win % counts wins and losses only — pushes sit outside it. A push refunds the stake, and refunded stakes are not counted in “staked.” The season began Oct 10, 2026.<span id="conventions-push-note"></span></p>
         <div class="empty-state" id="stats-empty"><strong>Stats build as picks are graded.</strong><br>Today’s card is logged; results, ROI and splits will populate after grading.</div>
         <div class="performance-grid">
           <article class="performance-card"><h3>By sport</h3><div class="breakdown-list" id="sport-breakdown"></div></article>
@@ -3065,6 +3086,29 @@ and loads nothing.
 
       renderVisibleCards();
 
+      // Dossier header rule (Lens C cold-reader review, 2026-10-14): once a
+      // pick is graded, its dossier headline shows the FINAL from the pick
+      // record — never the build-time live line, which can carry a score
+      // that never existed (the graded FIU panel headlined "FIU 30, Jax
+      // State 24" after a 27–24 final). The build-time line stays in the
+      // Act 1 body as history; only the headline state is replaced here.
+      function applyDossierFinals() {
+        var byMatchup = {};
+        allPicks().forEach(function (pick) { byMatchup[pick.matchup] = pick; });
+        document.querySelectorAll('.dossier-panel').forEach(function (panel) {
+          var pick = byMatchup[panel.getAttribute('data-dossier-for')];
+          if (!pick || pick.result === 'pending' || !pick.finalScore) return;
+          var state = panel.querySelector('.d-state');
+          if (!state) return;
+          var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : 'PUSH';
+          var detail = pick.result === 'push'
+            ? 'Push — the stake was refunded'
+            : 'Graded ' + signedUnits(profitForPick(pick));
+          state.className = 'd-state ' + pick.result;
+          state.innerHTML = '<span class="d-state-lab">Final</span><strong>' + escapeHTML(pick.finalScore) + ' — ' + label + '</strong>' + escapeHTML(detail);
+        });
+      }
+
       // Drill-down dossiers: move each stored panel behind a toggle on the
       // card (today's grid) or the history row (graded days) whose matchup
       // it names. Called once, after both renders (see the call site), so
@@ -3308,6 +3352,14 @@ and loads nothing.
         return decisions ? (summary.wins / decisions * 100).toFixed(1) + '%' : '—';
       }
 
+      function breakdownRecordText(summary, gradedCount) {
+        // De-flatter small samples (Lens C cold-reader review, 2026-10-14):
+        // under 10 graded, lead with the sample size and drop the win % —
+        // a bare "100.0%" at n=2 reads as a claim, not a statistic.
+        if (gradedCount < 10) return 'n=' + gradedCount + ' · ' + recordText(summary);
+        return recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount;
+      }
+
       function signedUnits(value) {
         if (Math.abs(value) < .005) return '0.00u';
         return (value > 0 ? '+' : '') + value.toFixed(2) + 'u';
@@ -3319,7 +3371,7 @@ and loads nothing.
           var summary = summarize(matching);
           var gradedCount = matching.filter(function (pick) { return pick.result !== 'pending'; }).length;
           if (!gradedCount) return ''; // zero-count buckets are hidden, not rendered as empty rows
-          return '<div class="breakdown-row"><strong>' + escapeHTML(value) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
+          return '<div class="breakdown-row"><strong>' + escapeHTML(value) + '</strong><span class="breakdown-record">' + breakdownRecordText(summary, gradedCount) + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
         }).join('');
       }
 
@@ -3342,7 +3394,7 @@ and loads nothing.
           var summary = summarize(matching);
           var gradedCount = matching.filter(function (pick) { return pick.result !== 'pending'; }).length;
           if (!gradedCount) return ''; // zero-count buckets are hidden, not rendered as empty rows
-          return '<div class="breakdown-row"><strong>' + escapeHTML(betType.label) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
+          return '<div class="breakdown-row"><strong>' + escapeHTML(betType.label) + '</strong><span class="breakdown-record">' + breakdownRecordText(summary, gradedCount) + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
         }).join('');
       }
 
@@ -3413,7 +3465,7 @@ and loads nothing.
           var summary = summarize(matching);
           var gradedCount = matching.filter(function (pick) { return pick.result !== 'pending'; }).length;
           if (!gradedCount) return ''; // zero-count rows are hidden, not rendered as empty rows
-          return '<div class="breakdown-row"><strong>' + escapeHTML(roleLabels[role] || role) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
+          return '<div class="breakdown-row"><strong>' + escapeHTML(roleLabels[role] || role) + '</strong><span class="breakdown-record">' + breakdownRecordText(summary, gradedCount) + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
         }).join('');
       }
 
@@ -3436,6 +3488,9 @@ and loads nothing.
         document.getElementById('date-breakdown').innerHTML = breakdownRows(BRUTUS_DATA.days.map(function (day) { return day.date; }), 'date', picks);
         document.getElementById('odds-breakdown').innerHTML = roleRows(picks);
         document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + (picks.length - graded.length) + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
+        var pushedStake = graded.filter(function (pick) { return pick.result === 'push'; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
+        var pushNote = document.getElementById('conventions-push-note');
+        if (pushNote) pushNote.textContent = pushedStake > 0 ? ' This season ' + overall.pushes + (overall.pushes === 1 ? ' push has' : ' pushes have') + ' refunded ' + pushedStake.toFixed(2) + 'u — that refund is the gap between the stakes placed and the staked total.' : '';
         var recent = graded.slice(-10);
         document.getElementById('last-ten').innerHTML = recent.map(function (pick) {
           var letter = pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : 'P';
@@ -3485,6 +3540,7 @@ and loads nothing.
 
       renderStats();
       renderHistory();
+      applyDossierFinals();
       attachDrillDowns();
 
       var buttons = document.querySelectorAll('.filter');

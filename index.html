@@ -427,6 +427,7 @@
     .new-tag {
       display: inline-block;
       vertical-align: super;
+      white-space: nowrap;
       margin-left: 10px;
       padding: 3px 8px 2px;
       border-radius: 999px;
@@ -1859,7 +1860,7 @@ and loads nothing.
         </div>
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-14T13:52:00-04:00">Picks as of Wednesday, October 14 — 1:52 PM ET</time></p>
         <div class="section-heading card-heading">
-          <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW</span></h2>
+          <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW · Live scores</span></h2>
           <div class="card-heading-actions">
             <p class="section-note" id="sort-note">Ranked by confidence · ET</p>
             <div class="share-actions">
@@ -4485,7 +4486,11 @@ and loads nothing.
   </script>
   <script>
     // NEW feature tags (registry of record: sports-betting
-    // data/page_features.json). A tag shows while fewer than 7 days have
+    // data/page_features.json). The pill's visible text is
+    // "NEW · <the feature's label from the registry>" — the tag must
+    // name the feature it marks, never a bare "NEW"; when the daily
+    // build syncs data-ship-date from the registry it also syncs this
+    // label text. A tag shows while fewer than 7 days have
     // passed since its ship date, or — while it is the newest feature on
     // the page and no newer feature has shipped — fewer than 14 days.
     // Out-of-window tags are hidden here; the daily build retires the

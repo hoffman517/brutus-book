@@ -4308,7 +4308,8 @@ and loads nothing.
           lastPlay = String(lastPlay || '').trim();
           if (lastPlay.length > 90) lastPlay = lastPlay.slice(0, 89) + '…';
           if (!segments.length && !lastPlay) return null;
-          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay };
+          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
+            partial: !(poss && typeof sit.down === 'number' && Number.isFinite(sit.down)) };
         }
 
         // CFB carries the same situation shape as the NFL (possession id,
@@ -4355,7 +4356,8 @@ and loads nothing.
           lastPlay = String(lastPlay || '').trim();
           if (lastPlay.length > 90) lastPlay = lastPlay.slice(0, 89) + '…';
           if (!segments.length && !lastPlay) return null;
-          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay };
+          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
+            partial: !(poss && (sit.downDistanceText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };
         }
 
         // Situation line under the score line: rendered only while the game
@@ -4375,6 +4377,14 @@ and loads nothing.
             if (existingPlay && existingPlay.parentNode) existingPlay.parentNode.removeChild(existingPlay);
             return;
           }
+          // Keep-last-good: ESPN's situation fields flicker between plays
+          // (possession / down-and-distance blank or truncated for a poll
+          // or two — a line that read "& 4" shipped 2026-10-14). A partial
+          // update never degrades a complete line already on screen; the
+          // next complete poll (<=60s) refreshes it.
+          if (info.partial && existing && existing.dataset && existing.dataset.partial !== '1') {
+            return;
+          }
           var el = existing;
           if (!el) {
             el = document.createElement('p');
@@ -4387,6 +4397,7 @@ and loads nothing.
             }
           }
           el.textContent = '';
+          el.dataset.partial = info.partial ? '1' : '0';
           if (info.diamond) el.appendChild(info.diamond);
           var textSpan = document.createElement('span');
           textSpan.textContent = info.text;

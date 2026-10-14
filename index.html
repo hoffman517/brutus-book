@@ -4311,6 +4311,53 @@ and loads nothing.
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay };
         }
 
+        // CFB carries the same situation shape as the NFL (possession id,
+        // down/distance, lastPlay, drive) — mirrored from nflSituationInfo.
+        // One difference: the feed's downDistanceText ("1st & Goal at
+        // KENN 5") already states the down, the distance AND the spot in a
+        // single string, so when it is present it is used whole; the
+        // numeric down & distance + possessionText path is only the
+        // fallback, so the spot is never printed twice.
+        function cfbSituationInfo(match) {
+          var competition = match.competition;
+          var sit = competition && competition.situation;
+          if (!sit) return null;
+          var segments = [];
+          var poss = null;
+          var other = null;
+          if (sit.possession !== undefined && sit.possession !== null && sit.possession !== '') {
+            var possId = String(sit.possession);
+            if (match.away.team && String(match.away.team.id) === possId) { poss = match.away; other = match.home; }
+            else if (match.home.team && String(match.home.team.id) === possId) { poss = match.home; other = match.away; }
+          }
+          if (poss) segments.push(teamAbbr(poss, '') + ' ball');
+          if (sit.downDistanceText) {
+            segments.push(String(sit.downDistanceText).trim());
+          } else {
+            if (typeof sit.down === 'number' && Number.isFinite(sit.down) &&
+                typeof sit.distance === 'number' && Number.isFinite(sit.distance)) {
+              segments.push(ordinal(sit.down) + ' & ' + sit.distance);
+            }
+            if (sit.possessionText) {
+              segments.push('at ' + String(sit.possessionText).trim());
+            }
+          }
+          var status = match.status || {};
+          var clockSegment = '';
+          if (status.period) clockSegment = 'Q' + status.period;
+          if (status.displayClock) clockSegment = (clockSegment ? clockSegment + ' ' : '') + status.displayClock;
+          if (clockSegment) segments.push(clockSegment);
+          if (sit.isRedZone) segments.push('in the red zone');
+          var lastPlay = '';
+          if (sit.lastPlay) {
+            lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
+          }
+          lastPlay = String(lastPlay || '').trim();
+          if (lastPlay.length > 90) lastPlay = lastPlay.slice(0, 89) + '…';
+          if (!segments.length && !lastPlay) return null;
+          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay };
+        }
+
         // Situation line under the score line: rendered only while the game
         // is live and the feed returns situation data; otherwise the element
         // is removed so the card falls back to score + bet status only.
@@ -4319,6 +4366,7 @@ and loads nothing.
           if (state === 'in') {
             if (spec.sport === 'MLB') info = mlbSituationInfo(match);
             else if (spec.sport === 'NFL') info = nflSituationInfo(match);
+            else if (spec.sport === 'CFB') info = cfbSituationInfo(match);
           }
           var existing = spec.card.querySelector('.live-situation');
           var existingPlay = spec.card.querySelector('.live-last-play');

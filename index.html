@@ -1973,7 +1973,7 @@ and loads nothing.
           <article class="performance-card"><h3>By bet type</h3><div class="breakdown-list" id="type-breakdown"></div></article>
           <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
           <article class="performance-card"><h3>By date</h3><div class="breakdown-list" id="date-breakdown"></div></article>
-          <article class="performance-card"><h3>By odds</h3><p class="breakdown-note">By the price on our ticket — totals included: Favorites −101 or shorter · Pick'em −100 to +109 · Dogs +110 or longer.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
+          <article class="performance-card"><h3>By odds</h3><p class="breakdown-note">Every pick grouped by the price on its ticket — totals included.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
           <article class="performance-card"><h3>Last 10 picks</h3><div class="form-strip" id="last-ten" aria-label="Last 10 graded picks"></div><p class="source-note" id="form-note">No graded picks yet.</p></article>
         </div>
       </section>
@@ -3354,12 +3354,21 @@ and loads nothing.
 
       function oddsRows(picks) {
         var buckets = ['Favorites', "Pick'em", 'Dogs'];
+        // Display labels only — the bucket keys and boundaries in oddsBucket() are
+        // unchanged. Plain odds-board language: this split is by the price on our
+        // ticket, not by team, so the insider words (Favorites/Pick'em/Dogs) are
+        // never shown to readers.
+        var bucketLabels = {
+          'Favorites': 'Minus odds (shorter than −100)',
+          "Pick'em": 'Near even (−100 to +109)',
+          'Dogs': 'Plus odds (+110 or longer)'
+        };
         return buckets.map(function (bucket) {
           var matching = picks.filter(function (pick) { return oddsBucket(pick) === bucket; });
           var summary = summarize(matching);
           var gradedCount = matching.filter(function (pick) { return pick.result !== 'pending'; }).length;
           if (!gradedCount) return ''; // zero-count buckets are hidden, not rendered as empty rows
-          return '<div class="breakdown-row"><strong>' + escapeHTML(bucket) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
+          return '<div class="breakdown-row"><strong>' + escapeHTML(bucketLabels[bucket] || bucket) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
         }).join('');
       }
 

@@ -1973,7 +1973,7 @@ and loads nothing.
           <article class="performance-card"><h3>By bet type</h3><div class="breakdown-list" id="type-breakdown"></div></article>
           <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
           <article class="performance-card"><h3>By date</h3><div class="breakdown-list" id="date-breakdown"></div></article>
-          <article class="performance-card"><h3>By odds</h3><p class="breakdown-note">Every pick grouped by the price on its ticket — totals included.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
+          <article class="performance-card"><h3>As favorite or dog</h3><p class="breakdown-note">Sides only, by the points — moneylines slot by the game's prices. Totals aren't here: a total is never a favorite or a dog.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
           <article class="performance-card"><h3>Last 10 picks</h3><div class="form-strip" id="last-ten" aria-label="Last 10 graded picks"></div><p class="source-note" id="form-note">No graded picks yet.</p></article>
         </div>
       </section>
@@ -2629,6 +2629,8 @@ and loads nothing.
     // Each day includes publishedAt (the card-lock time in ISO 8601); the as-of line uses the latest day's value automatically.
     // Each pick: { matchup, sport, bet, line, odds, conf (1-5), time, why, result: "pending"|"win"|"loss"|"push", finalScore?: string, espnGameId?: string, book?: string }
     // book is the price book for the wager line's "Price: <book>" label — only set when a book was recorded; older picks omit it and render no label.
+    // oppOdds (moneyline picks): the opponent's ML price at bet time, from our ESPN/DK captures — required to classify an ML pick whose own price is negative (both sides negative = a pick'em game; see roleClass).
+    // gameSpread (moneyline picks in spread sports): the game's spread from OUR side's perspective, signed — when present it governs the ML pick's favorite/dog class (Scott's ruling, 2026-10-14).
     // Stakes: conf 5=1u, 4=1u, 3=0.75u, 2=0.5u, 1=0.25u (verified convention — conf 3 is 0.75u, not 1u). Stats tab computes everything from this.
     const BRUTUS_DATA = {
       days: [
@@ -2780,7 +2782,7 @@ and loads nothing.
               reasons: ["Aces both sides: Yamamoto is 4-0 with a 1.16 ERA over his last four postseason starts and threw a complete-game gem against these Brewers in last year's NLCS.", "Henderson is 2-0 with a 0.75 ERA lifetime against the Dodgers.", "Game 1 of this series finished 2-1, and Milwaukee's bullpen has been nearly untouchable all postseason.", "Most books sit at 6.5 shaded to the over; DraftKings has 7 (under -122), which buys the push."], source: "DraftKings"
             },
             {
-              matchup: "Dodgers @ Brewers", sport: "MLB", bet: "Moneyline", line: "BREWERS ML", odds: "+115", conf: 1, stake: 0.25, time: "5:00 PM ET",
+              matchup: "Dodgers @ Brewers", sport: "MLB", bet: "Moneyline", line: "BREWERS ML", odds: "+115", oppOdds: "-136", conf: 1, stake: 0.25, time: "5:00 PM ET",
               series: "NLCS · Game 2 · MIL leads series 1–0",
               why: "Same game as the under — correlated, sized small. The Yamamoto tax has the Dodgers overpriced on the road; Milwaukee won 103 games, holds home field, and Henderson has owned this lineup. The plus price (+115) is the value side of a coin-flip game.",
               result: "win", finalScore: "Brewers 7, Dodgers 4",
@@ -2827,7 +2829,7 @@ and loads nothing.
               reasons: ["The model projects 6.14 total runs — a full run under the 7.", "Indoors at Tropicana Field: no wind, no weather variance in the total.", "Game 2 of the ALCS with Cleveland up 1–0 — a tight, low-scoring script fits."], source: "DraftKings"
             },
             {
-              matchup: "Blues @ Senators", sport: "NHL", bet: "Moneyline", line: "BLUES ML", odds: "-105", conf: 2, stake: 0.5, time: "7:30 PM ET",
+              matchup: "Blues @ Senators", sport: "NHL", bet: "Moneyline", line: "BLUES ML", odds: "-105", oppOdds: "-115", conf: 2, stake: 0.5, time: "7:30 PM ET",
               book: "DraftKings",
               why: "Goalie gap — Hofer vs Ersson (both expected) — plus Ottawa on a back-to-back.",
               result: "win", finalScore: "Blues 7, Senators 2",
@@ -3344,31 +3346,74 @@ and loads nothing.
         }).join('');
       }
 
-      function oddsBucket(pick) {
-        var odds = americanOdds(pick);
-        if (!Number.isFinite(odds)) return null;
-        if (odds < -100) return 'Favorites';
-        if (odds >= 110) return 'Dogs';
-        return "Pick'em";
+      // Favorite / underdog / pick'em — a property of the GAME's sides, never
+      // of our ticket's juice (Scott's rulings, 2026-10-14; definitions spec:
+      // research/fav-dog-definitions-2026-10-14.md). Spread-family bets
+      // (spread, puck line, run line) classify by the points taken — the price
+      // is ignored, so a -1.5 puck line at +104 is a favorite-role bet. Totals
+      // are never classified. Moneylines have no points, so they slot by the
+      // game's prices: in spread sports the game's spread governs when
+      // captured (pick.gameSpread); elsewhere the price pair rules — ours
+      // positive = underdog; ours negative with the opponent positive =
+      // favorite; BOTH sides negative = a pick'em game (Scott: "a -111 money
+      // line is a pick'em"). If the opponent's price (pick.oppOdds) was never
+      // captured, a negative price falls back to its sign (favorite).
+      function spreadNumber(pick) {
+        var match = String(pick.line || '').replace(/−/g, '-').match(/([+-]?\d+(?:\.\d+)?)\s*$/);
+        return match ? Number(match[1]) : NaN;
       }
 
-      function oddsRows(picks) {
-        var buckets = ['Favorites', "Pick'em", 'Dogs'];
-        // Display labels only — the bucket keys and boundaries in oddsBucket() are
-        // unchanged. Plain odds-board language: this split is by the price on our
-        // ticket, not by team, so the insider words (Favorites/Pick'em/Dogs) are
-        // never shown to readers.
-        var bucketLabels = {
-          'Favorites': 'Minus odds (shorter than −100)',
-          "Pick'em": 'Near even (−100 to +109)',
-          'Dogs': 'Plus odds (+110 or longer)'
+      function roleClass(pick) {
+        var type = normalizedBetType(pick.bet);
+        if (type === 'Total') return null; // a total is never a favorite or a dog
+        if (type === 'Spread') {
+          var n = spreadNumber(pick);
+          if (!Number.isFinite(n)) return null;
+          if (n < 0) return 'Favorites';
+          if (n > 0) return 'Underdogs';
+          return "Pick'ems";
+        }
+        if (type === 'Moneyline') {
+          if (pick.gameSpread !== undefined && pick.gameSpread !== null && pick.gameSpread !== '') {
+            var g = Number(String(pick.gameSpread).replace(/−/g, '-'));
+            if (Number.isFinite(g)) {
+              if (g < 0) return 'Favorites';
+              if (g > 0) return 'Underdogs';
+              return "Pick'ems";
+            }
+          }
+          var ours = americanOdds(pick);
+          if (!Number.isFinite(ours)) return null;
+          if (ours > 0) return 'Underdogs';
+          var opp = (pick.oppOdds !== undefined && pick.oppOdds !== null && pick.oppOdds !== '')
+            ? americanOdds({ odds: pick.oppOdds }) : NaN;
+          if (ours < 0) {
+            if (Number.isFinite(opp)) {
+              if (opp > 0) return 'Favorites';
+              return "Pick'ems"; // both sides negative: a pick'em game
+            }
+            return 'Favorites'; // fallback: price sign only (opponent price not captured)
+          }
+          // Exactly even money (+100/-100): the other side's price decides.
+          if (Number.isFinite(opp) && opp < 0) return 'Underdogs';
+          return "Pick'ems";
+        }
+        return null;
+      }
+
+      function roleRows(picks) {
+        var roles = ['Favorites', 'Underdogs', "Pick'ems"];
+        var roleLabels = {
+          'Favorites': 'Favorites — laying points',
+          'Underdogs': 'Underdogs — getting points',
+          "Pick'ems": "Pick'ems — no spread (PK)"
         };
-        return buckets.map(function (bucket) {
-          var matching = picks.filter(function (pick) { return oddsBucket(pick) === bucket; });
+        return roles.map(function (role) {
+          var matching = picks.filter(function (pick) { return roleClass(pick) === role; });
           var summary = summarize(matching);
           var gradedCount = matching.filter(function (pick) { return pick.result !== 'pending'; }).length;
-          if (!gradedCount) return ''; // zero-count buckets are hidden, not rendered as empty rows
-          return '<div class="breakdown-row"><strong>' + escapeHTML(bucketLabels[bucket] || bucket) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
+          if (!gradedCount) return ''; // zero-count rows are hidden, not rendered as empty rows
+          return '<div class="breakdown-row"><strong>' + escapeHTML(roleLabels[role] || role) + '</strong><span class="breakdown-record">' + recordText(summary) + ' · ' + winPct(summary) + ' · n=' + gradedCount + '</span><span class="breakdown-pct">' + signedUnits(summary.units) + '</span></div>';
         }).join('');
       }
 
@@ -3389,7 +3434,7 @@ and loads nothing.
         document.getElementById('type-breakdown').innerHTML = betTypeRows(picks);
         document.getElementById('confidence-breakdown').innerHTML = breakdownRows([5, 4, 3, 2, 1], 'conf', picks);
         document.getElementById('date-breakdown').innerHTML = breakdownRows(BRUTUS_DATA.days.map(function (day) { return day.date; }), 'date', picks);
-        document.getElementById('odds-breakdown').innerHTML = oddsRows(picks);
+        document.getElementById('odds-breakdown').innerHTML = roleRows(picks);
         document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + (picks.length - graded.length) + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
         var recent = graded.slice(-10);
         document.getElementById('last-ten').innerHTML = recent.map(function (pick) {

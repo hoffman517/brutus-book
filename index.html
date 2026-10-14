@@ -443,6 +443,24 @@
       text-shadow: 0 8px 24px rgba(187,0,0,.18);
     }
 
+    /* NEW feature tag: visibility window is enforced by the data-new-tag
+       script at the end of the body (registry: sports-betting
+       data/page_features.json — show <7 days, or <14 while newest). */
+    .new-tag {
+      display: inline-block;
+      vertical-align: super;
+      margin-left: 10px;
+      padding: 3px 8px 2px;
+      border-radius: 999px;
+      background: var(--scarlet, #bb0000);
+      color: #fff;
+      font-family: var(--display);
+      font-size: .72rem;
+      letter-spacing: .14em;
+      line-height: 1.5;
+    }
+    .new-tag[hidden] { display: none; }
+
     .section-note {
       margin: 0;
       color: var(--muted);
@@ -1853,7 +1871,7 @@ and loads nothing.
         </div>
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-13T23:07:00-04:00">Picks as of Tuesday, October 13 — 11:07 PM ET</time></p>
         <div class="section-heading card-heading">
-          <h2 class="section-title" id="card-title">Today's Card</h2>
+          <h2 class="section-title" id="card-title">Today's Card</h2><span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW</span>
           <div class="card-heading-actions">
             <p class="section-note" id="sort-note">Ranked by confidence · ET</p>
             <div class="share-actions">
@@ -2771,18 +2789,39 @@ and loads nothing.
           entry.toggle.querySelector('span').textContent = open ? 'Close the dossier' : 'Drill down — the full dossier';
         }
 
-        function scrollToCard(card) {
-          try {
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } catch (error) {
-            card.scrollIntoView();
+        // Dossier scroll restoration (Scott, 2026-10-14): opening a dossier
+        // records where the reader was; closing returns them to exactly that
+        // spot — never a re-centered card. Accordion chains keep the FIRST
+        // open's recorded position: switching dossiers mid-chain still
+        // returns the reader to where they started drilling. The restore is
+        // instant so the reader lands precisely where they left off.
+        var savedScrollY = null;
+
+        function scrollToCardTop(card) {
+          var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          var y = card.getBoundingClientRect().top + window.scrollY - 12;
+          // behavior:'instant' overrides the page's CSS smooth scrolling —
+          // a restore must land exactly, not glide toward the target.
+          window.scrollTo({ top: Math.max(0, Math.min(y, max)), left: 0, behavior: 'instant' });
+        }
+
+        function restoreScroll(entry) {
+          if (savedScrollY === null) {
+            // No recorded position (dossier opened by script/deep link):
+            // fall back to the card top with a small offset — never center.
+            scrollToCardTop(entry.card);
+            return;
           }
+          var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          var y = Math.max(0, Math.min(savedScrollY, max));
+          savedScrollY = null;
+          window.scrollTo({ top: y, left: 0, behavior: 'instant' });
         }
 
         function closeEntry(entry, shouldScroll) {
           setOpen(entry, false);
           updatePill();
-          if (shouldScroll) scrollToCard(entry.card);
+          if (shouldScroll) restoreScroll(entry);
         }
 
         function closeOthers(except) {
@@ -2830,7 +2869,10 @@ and loads nothing.
             var open = toggle.getAttribute('aria-expanded') === 'true';
             if (open) {
               closeEntry(entry, false);
+              savedScrollY = null;
             } else {
+              var anyOpen = entries.some(function (e) { return !e.wrap.hidden; });
+              if (!anyOpen) savedScrollY = window.scrollY;
               closeOthers(entry);
               setOpen(entry, true);
               updatePill();
@@ -4041,6 +4083,33 @@ and loads nothing.
         }, 4200);
       });
     }());
+  </script>
+  <script>
+    // NEW feature tags (registry of record: sports-betting
+    // data/page_features.json). A tag shows while fewer than 7 days have
+    // passed since its ship date, or — while it is the newest feature on
+    // the page and no newer feature has shipped — fewer than 14 days.
+    // Out-of-window tags are hidden here; the daily build retires the
+    // element for good once the window has passed.
+    (function newFeatureTags() {
+      var tags = document.querySelectorAll('[data-new-tag]');
+      if (!tags.length) return;
+      var newest = null;
+      tags.forEach(function (tag) {
+        var ship = tag.getAttribute('data-ship-date');
+        if (ship && (newest === null || ship > newest)) newest = ship;
+      });
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      tags.forEach(function (tag) {
+        var ship = tag.getAttribute('data-ship-date');
+        if (!ship) { tag.hidden = true; return; }
+        var shipped = new Date(ship + 'T00:00:00');
+        var ageDays = Math.floor((today - shipped) / 86400000);
+        var show = ageDays < 7 || (ship === newest && ageDays < 14);
+        if (!show) tag.hidden = true;
+      });
+    })();
   </script>
 </body>
 </html>

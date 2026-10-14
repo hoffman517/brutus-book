@@ -1,17 +1,18 @@
-# Brutus' Book — GitHub Pages mirror
+# Brutus' Book — GitHub Pages (canonical home)
 
 The public page for Brutus' Book (daily sports picks, graded in public),
 served by GitHub Pages at **https://hoffman517.github.io/brutus-book/**
 
 ## What this repo is
 
-A **mirror** of the Brutus' Book page that lives as a Muse artifact
-(https://muse.ai/s/brutus-s-book-gxa6nxejxq0naq). The content is a
-byte-faithful port of the artifact build — same HTML, same assets, no
-redesign. The **Muse link remains the canonical one** until Scott
-decides the record has earned the social push; this mirror exists so
-publishing never depends on a manual approval step and so the page's
-live-score fetches work from a normal web origin.
+The **canonical public home** of Brutus' Book since 2026-10-14
+(Scott approved the flip that day and distributes this link). It
+began as a mirror of the page that lived as a Muse artifact
+(https://muse.ai/s/brutus-s-book-gxa6nxejxq0naq); that page is now
+frozen as a signpost after its 2026-10-14 farewell build. The
+content is a byte-faithful port of the same build — same HTML, same
+assets, no redesign. Publishing never depends on a manual approval
+step, and the page's live-score fetches work from this origin.
 
 Source of truth (edited by the daily picks build):
 `~/workspace/ts-spaces/brutus-s-book/index.html` + `assets/`
@@ -31,7 +32,7 @@ the next publish overwrites it.
    `pages_publish ts=… repo=hoffman517/brutus-book hash=… changed=yes|no commit=… url=…`
 
 The hourly line-movement-snapshots job runs the script as a ride-along
-step, so grading updates reach this mirror without any approval tap.
+step, so grading updates reach the page without any approval tap.
 
 ## Rollback / restore
 

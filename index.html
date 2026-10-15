@@ -444,31 +444,29 @@
 
     .sb-row + .sb-row { border-top: 1px solid var(--line-soft); }
 
-    /* Two signals, two languages, never one channel carrying both
-       (Scott's rulings, final): RED IS THE BET — the scarlet row tint
-       (background-color) + the line chip mark our side only (a pure
-       total tints neither row). WHITE LIGHT IS THE BALL — possession
-       gets the loudest treatment: a light wash over the row plus a
-       solid 4px WHITE left edge, name and score full white. The wash
-       is a background-image so it composes OVER the tint when our
-       team has the ball: tint + wash + edge stack. No name muting
-       anywhere; no glyph. Every row reserves the same 4px transparent
-       edge so rows never shift. The edge/wash exist only while that
-       team has the ball / is batting (MLB same rule); gone pre-game
-       and at final; NHL has no possession state — rows stay unlit. */
+    /* Two signals, two languages (Scott's rulings, final): RED IS
+       THE BET — the scarlet row tint + the line chip mark our side
+       only (a pure total tints neither row). POSSESSION IS A CHIP —
+       a small labeled chip beside the possessing team's name, in the
+       bet chip's grammar but light with dark text: "BALL" (football /
+       basketball), "AT BAT" (baseball's batting team). If our team
+       has the ball, the row carries both chips — that stacking is
+       desired. No muting, no wash, no edge, no glyph. No chip
+       pre-game or at final; NHL has no possession state — no chip. */
     .sb-row.sb-ours {
       background-color: rgba(187,0,0,.14);
     }
 
-    .sb-row { border-left: 4px solid transparent; }
-
-    .sb-row.sb-ball {
-      border-left-color: #fff;
-      background-image: linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10));
+    .sb-poss-chip {
+      flex: 0 0 auto;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #f2f4f5;
+      color: #14181c;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .04em;
     }
-
-    .sb-row.sb-ball .sb-name,
-    .sb-row.sb-ball .sb-score { color: #fff; }
 
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
@@ -5071,16 +5069,13 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
-          // Possession is a STRUCTURAL mark (final ruling): the
-          // possessing team's row gets the scarlet left edge bar
-          // (.sb-ball); brightness is never touched — the tint channel
-          // belongs to our pick alone, and washing brightness out
-          // made "whose ball?" unanswerable when our pick was the
-          // defending team. Football reads situation.possession (the
-          // same field the info functions parse); baseball's edge goes
-          // to the batting team (half-inning). Hockey has no
-          // possession state — no edge. Live games only, and only
-          // when the possessor is actually known.
+          // Possession is a labeled CHIP beside the possessing team's
+          // name (Scott's final call): "BALL" for football, "AT BAT"
+          // for baseball's batting team. Football reads
+          // situation.possession (the same field the info functions
+          // parse); baseball's chip follows the half-inning. Hockey
+          // has no possession state — no chip. Live games only, and
+          // only when the possessor is actually known.
           var markedSide = null;
           if (state === 'in') {
             if (spec.sport === 'NFL' || spec.sport === 'CFB') {
@@ -5099,9 +5094,7 @@ and loads nothing.
           }
           function buildRow(competitor, name, score, img, isOurs, cells) {
             var r = document.createElement('div');
-            var possCls = '';
-            if (markedSide && markedSide === competitor) possCls = ' sb-ball';
-            r.className = 'sb-row' + (isOurs ? ' sb-ours' : '') + possCls;
+            r.className = 'sb-row' + (isOurs ? ' sb-ours' : '');
             if (img) {
               var lg = document.createElement('span');
               lg.className = 'sb-logo';
@@ -5120,6 +5113,12 @@ and loads nothing.
               chip.className = 'sb-chip';
               chip.textContent = board.chipText;
               r.appendChild(chip);
+            }
+            if (markedSide && markedSide === competitor) {
+              var possChip = document.createElement('span');
+              possChip.className = 'sb-poss-chip';
+              possChip.textContent = spec.sport === 'MLB' ? 'AT BAT' : 'BALL';
+              r.appendChild(possChip);
             }
             if (cells) {
               var lines = document.createElement('span');

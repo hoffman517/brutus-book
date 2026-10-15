@@ -444,23 +444,24 @@
 
     .sb-row + .sb-row { border-top: 1px solid var(--line-soft); }
 
-    /* Our pick's row: scarlet left tick + a subtle lift. Only ever on
-       the side the bet is on — a pure total highlights neither row. */
+    /* Two signals, two geometries, never one channel carrying both
+       (Scott's ruling after the brightness wash-out): the background
+       TINT is OURS ONLY — the side the bet is on (a pure total tints
+       neither row). Names and scores render at full brightness at
+       all times; possession never touches brightness. */
     .sb-row.sb-ours {
       background: rgba(187,0,0,.14);
-      box-shadow: inset 3px 0 0 #BB0000;
     }
 
-    /* Possession is typography, not a glyph (final ruling): while a
-       game is live, the possessing team's name + score render
-       full-bright/bold and the other row's name + score sit muted.
-       Baseball: the batting team's row is the bright one. Pre-game
-       and final both rows are equal — these classes only exist live
-       with a known possessor. */
-    .sb-row.sb-bright .sb-name { font-weight: 800; }
+    /* Possession is STRUCTURAL: the possessing team's row carries a
+       solid 4px scarlet LEFT EDGE BAR inside the scoreboard (echoing
+       the pick cards' own scarlet left edge). Every row reserves the
+       same 4px transparent edge so rows never shift. Present only
+       while that team has the ball / is batting (MLB same rule);
+       gone pre-game and at final. */
+    .sb-row { border-left: 4px solid transparent; }
 
-    .sb-row.sb-dim .sb-name,
-    .sb-row.sb-dim .sb-score { opacity: .72; }
+    .sb-row.sb-ball { border-left-color: #d81e1e; }
 
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
@@ -5063,14 +5064,16 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
-          // Possession by typography (final ruling — no glyphs): the
-          // possessing team's row renders full-bright/bold, the other
-          // row's name + score sit muted; the classes swap on change
-          // of possession. Football reads situation.possession (the
-          // same field the info functions parse); baseball's bright
-          // row is the batting team (half-inning). Hockey has no
-          // possession state — both rows stay equal. Live games only,
-          // and only when the possessor is actually known.
+          // Possession is a STRUCTURAL mark (final ruling): the
+          // possessing team's row gets the scarlet left edge bar
+          // (.sb-ball); brightness is never touched — the tint channel
+          // belongs to our pick alone, and washing brightness out
+          // made "whose ball?" unanswerable when our pick was the
+          // defending team. Football reads situation.possession (the
+          // same field the info functions parse); baseball's edge goes
+          // to the batting team (half-inning). Hockey has no
+          // possession state — no edge. Live games only, and only
+          // when the possessor is actually known.
           var markedSide = null;
           if (state === 'in') {
             if (spec.sport === 'NFL' || spec.sport === 'CFB') {
@@ -5090,7 +5093,7 @@ and loads nothing.
           function buildRow(competitor, name, score, img, isOurs, cells) {
             var r = document.createElement('div');
             var possCls = '';
-            if (markedSide) possCls = (markedSide === competitor) ? ' sb-bright' : ' sb-dim';
+            if (markedSide && markedSide === competitor) possCls = ' sb-ball';
             r.className = 'sb-row' + (isOurs ? ' sb-ours' : '') + possCls;
             if (img) {
               var lg = document.createElement('span');
@@ -5231,6 +5234,12 @@ and loads nothing.
           [11, 189].forEach(function (x) {
             svg.appendChild(el('rect', { 'class': 'rink-goal-line', x: x - 0.35, y: 1, width: 0.7, height: 34, fill: 'rgba(216,30,30,.4)' }));
           });
+          // Goal creases: light-blue semicircles on each goal line,
+          // r=6, opening toward center ice — mirrored exactly (the two
+          // paths sweep opposite ways around their own goal lines).
+          // No drawn nets/goals, no logos on the ice.
+          svg.appendChild(el('path', { 'class': 'rink-crease', d: 'M 11 12 A 6 6 0 0 1 11 24 Z', fill: 'rgba(125,175,225,.45)', stroke: 'rgba(43,84,140,.45)', 'stroke-width': 0.5 }));
+          svg.appendChild(el('path', { 'class': 'rink-crease', d: 'M 189 12 A 6 6 0 0 0 189 24 Z', fill: 'rgba(125,175,225,.45)', stroke: 'rgba(43,84,140,.45)', 'stroke-width': 0.5 }));
           // Blue lines at the real 75 / 125 marks.
           [75, 125].forEach(function (x) {
             svg.appendChild(el('rect', { 'class': 'rink-blue-line', x: x - 0.9, y: 1, width: 1.8, height: 34, fill: 'rgba(43,84,140,.6)' }));

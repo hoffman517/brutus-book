@@ -423,21 +423,16 @@
       box-shadow: inset 3px 0 0 #BB0000;
     }
 
-    /* Possession marker before the name: a flat scarlet chevron —
-       the broadcast convention, native to the palette. Same marker
-       for the batting team's row in baseball. The slot exists on
-       both rows; it is only VISIBLE on the row of the team with the
-       ball / at bat. */
-    .sb-poss {
-      flex: 0 0 auto;
-      width: 0;
-      height: 0;
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
-      border-left: 8px solid #e02020;
-    }
+    /* Possession is typography, not a glyph (final ruling): while a
+       game is live, the possessing team's name + score render
+       full-bright/bold and the other row's name + score sit muted.
+       Baseball: the batting team's row is the bright one. Pre-game
+       and final both rows are equal — these classes only exist live
+       with a known possessor. */
+    .sb-row.sb-bright .sb-name { font-weight: 800; }
 
-    .sb-poss.is-off { visibility: hidden; }
+    .sb-row.sb-dim .sb-name,
+    .sb-row.sb-dim .sb-score { opacity: .72; }
 
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
@@ -1039,30 +1034,17 @@
       z-index: 2;
     }
 
+    /* The spot: a plain white vertical tick, the same visual weight
+       as the gold line-to-gain tick. No disc, no glyph. */
     .live-field .field-ball {
       position: absolute;
-      top: 50%;
-      width: 13px;
-      height: 13px;
-      margin: -7px 0 0 -7px;
-      border-radius: 50%;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      margin-left: -1px;
       background: #fff;
-      box-shadow: 0 0 0 2px #d81e1e, 0 1px 3px rgba(0,0,0,.6);
+      box-shadow: 0 0 4px rgba(0,0,0,.6);
       z-index: 3;
-    }
-
-    .live-field .field-watermark {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      font-family: Georgia, 'Times New Roman', serif;
-      font-weight: 800;
-      font-size: 21px;
-      line-height: 1;
-      color: #BB0000;
-      opacity: .2;
-      pointer-events: none;
     }
 
     .base-diamond {
@@ -4788,10 +4770,6 @@ and loads nothing.
           function pct(units) { return (units / 120 * 100) + '%'; }
           var track = document.createElement('div');
           track.className = 'field-track';
-          var wm = document.createElement('span');
-          wm.className = 'field-watermark';
-          wm.textContent = 'B';
-          track.appendChild(wm);
           var k;
           for (k = 0; k <= 100; k += 10) {
             var tick = document.createElement('i');
@@ -5058,18 +5036,17 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
-          // Possession marker: who has the ball, at a glance, in the
-          // scoreboard itself. Football reads situation.possession (the
-          // same field the info functions parse); baseball marks the
-          // batting team's row via the half-inning. Hockey has no
-          // possession state — no marker. Live games only; the marker
-          // slot is reserved (invisible) on the other row so the names
-          // stay aligned.
-          var markerMode = null;
+          // Possession by typography (final ruling — no glyphs): the
+          // possessing team's row renders full-bright/bold, the other
+          // row's name + score sit muted; the classes swap on change
+          // of possession. Football reads situation.possession (the
+          // same field the info functions parse); baseball's bright
+          // row is the batting team (half-inning). Hockey has no
+          // possession state — both rows stay equal. Live games only,
+          // and only when the possessor is actually known.
           var markedSide = null;
           if (state === 'in') {
             if (spec.sport === 'NFL' || spec.sport === 'CFB') {
-              markerMode = 'football';
               var sitP = match.competition && match.competition.situation;
               if (sitP && sitP.possession !== undefined && sitP.possession !== null && sitP.possession !== '') {
                 var pid = String(sitP.possession);
@@ -5077,7 +5054,6 @@ and loads nothing.
                 else if (match.home.team && String(match.home.team.id) === pid) markedSide = match.home;
               }
             } else if (spec.sport === 'MLB') {
-              markerMode = 'ball';
               var tyP = (match.status && match.status.type) || {};
               var dP = tyP.detail || tyP.shortDetail || '';
               var hmP = String(dP).match(/^\s*(Top|Bot|Bottom)\b/i);
@@ -5086,7 +5062,9 @@ and loads nothing.
           }
           function buildRow(competitor, name, score, img, isOurs, cells) {
             var r = document.createElement('div');
-            r.className = 'sb-row' + (isOurs ? ' sb-ours' : '');
+            var possCls = '';
+            if (markedSide) possCls = (markedSide === competitor) ? ' sb-bright' : ' sb-dim';
+            r.className = 'sb-row' + (isOurs ? ' sb-ours' : '') + possCls;
             if (img) {
               var lg = document.createElement('span');
               lg.className = 'sb-logo';
@@ -5095,11 +5073,6 @@ and loads nothing.
               im.alt = '';
               lg.appendChild(im);
               r.appendChild(lg);
-            }
-            if (markerMode) {
-              var pm = document.createElement('span');
-              pm.className = 'sb-poss' + (markerMode === 'ball' ? ' is-ball' : '') + (markedSide === competitor ? '' : ' is-off');
-              r.appendChild(pm);
             }
             var nm = document.createElement('span');
             nm.className = 'sb-name';

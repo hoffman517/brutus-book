@@ -2362,7 +2362,7 @@ and loads nothing.
     </header>
         <div class="egg-slot">
           <figure class="daily-hero" id="daily-hero">
-            <img src="assets/brutus-daily-2026-10-15.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Thursday's card: Seahawks -2.5, Georgia Southern @ Old Dominion under 46.5, Colorado State +14.5, Dodgers moneyline -156, Panthers -1.5 — a hockey puck, a baseball and a football sit on the desk" width="1600" height="1067">
+            <img src="assets/brutus-daily-2026-10-15-b.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Thursday's card: Seahawks -2.5, Georgia Southern @ Old Dominion under 46.5, Colorado State +14.5, Dodgers moneyline -156, Panthers -1.5 — a hockey puck, a baseball and a football sit on the desk" width="1600" height="1067">
             <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
             <span class="egg-puck" id="egg-puck" aria-hidden="true"></span>
           </figure>
@@ -3889,7 +3889,11 @@ and loads nothing.
         'Kennesaw State @ Missouri State': { away: ['assets/team_logos/ncaaf_kenn.png', 'Kennesaw State logo'], home: ['assets/team_logos/ncaaf_most.png', 'Missouri State logo'] },
         'Western Kentucky @ Sam Houston': { away: ['assets/team_logos/ncaaf_wku.png', 'Western Kentucky logo'], home: ['assets/team_logos/ncaaf_shsu.png', 'Sam Houston logo'] },
         'Brewers @ Dodgers': { away: ['assets/team_logos/mlb_mil.png', 'Milwaukee Brewers logo'], home: ['assets/team_logos/mlb_lad.png', 'Los Angeles Dodgers logo'] },
-        'Stars @ Avalanche': { away: ['assets/team_logos/nhl_dal.png', 'Dallas Stars logo'], home: ['assets/team_logos/nhl_col.png', 'Colorado Avalanche logo'] }
+        'Stars @ Avalanche': { away: ['assets/team_logos/nhl_dal.png', 'Dallas Stars logo'], home: ['assets/team_logos/nhl_col.png', 'Colorado Avalanche logo'] },
+        'Seahawks @ Broncos': { away: ['assets/team_logos/nfl_sea.png', 'Seattle Seahawks logo'], home: ['assets/team_logos/nfl_den.png', 'Denver Broncos logo'] },
+        'Georgia Southern @ Old Dominion': { away: ['assets/team_logos/ncaaf_gaso.png', 'Georgia Southern logo'], home: ['assets/team_logos/ncaaf_odu.png', 'Old Dominion logo'] },
+        'Colorado State @ Texas State': { away: ['assets/team_logos/ncaaf_csu.png', 'Colorado State logo'], home: ['assets/team_logos/ncaaf_txst.png', 'Texas State logo'] },
+        'Canucks @ Panthers': { away: ['assets/team_logos/nhl_van.png', 'Vancouver Canucks logo'], home: ['assets/team_logos/nhl_fla.png', 'Florida Panthers logo'] }
       };
 
       function matchupMarkup(pick) {
@@ -3915,7 +3919,7 @@ and loads nothing.
 
       function renderVisibleCards() {
         grid.innerHTML = PICKS.map(function (pick, index) {
-          return '<article class="pick-card conf-' + pick.conf + '" data-sport="' + escapeHTML(pick.sport) + '"' + cardDataAttrs(pick) + ' data-original-rank="' + index + '" data-game-time="' + gameTimeMinutes(pick.time) + '">' +
+          return '<article class="pick-card conf-' + pick.conf + '" data-sport="' + escapeHTML(pick.sport) + '"' + cardDataAttrs(pick) + ' data-day-date="' + escapeHTML(latestDay.date) + '"' + (pick.espnGameId ? ' data-espn-game-id="' + escapeHTML(String(pick.espnGameId)) + '"' : '') + ' data-original-rank="' + index + '" data-game-time="' + gameTimeMinutes(pick.time) + '">' +
             '<div class="pick-top"><div class="sport-time"><span class="sport-tag">' + sportIcon(pick.sport) + escapeHTML(pick.sport) + '</span><span class="game-time">' + escapeHTML(pick.time) + '</span></div>' +
             '<div class="confidence" aria-label="Confidence ' + pick.conf + ' out of 5"><span class="conf-label">CONF</span>' + confidenceDots(pick.conf) + '</div></div>' +
             pickResultMarkup(pick) +
@@ -4936,6 +4940,8 @@ and loads nothing.
           return {
             card: card,
             sport: sport,
+            dayDate: card.getAttribute('data-day-date') || '',
+            gameId: card.getAttribute('data-espn-game-id') || '',
             awayName: awayName,
             homeName: homeName,
             betType: betType,
@@ -4996,6 +5002,19 @@ and loads nothing.
           return false;
         }
 
+        // The ET calendar date of an event. ESPN stamps dates in UTC
+        // (and MLB stamps midnight-UTC of the ET game day), so the UTC
+        // date part alone would misfile every evening game — convert.
+        function eventDayET(event) {
+          if (!event || !event.date) return '';
+          var d = new Date(event.date);
+          if (Number.isNaN(d.getTime())) return '';
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York',
+            year: 'numeric', month: '2-digit', day: '2-digit'
+          }).format(d);
+        }
+
         function findMatch(events, spec) {
           if (!events) return null;
           for (var i = 0; i < events.length; i += 1) {
@@ -5010,11 +5029,34 @@ and loads nothing.
               if (competitor.homeAway === 'home') home = competitor;
             });
             if (!away || !home) { away = competitors[0]; home = competitors[1]; }
-            if (teamMatches(away, spec.awayName) && teamMatches(home, spec.homeName)) {
-              return { away: away, home: home, status: event.status, competition: competition };
+            if (!teamMatches(away, spec.awayName) || !teamMatches(home, spec.homeName)) continue;
+            // EXACT-EVENT JOIN (2026-10-15): a card may only ever
+            // attach to its OWN game. The same teams meet again
+            // (playoff series, rematches) and the feed can carry
+            // yesterday's final beside tonight's game — a team-pair
+            // match alone joined yesterday's Brewers @ Dodgers final
+            // (state: post, full linescore) to tonight's Game 4 card.
+            // Require the event id when the card carries one; else
+            // require the event's ET date to be the card's own day.
+            if (spec.gameId) {
+              if (String(event.id) !== String(spec.gameId)) continue;
+            } else if (spec.dayDate) {
+              if (eventDayET(event) !== spec.dayDate) continue;
             }
+            return { away: away, home: home, status: event.status, competition: competition };
           }
           return null;
+        }
+
+        // Strip every element the live layer added to a card. Used by
+        // the pre-game purity rule: a card whose game has not started
+        // shows its baked face only.
+        function clearLiveLayer(card) {
+          ['.scorebug', '.live-rink', '.live-field', '.live-situation', '.live-score', '.live-last-play'].forEach(function (sel) {
+            Array.prototype.forEach.call(card.querySelectorAll(sel), function (el) {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            });
+          });
         }
 
         function teamLabel(competitor, fallback) {
@@ -5914,9 +5956,10 @@ and loads nothing.
 
         function renderRink(spec, match, state) {
           if (spec.sport !== 'NHL') return;
-          // ONE ANATOMY: the rink renders in every state (pre-game,
-          // live, final) — the surface is the same skeleton; only its
-          // content (shots labels, when the feed carries them) varies.
+          // Called ONLY under real live state (state 'in') since
+          // 2026-10-15 — surfaces render under live state only; the
+          // skeleton is unchanged, its content (shots labels, when
+          // the feed carries them) varies.
           var existing = spec.card.querySelector('.live-rink');
           void (state);
           var rink = existing;
@@ -5944,6 +5987,18 @@ and loads nothing.
           var status = match.status || {};
           var type = status.type || {};
           var state = type.state || 'pre';
+          // PRE-GAME PURITY (2026-10-15): a card whose game has not
+          // started shows its baked face only — NO scorebug, NO
+          // linescore, NO leading/trailing text, NO surface band. If
+          // an earlier poll in this session already attached live
+          // artifacts, strip them — unless the card has genuinely been
+          // live this session (a feed flicker back to 'pre' must not
+          // erase a live card: keep-last-good).
+          if (state === 'pre') {
+            if (!spec.card.dataset.liveSeen) clearLiveLayer(spec.card);
+            return;
+          }
+          spec.card.dataset.liveSeen = '1';
           var detail = type.shortDetail || type.detail || '';
           var awayLabel = teamLabel(match.away, spec.awayName);
           var homeLabel = teamLabel(match.home, spec.homeName);
@@ -6034,8 +6089,16 @@ and loads nothing.
             line.appendChild(document.createTextNode(text));
           }
 
-          renderSituation(spec, match, state);
-          renderRink(spec, match, state);
+          // SURFACES UNDER REAL LIVE STATE ONLY (2026-10-15): the
+          // field bar, the rink and the diamond render only while the
+          // game is actually being played (state 'in') — never on a
+          // pre-game card, never on a final. (Supersedes the 2026-10-14
+          // one-anatomy-in-every-state rendering for surfaces; the
+          // scorebug above still carries 'in' and 'post'.)
+          if (state === 'in') {
+            renderSituation(spec, match, state);
+            renderRink(spec, match, state);
+          }
         }
 
         function fetchScoreboard(url) {

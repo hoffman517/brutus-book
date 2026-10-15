@@ -5401,9 +5401,9 @@ and loads nothing.
         // mirrors the right half exactly; nothing is hand-positioned.
         // Real state only: shots on goal as end labels when the feed's
         // statistics carry them (away left, home right — the page's own
-        // ordering; no direction-of-play is claimed), each captioned
-        // SHOTS in micro-caps under the count. NO puck marker — there
-        // is no position data to place one with.
+        // ordering; no direction-of-play is claimed), each end
+        // carrying the team logo + count, captioned SOG. NO puck
+        // marker — there is no position data to place one with.
         function buildRinkTrack(spec, match) {
           var NS = 'http://www.w3.org/2000/svg';
           function el(tag, attrs) {
@@ -5436,29 +5436,44 @@ and loads nothing.
             svg.appendChild(el('circle', { 'class': 'rink-faceoff-dot', cx: cfg[0], cy: 18, r: 1, fill: 'rgba(216,30,30,.65)', stroke: 'none' }));
           });
           // Shots on goal at the ends — only when the feed carries
-          // them, and always LABELED (Scott: no unlabeled shorthand —
-          // the CONF-dots lesson): the team + count line carries the
-          // word SHOTS in micro-caps directly beneath it. Away end
-          // left, home end right, the pair mirrored exactly; the two
-          // lines center on the crease midline (y 12–24).
+          // them. Each end takes the field bar's end treatment: the
+          // team's LOGO (borrowed from the card's own matchup row,
+          // away first / home second — every surface's ends carry
+          // logos), the count beside it, and the stat's name in
+          // micro-caps beneath: "SOG", the same abbreviation the
+          // scorebug rows print ("SOG 7") — one abbreviation for one
+          // stat, taught twice on the same card. The numbers are
+          // shots ON GOAL (ESPN's shotsTotal, reconciled against
+          // saves + goals), never attempts. Mirrored exactly.
+          var rinkLogos = spec.card ? spec.card.querySelectorAll('.matchup-row .team-logo img') : [];
+          function rinkEnd(isAway, competitor, value) {
+            var g = el('g', { 'class': 'rink-end' });
+            var imgEl = rinkLogos[isAway ? 0 : 1];
+            var src = imgEl ? (imgEl.getAttribute('src') || '') : '';
+            if (src) {
+              g.appendChild(el('image', { 'class': 'rink-end-logo', x: isAway ? 4 : 184, y: 12, width: 12, height: 12, href: src }));
+              var nt = el('text', { 'class': 'rink-sog', x: isAway ? 18.5 : 181.5, y: 20.5, 'font-size': 6.5, 'font-weight': 800, fill: '#22333f' });
+              if (!isAway) nt.setAttribute('text-anchor', 'end');
+              nt.textContent = value;
+              g.appendChild(nt);
+            } else {
+              // No logo on the card to borrow — the abbreviation
+              // carries the end, as the strip did before logos.
+              var at = el('text', { 'class': 'rink-sog', x: isAway ? 5 : 195, y: 20.5, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+              if (!isAway) at.setAttribute('text-anchor', 'end');
+              at.textContent = teamAbbr(competitor, '') + ' ' + value;
+              g.appendChild(at);
+            }
+            var lt = el('text', { 'class': 'rink-sog-label', x: isAway ? 4 : 196, y: 28.5, 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
+            if (!isAway) lt.setAttribute('text-anchor', 'end');
+            lt.textContent = 'SOG';
+            g.appendChild(lt);
+            return g;
+          }
           var av = shotsValue(match.away);
-          if (av) {
-            var at = el('text', { 'class': 'rink-sog', x: 5, y: 17, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
-            at.textContent = teamAbbr(match.away, '') + ' ' + av;
-            svg.appendChild(at);
-            var ac = el('text', { 'class': 'rink-sog-label', x: 5, y: 23, 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
-            ac.textContent = 'SHOTS';
-            svg.appendChild(ac);
-          }
+          if (av) svg.appendChild(rinkEnd(true, match.away, av));
           var hv = shotsValue(match.home);
-          if (hv) {
-            var ht = el('text', { 'class': 'rink-sog', x: 195, y: 17, 'text-anchor': 'end', 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
-            ht.textContent = teamAbbr(match.home, '') + ' ' + hv;
-            svg.appendChild(ht);
-            var hc = el('text', { 'class': 'rink-sog-label', x: 195, y: 23, 'text-anchor': 'end', 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
-            hc.textContent = 'SHOTS';
-            svg.appendChild(hc);
-          }
+          if (hv) svg.appendChild(rinkEnd(false, match.home, hv));
           return svg;
         }
 

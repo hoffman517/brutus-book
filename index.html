@@ -788,15 +788,6 @@
       z-index: 3;
     }
 
-    .live-drive {
-      margin: -4px 0 12px;
-      padding: 0 10px;
-      color: var(--muted);
-      font-size: .72rem;
-      font-weight: 500;
-      line-height: 1.45;
-    }
-
     .base-diamond {
       position: relative;
       flex: 0 0 auto;
@@ -4344,6 +4335,16 @@ and loads nothing.
           return { text: segments.join(' · '), diamond: hasBases ? buildDiamond(sit) : null };
         }
 
+        // Drive summary from the feed ("7 plays, 70 yards, 3:34") with
+        // the trailing drive-clock separator switched to ' · '.
+        function driveText(sit) {
+          if (sit && sit.lastPlay && sit.lastPlay.drive && sit.lastPlay.drive.description) {
+            return String(sit.lastPlay.drive.description).trim()
+              .replace(/,\s*(\d{1,2}:\d{2})\s*$/, ' · $1');
+          }
+          return '';
+        }
+
         function nflSituationInfo(match) {
           var competition = match.competition;
           var sit = competition && competition.situation;
@@ -4382,7 +4383,7 @@ and loads nothing.
           lastPlay = String(lastPlay || '').trim();
           if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
-          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
+          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay, drive: driveText(sit),
             partial: !(poss && typeof sit.down === 'number' && Number.isFinite(sit.down)) };
         }
 
@@ -4430,7 +4431,7 @@ and loads nothing.
           lastPlay = String(lastPlay || '').trim();
           if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
-          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay,
+          return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay, drive: driveText(sit),
             partial: !(poss && (sit.downDistanceText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };
         }
 
@@ -4476,12 +4477,7 @@ and loads nothing.
             if (g > spot && g < 100) gain = g;
             else if (g >= 100) gain = 100;
           }
-          var drive = '';
-          if (sit.lastPlay && sit.lastPlay.drive && sit.lastPlay.drive.description) {
-            drive = String(sit.lastPlay.drive.description).trim()
-              .replace(/,\s*(\d{1,2}:\d{2})\s*$/, ' · $1');
-          }
-          return { spot: spot, gain: gain, possAbbr: possAbbr, defAbbr: defAbbr, drive: drive };
+          return { spot: spot, gain: gain, possAbbr: possAbbr, defAbbr: defAbbr };
         }
 
         function buildFieldTrack(field) {
@@ -4516,18 +4512,16 @@ and loads nothing.
           return track;
         }
 
-        // The bar + drive line live directly under .live-situation.
-        // Keep-last-good applies here too: when the new situation cannot
-        // place the ball (flicker), whatever is on screen stays; the bar
-        // is removed only on a hard remove (game not live / no situation
-        // at all / non-football sport).
+        // The bar lives directly under .live-situation. Keep-last-good
+        // applies here too: when the new situation cannot place the ball
+        // (flicker), whatever is on screen stays; the bar is removed only
+        // on a hard remove (game not live / no situation at all /
+        // non-football sport).
         function renderFieldBar(spec, match, state, hardRemove) {
           var existingField = spec.card.querySelector('.live-field');
-          var existingDrive = spec.card.querySelector('.live-drive');
           function removeEl(n) { if (n && n.parentNode) n.parentNode.removeChild(n); }
           if (hardRemove || state !== 'in' || (spec.sport !== 'NFL' && spec.sport !== 'CFB')) {
             removeEl(existingField);
-            removeEl(existingDrive);
             return;
           }
           var field = fieldBarInfo(match);
@@ -4546,17 +4540,6 @@ and loads nothing.
           else fieldEl.removeAttribute('data-gain');
           if (fieldEl.parentNode !== sitEl.parentNode || fieldEl.previousSibling !== sitEl) {
             sitEl.parentNode.insertBefore(fieldEl, sitEl.nextSibling);
-          }
-          if (field.drive) {
-            var driveEl = existingDrive;
-            if (!driveEl) {
-              driveEl = document.createElement('p');
-              driveEl.className = 'live-drive';
-            }
-            driveEl.textContent = 'Drive: ' + field.drive;
-            if (driveEl.parentNode !== fieldEl.parentNode || driveEl.previousSibling !== fieldEl) {
-              fieldEl.parentNode.insertBefore(driveEl, fieldEl.nextSibling);
-            }
           }
         }
 
@@ -4604,15 +4587,22 @@ and loads nothing.
           var textSpan = document.createElement('span');
           textSpan.textContent = info.text;
           el.appendChild(textSpan);
-          // NFL last play: its own line under the situation line, present
-          // only when the feed carries one — absent entirely otherwise.
-          if (info.lastPlay) {
+          // Last-play line under the situation line (football): the drive
+          // summary folds into this same line to keep the card
+          // uncluttered — 'Last play: X · Drive: Y', or just 'Drive: Y'
+          // when the feed carries a drive but no play text; absent
+          // entirely when it carries neither.
+          var playText = '';
+          if (info.lastPlay && info.drive) playText = 'Last play: ' + info.lastPlay + ' · Drive: ' + info.drive;
+          else if (info.lastPlay) playText = 'Last play: ' + info.lastPlay;
+          else if (info.drive) playText = 'Drive: ' + info.drive;
+          if (playText) {
             var playEl = existingPlay;
             if (!playEl) {
               playEl = document.createElement('p');
               playEl.className = 'live-last-play';
             }
-            playEl.textContent = 'Last play: ' + info.lastPlay;
+            playEl.textContent = playText;
             if (playEl.parentNode !== el.parentNode || playEl.previousSibling !== el) {
               el.parentNode.insertBefore(playEl, el.nextSibling);
             }

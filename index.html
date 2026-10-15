@@ -462,7 +462,7 @@
        columns started at a different x on each row. */
     .sb-row {
       display: grid;
-      grid-template-columns: 34px minmax(0, 1fr) 46px auto 76px;
+      grid-template-columns: 34px minmax(64px, 1fr) 46px minmax(0, auto) 76px;
       align-items: center;
       column-gap: 10px;
       padding: 5px 12px 5px 8px;
@@ -513,21 +513,24 @@
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
        current period bright, unplayed shown as a dash. */
-    /* Linescores are COMPACT: narrow fixed columns grouped together
-       right after the name — never spread across the row. The team
-       name takes priority width (it is identity; everything else
-       yields), and the big total stays anchored right via .sb-side. */
+    /* Linescores are COMPACT and FLEXIBLE: each period column is
+       minmax(10px, 14px), so nine innings compress to fit beside a
+       floored name instead of crushing it (the 2026-10-14 regression:
+       fixed 13px columns + a zero-floor name cell = MLB rows with no
+       names at all). Columns resolve identically on both rows —
+       same track, same count — so period centers stay locked. */
     .sb-lines {
-      display: flex;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(10px, 14px);
       gap: 1px;
-      flex: 0 0 auto;
+      min-width: 0;
       margin-left: 2px;
     }
 
     .sb-lines + .sb-side { margin-left: auto; }
 
     .sb-lines span {
-      width: 13px;
       text-align: center;
       font-size: .68rem;
       font-weight: 600;
@@ -610,6 +613,18 @@
       width: 100%;
       justify-content: flex-end;
     }
+
+    /* No-chip cards (totals — neither row carries a line chip): the
+       46px chip slot collapses out of the template entirely, via a
+       card-level class, so BOTH rows share the same four tracks and
+       the period columns stay locked across rows. The freed width
+       goes to the name and the period columns. */
+    .scorebug.sb-nochip .sb-row {
+      grid-template-columns: 34px minmax(64px, 1fr) minmax(0, auto) 76px;
+    }
+
+    .scorebug.sb-nochip .sb-row > .sb-lines { grid-column: 3; }
+    .scorebug.sb-nochip .sb-row > .sb-side { grid-column: 4; }
 
     .team-logo {
       flex: 0 0 auto;
@@ -5347,6 +5362,12 @@ and loads nothing.
             row.parentNode.insertBefore(bug, row.nextSibling);
           }
           bug.textContent = '';
+          // Card-level chip fact: if neither row will carry a chip
+          // (a totals card), the bug wears sb-nochip and the rows'
+          // template drops the 46px chip slot (see CSS) — alignment
+          // is a within-card property, both rows share the template.
+          var anyChip = !!(board.chipText && sides && sides.ours);
+          bug.className = 'scorebug' + (anyChip ? '' : ' sb-nochip');
           var head = document.createElement('div');
           head.className = 'sb-head';
           var pill = document.createElement('span');

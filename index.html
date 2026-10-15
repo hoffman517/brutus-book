@@ -5173,6 +5173,16 @@ and loads nothing.
           bug.appendChild(head);
           bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away), lm ? lm.away : null));
           bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null, !!(sides && sides.ours === match.home), lm ? lm.home : null));
+          // Team names never truncate: a name that would ellipsize in
+          // the full row (marker + chip + linescores + total) swaps to
+          // the team's abbreviation, which reads as intentional.
+          bug.querySelectorAll('.sb-row').forEach(function (r, idx) {
+            var nmEl = r.querySelector('.sb-name');
+            if (nmEl && nmEl.scrollWidth > nmEl.clientWidth) {
+              var ab = teamAbbr(idx === 0 ? match.away : match.home, '');
+              if (ab && ab !== nmEl.textContent) nmEl.textContent = ab;
+            }
+          });
           if (board.footText) {
             var foot = document.createElement('div');
             foot.className = 'sb-foot';

@@ -85,7 +85,7 @@
     .masthead {
       position: relative;
       overflow: hidden;
-      padding: 22px 24px;
+      padding: 13px 18px;
       border: 1px solid #d0d5d9;
       border-radius: var(--radius-lg);
       background-color: #BB0000;
@@ -133,7 +133,7 @@
     }
 
     .masthead-bottom {
-      margin-top: 18px;
+      margin-top: 10px;
       align-items: flex-end;
     }
 
@@ -215,16 +215,44 @@
       text-align: right;
     }
 
-    .masthead-about {
+    /* The identity one-liner: the old explainer panel's whole content,
+       condensed into one small line inside the masthead itself. */
+    .masthead-identity {
       position: relative;
       z-index: 1;
-      margin-top: 14px;
-      color: rgba(255, 255, 255, .86);
-      font-size: .8rem;
-      line-height: 1.5;
+      margin: 9px 0 0;
+      color: rgba(255, 255, 255, .88);
+      font-size: .76rem;
+      line-height: 1.45;
     }
 
-    .masthead-about p { margin: 0; }
+    /* Record front and center: a compact band directly under the
+       masthead. Values are rendered from BRUTUS_DATA — the same
+       object the Stats tab renders — never hand-typed. */
+    .record-band {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-top: 12px;
+      padding: 9px 14px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      background: var(--panel-2);
+    }
+
+    .record-band-main {
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      color: var(--text);
+    }
+
+    .record-band-last {
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 600;
+    }
 
     main { display: grid; gap: 40px; margin-top: 38px; }
 
@@ -2029,10 +2057,10 @@
         border-color: #4a4f4e;
       }
       .tab-button { min-height: 50px; padding-inline: 6px; }
-      .masthead { padding: 16px; border-radius: 14px; }
+      .masthead { padding: 12px 14px; border-radius: 14px; }
       .masthead-top { align-items: flex-start; flex-wrap: wrap; }
       .record-badge { flex-wrap: wrap; justify-content: flex-end; row-gap: 2px; margin-left: auto; min-height: 0; padding-block: 6px; text-align: right; }
-      .masthead-bottom { margin-top: 15px; align-items: center; }
+      .masthead-bottom { margin-top: 9px; align-items: center; }
       .handicapper-hero {
         grid-template-columns: minmax(0, 1.45fr) minmax(190px, .72fr);
         min-height: 270px;
@@ -2136,7 +2164,7 @@ and loads nothing.
     <header class="masthead">
       <div class="masthead-top">
         <div class="date" data-card-date="2026-10-14"><span class="live-dot" aria-hidden="true"></span>Wednesday · Oct 14, 2026</div>
-        <div class="record-badge"><span>Season</span><strong>14–12–1 · +0.33u</strong><span>ROI</span><strong id="masthead-roi">+2.2%</strong></div>
+        <div class="record-badge"><span>Season</span><strong id="masthead-record">14–12–1 · +0.33u</strong><span>ROI</span><strong id="masthead-roi">+2.2%</strong></div>
       </div>
       <div class="masthead-bottom">
         <div class="brand-lockup">
@@ -2144,11 +2172,13 @@ and loads nothing.
         </div>
         <p class="book-note">Wednesday’s card is live: two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a plus-price Stars moneyline in Denver — 1.75u risked, nothing above conf 2. Yesterday graded 3–0–1 for +1.59u. Season: 14–12–1 (53.8%) for +0.33u.</p>
       </div>
-      <div class="masthead-about">
-        <p>Brutus is an AI analyst — every pick is posted before the game and graded win or lose.</p>
-        <p>1u = our standard unit of stake; each pick shows its stake.</p>
-      </div>
+      <p class="masthead-identity">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
     </header>
+
+    <div class="record-band" id="record-band" aria-label="Season record">
+      <strong class="record-band-main" id="record-band-main">—</strong>
+      <span class="record-band-last" id="record-band-last"></span>
+    </div>
 
     <nav class="tab-nav" role="tablist" aria-label="Dashboard views">
       <button class="tab-button" id="tab-today" type="button" role="tab" aria-selected="true" aria-controls="card-panel" data-tab="today">Today's Card</button>
@@ -3785,6 +3815,32 @@ and loads nothing.
         document.getElementById('form-note').textContent = recent.length ? 'Oldest to newest · last ' + recent.length + ' graded picks' : 'No graded picks yet.';
       }
 
+      // The record band under the masthead — and the masthead badge's
+      // record text — render from the SAME computation as the Stats
+      // tab (allPicks/summarize over BRUTUS_DATA). One source of truth:
+      // no hand-typed record numbers anywhere in the chrome.
+      function renderRecordBand() {
+        var main = document.getElementById('record-band-main');
+        var last = document.getElementById('record-band-last');
+        if (!main || !last) return;
+        var picks = allPicks();
+        var graded = picks.filter(function (pick) { return pick.result !== 'pending'; });
+        var overall = summarize(graded);
+        var roi = overall.risked ? (overall.units > 0 ? '+' : '') + (overall.units / overall.risked * 100).toFixed(1) + '%' : '—';
+        main.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units) + ' · ROI ' + roi).replace(/-/g, '−');
+        var badge = document.getElementById('masthead-record');
+        if (badge) badge.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units)).replace(/-/g, '−');
+        var days = BRUTUS_DATA.days;
+        for (var i = days.length - 1; i >= 0; i -= 1) {
+          var dayGraded = days[i].picks.filter(function (pick) { return pick.result !== 'pending'; });
+          if (dayGraded.length) {
+            var s = summarize(dayGraded);
+            last.textContent = 'Last card: ' + (recordText(s) + ', ' + signedUnits(s.units)).replace(/-/g, '−');
+            break;
+          }
+        }
+      }
+
       function renderHistory() {
         var history = document.getElementById('history-list');
         history.innerHTML = BRUTUS_DATA.days.slice().reverse().map(function (day, dayIndex) {
@@ -3825,6 +3881,7 @@ and loads nothing.
       });
 
       renderStats();
+      renderRecordBand();
       renderHistory();
       applyDossierFinals();
       attachDrillDowns();

@@ -1181,12 +1181,27 @@
       line-height: 1.45;
     }
 
+    /* ONE headline anatomy for every card (Scott, 2026-10-14 night):
+       line 1 = pick + price + source (a long source wraps WITHIN
+       line 1); line 2 = STAKE pill + type tag together, left-aligned.
+       The stake never migrates based on text length — the two rows
+       are structural, not an accident of what fits. */
     .wager-line {
+      margin-bottom: 9px;
+    }
+
+    .wager-main {
       display: flex;
       align-items: baseline;
       flex-wrap: wrap;
       gap: 4px 8px;
-      margin-bottom: 9px;
+    }
+
+    .wager-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
     }
 
     .bet {
@@ -1207,14 +1222,14 @@
       font-size: .72rem;
       font-weight: 600;
       color: var(--muted);
-      white-space: nowrap;
+      min-width: 0;
     }
 
     .stake-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 11px;
+      padding: 2px 11px;
       border: 1px solid #e02331;
       border-radius: 999px;
       background: rgba(187,0,0,.24);
@@ -1235,7 +1250,7 @@
     }
 
     .stake-chip.small {
-      padding: 4px 9px;
+      padding: 2px 9px;
       font-size: .84rem;
     }
 
@@ -2322,7 +2337,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_kenn.png" alt="Kennesaw State logo" width="34" height="34"></span><p class="matchup">Kennesaw State @ Missouri State</p><span class="team-logo"><img src="assets/team_logos/ncaaf_most.png" alt="Missouri State logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">KENNESAW STATE -3</span><span class="odds">−111</span><span class="price-book">Fanatics</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
+            <div class="wager-line"><div class="wager-main"><span class="bet">KENNESAW STATE -3</span><span class="odds">−111</span><span class="price-book">Fanatics</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div></div>
             <p class="conditions">Outdoor · Springfield, MO · No weather edge claimed</p>
             <ul class="reason-list"><li>Action Network's best bet is Kennesaw State -3 or better, and the Tony's Picks panel agrees.</li><li>Missouri State has allowed 30+ points in four of five games.</li><li>Kennesaw State QB Ricky Collins adds a running element against a defense that rarely reaches the passer.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/college-football/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Kennesaw State @ Missouri State">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2336,7 +2351,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_wku.png" alt="Western Kentucky logo" width="34" height="34"></span><p class="matchup">Western Kentucky @ Sam Houston</p><span class="team-logo"><img src="assets/team_logos/ncaaf_shsu.png" alt="Sam Houston logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">SAM HOUSTON +1.5</span><span class="odds">−108</span><span class="price-book">Bleacher Report odds listing</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
+            <div class="wager-line"><div class="wager-main"><span class="bet">SAM HOUSTON +1.5</span><span class="odds">−108</span><span class="price-book">Bleacher Report odds listing</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div></div>
             <p class="conditions">Outdoor · ~79°F, clear · Wind 9 mph</p>
             <ul class="reason-list"><li>Ensemble -2.7 and v0.2 -4.4 for Sam Houston — a 4.2-point disagreement with the market.</li><li>VSIN, USA Today and SportsGambler all take Sam Houston.</li><li>Western Kentucky owns the nation's worst run defense at about 6 yards per carry allowed.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/college-football/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Western Kentucky @ Sam Houston">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2350,7 +2365,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/mlb_mil.png" alt="Milwaukee Brewers logo" width="34" height="34"></span><p class="matchup">Brewers @ Dodgers</p><span class="team-logo"><img src="assets/team_logos/mlb_lad.png" alt="Los Angeles Dodgers logo" width="34" height="34"></span></div>
             <p class="series-line">NLCS · Game 3 · MIL leads series 2–0</p>
-            <div class="wager-line"><span class="bet">UNDER 7.5</span><span class="odds">−114</span><span class="price-book">DraftKings</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Total</span></div>
+            <div class="wager-line"><div class="wager-main"><span class="bet">UNDER 7.5</span><span class="odds">−114</span><span class="price-book">DraftKings</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Total</span></div></div>
             <p class="conditions">Dodger Stadium · Outdoor · ~70°F, clear · Wind 3 mph</p>
             <ul class="reason-list"><li>Blake Snell (1.90 ERA) vs Robert Gasser, with Milwaukee's bullpen at one earned run through six postseason games.</li><li>Game 1 of this series finished 2-1.</li><li>Clear and calm at Dodger Stadium — no weather push either way.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/mlb/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Brewers @ Dodgers">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2364,7 +2379,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/nhl_dal.png" alt="Dallas Stars logo" width="34" height="34"></span><p class="matchup">Stars @ Avalanche</p><span class="team-logo"><img src="assets/team_logos/nhl_col.png" alt="Colorado Avalanche logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">STARS ML</span><span class="odds">+130</span><span class="price-book">FanDuel</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.25u</span><span class="market">Moneyline</span></div>
+            <div class="wager-line"><div class="wager-main"><span class="bet">STARS ML</span><span class="odds">+130</span><span class="price-book">FanDuel</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.25u</span><span class="market">Moneyline</span></div></div>
             <p class="conditions">Denver · Colorado on the second night of a back-to-back · Makar game-time decision</p>
             <ul class="reason-list"><li>Casey DeSmith is confirmed for Dallas (.923 save %) against likely starter Scott Wedgewood (.897).</li><li>Colorado played with 17 skaters last night; Cale Makar is a game-time decision.</li><li>At +130 the Stars need only a 43.5% win rate to break even — sized small at conf 1.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/nhl/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Stars @ Avalanche">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -3475,7 +3490,7 @@ and loads nothing.
             pickResultMarkup(pick) +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
-            '<div class="wager-line"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">' + escapeHTML(pick.book) + '</span>' : '') + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div>' +
+            '<div class="wager-line"><div class="wager-main"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">' + escapeHTML(pick.book) + '</span>' : '') + '</div><div class="wager-sub">' + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div></div>' +
             '<p class="conditions">' + escapeHTML(pick.conditions || '') + '</p>' +
             '<ul class="reason-list">' + (pick.reasons || [pick.why]).map(function (reason) { return '<li>' + escapeHTML(reason) + '</li>'; }).join('') + '</ul>' +
             (intelSource(pick) ? '<p class="source"><strong>Intel via</strong> ' + escapeHTML(intelSource(pick)) + '</p>' : '') +

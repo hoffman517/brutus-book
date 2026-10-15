@@ -453,10 +453,18 @@
       line-height: 1.4;
     }
 
+    /* STRICT GRID (Scott, 2026-10-14 night): a linescore is a table.
+       Columns sit at fixed positions shared by both rows, independent
+       of row content: logo 34 · name flex (absorbs all variance) ·
+       chip slot 46 (reserved whether or not a chip renders) · period
+       columns · side 76 anchored right. Before this, the lines block
+       floated with name length and chip presence, so the quarter
+       columns started at a different x on each row. */
     .sb-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) 46px auto 76px;
       align-items: center;
-      gap: 10px;
+      column-gap: 10px;
       padding: 5px 12px 5px 8px;
       min-height: 40px;
       box-sizing: border-box;
@@ -586,6 +594,21 @@
       color: var(--text);
       min-width: 1.1em;
       text-align: right;
+    }
+
+    /* Grid placement by class, so a missing logo or an absent chip
+       never shifts another column. The chip hugs the chip slot's left
+       edge; the side cell spans its fixed track with content pushed
+       right, so the total anchors the row's right edge on every row. */
+    .sb-row > .sb-logo { grid-column: 1; }
+    .sb-row > .sb-name { grid-column: 2; min-width: 0; }
+    .sb-row > .sb-chip { grid-column: 3; justify-self: start; }
+    .sb-row > .sb-lines { grid-column: 4; margin-left: 0; }
+    .sb-row > .sb-side {
+      grid-column: 5;
+      margin-left: 0;
+      width: 100%;
+      justify-content: flex-end;
     }
 
     .team-logo {
@@ -2409,7 +2432,7 @@ and loads nothing.
         <div class="performance-grid">
           <article class="performance-card"><h3>By sport</h3><div class="breakdown-list" id="sport-breakdown"></div></article>
           <article class="performance-card"><h3>By bet type</h3><div class="breakdown-list" id="type-breakdown"></div></article>
-          <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
+          <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes through Oct 14: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u. Flat 0.5u from Oct 15.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
           <article class="performance-card"><h3>By date</h3><div class="breakdown-list" id="date-breakdown"></div></article>
           <article class="performance-card"><h3>As favorite or dog</h3><p class="breakdown-note">Sides only, by the points — moneylines slot by the game's prices. Totals aren't here: a total is never a favorite or a dog.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
           <article class="performance-card"><h3>Last 10 picks</h3><div class="form-strip" id="last-ten" aria-label="Last 10 graded picks"></div><p class="source-note" id="form-note">No graded picks yet.</p></article>
@@ -2445,7 +2468,7 @@ and loads nothing.
     </main>
 
     <footer class="footer">
-      <span><strong>Staking:</strong> 1u confidence 4–5 · 0.75u confidence 3 · 0.5u confidence 2 · 0.25u confidence 1 — stake shown on every pick</span>
+      <span><strong>Staking:</strong> flat sizing, no tiers — stake shown on every pick</span>
       <span>For entertainment · Track process, not streaks.</span>
     </footer>
   </div>
@@ -4035,38 +4058,19 @@ and loads nothing.
       var shareResetTimer;
 
       function cardAsText() {
-        var date = document.querySelector('.date').textContent.trim().replace('·', '—');
-        var record = document.querySelector('.record-badge strong').textContent.trim();
-        var asOf = document.querySelector('#picks-as-of time').textContent.trim();
-        var lines = ["BRUTUS'S BOOK — " + date.toUpperCase(), asOf, 'FINAL CARD · ' + asOf.replace('Picks as of', 'Locked'), ''];
-
+        // STRIPPED FORMAT (Scott, 2026-10-14 night: "Just the picks"):
+        // one header line, one line per pick, the Book's link last.
+        // Nothing else — no timestamps, no staking footer, no record.
+        var dateEl = document.querySelector('.date');
+        var iso = dateEl ? dateEl.getAttribute('data-card-date') : '';
+        var d = iso ? new Date(iso + 'T12:00:00') : new Date();
+        var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var lines = ["Brutus' Book — " + DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear()];
         PICKS.forEach(function (pick, index) {
-          lines.push((index + 1) + '. ' + pick.matchup);
-          lines.push(pick.line + ' (' + pick.odds + ')' + (pick.book ? ' · Price: ' + pick.book : '') + ' · Confidence ' + pick.conf + '/5 · Stake ' + stakeShort(pick));
-          lines.push(pick.result === 'pending' ? 'Result: PENDING' : 'Result: ' + pick.result.toUpperCase() + ' — ' + pick.finalScore);
-          lines.push(pick.conditions);
-          pick.reasons.forEach(function (reason) {
-            lines.push('• ' + reason);
-          });
-          var provenance = intelSource(pick);
-          if (provenance) lines.push('Intel via ' + provenance);
-          lines.push('');
+          lines.push((index + 1) + '. ' + pick.line + ' (' + pick.odds + ') · ' + stakeShort(pick));
         });
-
-        var mixCounts = { Spread: 0, Total: 0, Moneyline: 0 };
-        PICKS.forEach(function (pick) {
-          var type = normalizedBetType(pick.bet);
-          if (Object.prototype.hasOwnProperty.call(mixCounts, type)) mixCounts[type] += 1;
-        });
-        var mixParts = [];
-        if (mixCounts.Spread) mixParts.push(mixCounts.Spread + (mixCounts.Spread === 1 ? ' spread' : ' spreads'));
-        if (mixCounts.Total) mixParts.push(mixCounts.Total + (mixCounts.Total === 1 ? ' total' : ' totals'));
-        if (mixCounts.Moneyline) mixParts.push(mixCounts.Moneyline + (mixCounts.Moneyline === 1 ? ' moneyline' : ' moneylines'));
-        var totalRisked = PICKS.reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
-        lines.push('Card mix: ' + mixParts.join(', ') + '. Total risked: ' + (Math.round(totalRisked * 100) / 100) + 'u.');
-        lines.push('Staking: Conf 4–5 = 1u · Conf 3 = 0.75u · Conf 2 = 0.5u · Conf 1 = 0.25u.');
-        lines.push('Season record: ' + record);
-        lines.push("Attribution: Brutus's Book");
+        lines.push('hoffman517.github.io/brutus-book');
         return lines.join('\n');
       }
 
@@ -4124,7 +4128,7 @@ and loads nothing.
         var date = document.querySelector('.date').textContent.trim();
         var record = document.querySelector('.record-badge strong').textContent.trim();
         exportCard.innerHTML =
-          '<div class="export-head"><div class="export-brand-lockup"><div><h2 class="export-brand">BRUTUS’S <span>BOOK</span></h2><p class="export-kicker">Today’s card · ranked by confidence</p></div></div><p class="export-date">' + escapeHTML(date) + '<br>Eastern Time</p></div>' +
+          '<div class="export-head"><div class="export-brand-lockup"><div><h2 class="export-brand">BRUTUS’S <span>BOOK</span></h2><p class="export-kicker">Today’s card</p></div></div><p class="export-date">' + escapeHTML(date) + '</p></div>' +
           '<div class="export-picks">' + PICKS.map(function (pick, index) {
             var stars = new Array(pick.conf + 1).join('★') + new Array(6 - pick.conf).join('☆');
             return '<div class="export-pick" style="--export-confidence:' + confidenceColor(pick.conf) + '">' +
@@ -4134,7 +4138,7 @@ and loads nothing.
               '<p class="export-why">' + escapeHTML(pick.why) + '</p>' +
               '</div>';
           }).join('') + '</div>' +
-          '<div class="export-foot"><span>Season record <strong>' + escapeHTML(record) + '</strong></span><span class="export-responsible">For fun. Bet responsibly.</span></div>';
+          '<div class="export-foot"><span>Season record <strong>' + escapeHTML(record) + '</strong></span><span class="export-domain">hoffman517.github.io/brutus-book</span><span class="export-responsible">Bet responsibly.</span></div>';
       }
 
       function roundedRect(context, x, y, width, height, radius) {
@@ -4230,15 +4234,12 @@ and loads nothing.
         context.fillText('BOOK', left + brandWidth, 124);
         context.fillStyle = '#A7B1B9';
         context.font = '700 21px "IBM Plex Sans", sans-serif';
-        context.fillText('TODAY’S CARD · RANKED BY CONFIDENCE', left, 169);
+        context.fillText('TODAY’S CARD', left, 169);
 
         context.textAlign = 'right';
         context.fillStyle = '#d3ddd7';
         context.font = '700 25px "IBM Plex Sans", sans-serif';
         context.fillText(date, width - left, 103);
-        context.fillStyle = '#A7B1B9';
-        context.font = '700 18px "IBM Plex Sans", sans-serif';
-        context.fillText('EASTERN TIME', width - left, 139);
         context.textAlign = 'left';
         context.fillStyle = '#BB0000';
         context.fillRect(left, 216, contentWidth, 3);
@@ -4303,10 +4304,20 @@ and loads nothing.
         context.fillStyle = '#ffffff';
         context.font = '700 23px "IBM Plex Sans", sans-serif';
         context.fillText(record, recordX, footerY + 49);
+        var recordEndX = recordX + context.measureText(record).width;
         context.textAlign = 'right';
         context.fillStyle = '#98a49e';
         context.font = '21px "IBM Plex Sans", sans-serif';
-        context.fillText('For fun. Bet responsibly.', width - left, footerY + 49);
+        context.fillText('Bet responsibly.', width - left, footerY + 49);
+        // The Book's address, printed on the image itself (an image
+        // file can't carry a clickable link once pasted into a chat,
+        // but a printed address travels with every forward). Centered
+        // in the free space between the record and the responsible
+        // line, measured from the actual strings so the three zones
+        // never collide.
+        var respStartX = (width - left) - context.measureText('Bet responsibly.').width;
+        context.textAlign = 'center';
+        context.fillText('hoffman517.github.io/brutus-book', (recordEndX + respStartX) / 2, footerY + 49);
         context.textAlign = 'left';
         return canvas;
       }
@@ -4368,13 +4379,24 @@ and loads nothing.
           var cardDate = document.querySelector('.date').getAttribute('data-card-date') || 'daily-card';
           var filename = 'brutus-book-picks-' + cardDate + '.png';
           var file = new File([blob], filename, { type: 'image/png' });
-          var canShareFile = navigator.share && navigator.canShare && navigator.canShare({ files: [file] });
+          // Hand the share sheet BOTH the image file and the page URL,
+          // so apps that support it deliver a tappable link alongside
+          // the picture. Some browsers accept files but reject the
+          // files+url combination — then fall back to the files-only
+          // payload (the previous behavior), silently.
+          var shareData = {
+            files: [file],
+            title: "Brutus's Book picks",
+            text: "Today’s Brutus's Book picks",
+            url: 'https://hoffman517.github.io/brutus-book/'
+          };
+          var canShareFile = navigator.share && navigator.canShare && navigator.canShare(shareData);
+          if (!canShareFile) {
+            delete shareData.url;
+            canShareFile = navigator.share && navigator.canShare && navigator.canShare(shareData);
+          }
           if (canShareFile) {
-            return navigator.share({
-              files: [file],
-              title: "Brutus's Book picks",
-              text: "Today’s Brutus's Book picks"
-            }).then(function () {
+            return navigator.share(shareData).then(function () {
               showShareSuccess('Image shared!', 'Image shared!');
             }).catch(function (error) {
               if (error && error.name === 'AbortError') {

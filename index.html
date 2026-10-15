@@ -485,17 +485,21 @@
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
        current period bright, unplayed shown as a dash. */
+    /* Linescores are COMPACT: narrow fixed columns grouped together
+       right after the name — never spread across the row. The team
+       name takes priority width (it is identity; everything else
+       yields), and the big total stays anchored right via .sb-side. */
     .sb-lines {
-      margin-left: auto;
       display: flex;
-      gap: 2px;
+      gap: 1px;
       flex: 0 0 auto;
+      margin-left: 2px;
     }
 
-    .sb-lines + .sb-side { margin-left: 8px; }
+    .sb-lines + .sb-side { margin-left: auto; }
 
     .sb-lines span {
-      width: 14px;
+      width: 13px;
       text-align: center;
       font-size: .68rem;
       font-weight: 600;
@@ -5036,10 +5040,13 @@ and loads nothing.
           var awayScore = teamScore(match.away);
           var homeScore = teamScore(match.home);
           if (awayScore === null || homeScore === null) { teardown(); return false; }
-          var mEl = row.querySelector('.matchup');
-          var names = mEl ? mEl.textContent.split(' @ ') : [];
-          var awayName = (names.length === 2 && names[0].trim()) ? names[0].trim() : teamLabel(match.away, spec.awayName);
-          var homeName = (names.length === 2 && names[1].trim()) ? names[1].trim() : teamLabel(match.home, spec.homeName);
+          // Scoreboard rows use the feed's SHORT name (nickname) for
+          // BOTH teams, every sport (Scott's rule) — never a mix of
+          // one row's full display name and the other's nickname.
+          // Fallback chain: shortDisplayName → abbreviation → the
+          // card's own name; the full displayName is never used here.
+          var awayName = (match.away.team && match.away.team.shortDisplayName) || teamAbbr(match.away, spec.awayName);
+          var homeName = (match.home.team && match.home.team.shortDisplayName) || teamAbbr(match.home, spec.homeName);
           var imgs = row.querySelectorAll('.team-logo img');
           // Our side, when the bet has one (spread/ML). A pure total has
           // no side — ourMatchup returns null and NEITHER row highlights.

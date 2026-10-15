@@ -400,6 +400,29 @@
       box-shadow: inset 3px 0 0 #BB0000;
     }
 
+    /* Per-period linescores between the name and the total: fixed
+       columns so the two rows align; completed periods muted, the
+       current period bright, unplayed shown as a dash. */
+    .sb-lines {
+      margin-left: auto;
+      display: flex;
+      gap: 2px;
+      flex: 0 0 auto;
+    }
+
+    .sb-lines + .sb-side { margin-left: 8px; }
+
+    .sb-lines span {
+      width: 14px;
+      text-align: center;
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .sb-lines span.cur { color: var(--text); font-weight: 800; }
+    .sb-lines span.todo { opacity: .4; }
+
     /* The bet line rides on our row (side bets only). */
     .sb-chip {
       flex: 0 0 auto;
@@ -816,14 +839,23 @@
     .live-situation {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 8px;
-      margin: -8px 0 14px;
+      margin: 2px 0 14px;
       padding: 0 10px;
       color: var(--muted);
       font-size: .72rem;
       font-weight: 600;
       line-height: 1.45;
+    }
+
+    /* The situation text takes the row's remaining width and wraps
+       inside it — a leading visual (the MLB base diamond) stays a
+       fixed left cell on the SAME row, never pushed to a row of its
+       own. */
+    .live-situation-text {
+      flex: 1;
+      min-width: 0;
     }
 
     .live-last-play {
@@ -840,7 +872,7 @@
        goal per team at the ends, when the feed reports them). There is
        deliberately NO puck marker: no position data exists. */
     .live-rink {
-      margin: -6px 10px 12px;
+      margin: 2px 10px 12px;
     }
 
     .live-rink .rink-track {
@@ -1010,23 +1042,23 @@
     .base-diamond {
       position: relative;
       flex: 0 0 auto;
-      width: 24px;
-      height: 22px;
+      width: 19px;
+      height: 17px;
     }
 
     .base-diamond i {
       position: absolute;
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border: 1.5px solid #5b656d;
       background: transparent;
       transform: rotate(45deg);
     }
 
     .base-diamond i.on { border-color: #BB0000; background: #BB0000; }
-    .base-diamond .bd-second { top: 1px; left: 8px; }
-    .base-diamond .bd-first { top: 8px; right: 1px; }
-    .base-diamond .bd-third { top: 8px; left: 1px; }
+    .base-diamond .bd-second { top: 0; left: 6px; }
+    .base-diamond .bd-first { top: 5px; right: 0; }
+    .base-diamond .bd-third { top: 5px; left: 0; }
 
     .sport-time {
       display: flex;
@@ -4871,6 +4903,7 @@ and loads nothing.
           el.dataset.partial = info.partial ? '1' : '0';
           if (info.diamond) el.appendChild(info.diamond);
           var textSpan = document.createElement('span');
+          textSpan.className = 'live-situation-text';
           textSpan.textContent = info.text;
           el.appendChild(textSpan);
           // Last-play line under the situation line (football): the drive
@@ -4950,7 +4983,56 @@ and loads nothing.
           // Our side, when the bet has one (spread/ML). A pure total has
           // no side — ourMatchup returns null and NEITHER row highlights.
           var sides = ourMatchup(spec, match);
-          function buildRow(competitor, name, score, img, isOurs) {
+          // Per-period linescores for the middle of each row, computed
+          // once per match so both rows' columns align. No linescore
+          // data on either team → no middle at all. Baseball extras
+          // (10th+) fold into one final summed column; hockey/football
+          // overtime periods append. The current period reads bright.
+          function linesModel() {
+            var a = (match.away && match.away.linescores) || [];
+            var h = (match.home && match.home.linescores) || [];
+            if (!a.length && !h.length) return null;
+            var base = 4;
+            if (spec.sport === 'NHL') base = 3;
+            else if (spec.sport === 'MLB') base = 9;
+            var maxP = 0;
+            a.concat(h).forEach(function (ls) {
+              var p = parseInt(ls.period, 10);
+              if (Number.isFinite(p) && p > maxP) maxP = p;
+            });
+            var cols = spec.sport === 'MLB' ? 9 + (maxP > 9 ? 1 : 0) : Math.max(base, maxP);
+            var cur = (match.status && parseInt(match.status.period, 10)) || 0;
+            function cellsFor(list) {
+              var byP = {};
+              list.forEach(function (ls) { byP[parseInt(ls.period, 10)] = ls; });
+              var cells = [];
+              for (var col = 1; col <= cols; col += 1) {
+                var isFold = spec.sport === 'MLB' && maxP > 9 && col === cols;
+                var txt = '–';
+                var played = false;
+                if (isFold) {
+                  var sum = 0;
+                  var any = false;
+                  for (var p2 = 10; p2 <= maxP; p2 += 1) {
+                    if (byP[p2] && byP[p2].value !== undefined && byP[p2].value !== null) { sum += Number(byP[p2].value); any = true; }
+                  }
+                  if (any) { txt = String(Math.round(sum)); played = true; }
+                } else if (byP[col]) {
+                  played = true;
+                  txt = (byP[col].displayValue !== undefined && byP[col].displayValue !== null && byP[col].displayValue !== '')
+                    ? String(byP[col].displayValue)
+                    : String(Math.round(Number(byP[col].value)));
+                  if (txt === 'NaN') txt = '–';
+                }
+                var isCur = state === 'in' && (isFold ? cur >= 10 : cur === col);
+                cells.push({ txt: txt, cls: isCur ? 'cur' : (played ? 'done' : 'todo') });
+              }
+              return cells;
+            }
+            return { away: cellsFor(a), home: cellsFor(h) };
+          }
+          var lm = linesModel();
+          function buildRow(competitor, name, score, img, isOurs, cells) {
             var r = document.createElement('div');
             r.className = 'sb-row' + (isOurs ? ' sb-ours' : '');
             if (img) {
@@ -4971,6 +5053,17 @@ and loads nothing.
               chip.className = 'sb-chip';
               chip.textContent = board.chipText;
               r.appendChild(chip);
+            }
+            if (cells) {
+              var lines = document.createElement('span');
+              lines.className = 'sb-lines';
+              cells.forEach(function (cell) {
+                var cs = document.createElement('span');
+                cs.className = cell.cls;
+                cs.textContent = cell.txt;
+                lines.appendChild(cs);
+              });
+              r.appendChild(lines);
             }
             var side = document.createElement('span');
             side.className = 'sb-side';
@@ -5009,8 +5102,8 @@ and loads nothing.
             head.appendChild(clk);
           }
           bug.appendChild(head);
-          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away)));
-          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null, !!(sides && sides.ours === match.home)));
+          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away), lm ? lm.away : null));
+          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null, !!(sides && sides.ours === match.home), lm ? lm.home : null));
           if (board.footText) {
             var foot = document.createElement('div');
             foot.className = 'sb-foot';

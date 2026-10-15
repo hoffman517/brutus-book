@@ -444,24 +444,31 @@
 
     .sb-row + .sb-row { border-top: 1px solid var(--line-soft); }
 
-    /* Two signals, two geometries, never one channel carrying both
-       (Scott's ruling after the brightness wash-out): the background
-       TINT is OURS ONLY — the side the bet is on (a pure total tints
-       neither row). Names and scores render at full brightness at
-       all times; possession never touches brightness. */
+    /* Two signals, two languages, never one channel carrying both
+       (Scott's rulings, final): RED IS THE BET — the scarlet row tint
+       (background-color) + the line chip mark our side only (a pure
+       total tints neither row). WHITE LIGHT IS THE BALL — possession
+       gets the loudest treatment: a light wash over the row plus a
+       solid 4px WHITE left edge, name and score full white. The wash
+       is a background-image so it composes OVER the tint when our
+       team has the ball: tint + wash + edge stack. No name muting
+       anywhere; no glyph. Every row reserves the same 4px transparent
+       edge so rows never shift. The edge/wash exist only while that
+       team has the ball / is batting (MLB same rule); gone pre-game
+       and at final; NHL has no possession state — rows stay unlit. */
     .sb-row.sb-ours {
-      background: rgba(187,0,0,.14);
+      background-color: rgba(187,0,0,.14);
     }
 
-    /* Possession is STRUCTURAL: the possessing team's row carries a
-       solid 4px scarlet LEFT EDGE BAR inside the scoreboard (echoing
-       the pick cards' own scarlet left edge). Every row reserves the
-       same 4px transparent edge so rows never shift. Present only
-       while that team has the ball / is batting (MLB same rule);
-       gone pre-game and at final. */
     .sb-row { border-left: 4px solid transparent; }
 
-    .sb-row.sb-ball { border-left-color: #d81e1e; }
+    .sb-row.sb-ball {
+      border-left-color: #fff;
+      background-image: linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10));
+    }
+
+    .sb-row.sb-ball .sb-name,
+    .sb-row.sb-ball .sb-score { color: #fff; }
 
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the

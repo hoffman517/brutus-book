@@ -344,6 +344,79 @@
 
     .matchup-row .matchup { margin: 0; }
 
+    /* Scorebug: when a game is live or final, the matchup row becomes a
+       two-row scorebug (logo · name · score at the right edge). The
+       original matchup row is hidden only while the bug is on screen;
+       if the bug cannot be built, the row and the strip's full score
+       text stay — a card never ends up with no score anywhere. */
+    .matchup-row.has-bug { display: none; }
+
+    .scorebug {
+      margin: 0 0 8px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      background: var(--panel-2);
+      overflow: hidden;
+    }
+
+    .sb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 12px 5px 8px;
+      min-height: 40px;
+      box-sizing: border-box;
+    }
+
+    .sb-row + .sb-row { border-top: 1px solid var(--line-soft); }
+
+    .sb-logo {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: #eceeec;
+      box-shadow: inset 0 0 0 1px rgba(10, 12, 14, .14);
+    }
+
+    .sb-logo img { width: 26px; height: 26px; display: block; }
+
+    .sb-name {
+      font-weight: 700;
+      font-size: .98rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sb-side {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .sb-extra {
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .sb-score {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text);
+      min-width: 1.1em;
+      text-align: right;
+    }
+
     .team-logo {
       flex: 0 0 auto;
       display: flex;
@@ -4612,6 +4685,90 @@ and loads nothing.
           renderFieldBar(spec, match, state, false);
         }
 
+        // NHL shots on goal, ONLY when the feed's competitor statistics
+        // actually carry a shots entry — otherwise the empty string and
+        // the scorebug ships without it. No other statistic is read.
+        function shotsText(competitor) {
+          var stats = competitor && competitor.statistics;
+          if (!stats || !stats.length) return '';
+          for (var i = 0; i < stats.length; i += 1) {
+            var s = stats[i] || {};
+            var key = String(s.name || s.abbreviation || s.displayName || '').toLowerCase();
+            if (key.indexOf('shot') !== -1) {
+              var v = (s.displayValue !== undefined && s.displayValue !== null) ? s.displayValue : s.value;
+              if (v !== undefined && v !== null && v !== '') return 'SOG ' + v;
+            }
+          }
+          return '';
+        }
+
+        // Scorebug: transforms the card's matchup row into two team rows
+        // (logo · name · score) while the game is live or final. Returns
+        // true only when the bug is actually on screen, so the caller can
+        // slim the strip; on any failure the matchup row is restored and
+        // the strip keeps the full score text.
+        function renderScorebug(spec, match, state) {
+          var row = spec.card.querySelector('.matchup-row');
+          var bug = spec.card.querySelector('.scorebug');
+          function teardown() {
+            if (bug && bug.parentNode) bug.parentNode.removeChild(bug);
+            if (row) row.classList.remove('has-bug');
+          }
+          if (!row || state === 'pre') { teardown(); return false; }
+          var awayScore = teamScore(match.away);
+          var homeScore = teamScore(match.home);
+          if (awayScore === null || homeScore === null) { teardown(); return false; }
+          var mEl = row.querySelector('.matchup');
+          var names = mEl ? mEl.textContent.split(' @ ') : [];
+          var awayName = (names.length === 2 && names[0].trim()) ? names[0].trim() : teamLabel(match.away, spec.awayName);
+          var homeName = (names.length === 2 && names[1].trim()) ? names[1].trim() : teamLabel(match.home, spec.homeName);
+          var imgs = row.querySelectorAll('.team-logo img');
+          function buildRow(competitor, name, score, img) {
+            var r = document.createElement('div');
+            r.className = 'sb-row';
+            if (img) {
+              var lg = document.createElement('span');
+              lg.className = 'sb-logo';
+              var im = document.createElement('img');
+              im.src = img.getAttribute('src');
+              im.alt = '';
+              lg.appendChild(im);
+              r.appendChild(lg);
+            }
+            var nm = document.createElement('span');
+            nm.className = 'sb-name';
+            nm.textContent = name;
+            r.appendChild(nm);
+            var side = document.createElement('span');
+            side.className = 'sb-side';
+            if (spec.sport === 'NHL') {
+              var sx = shotsText(competitor);
+              if (sx) {
+                var ex = document.createElement('span');
+                ex.className = 'sb-extra';
+                ex.textContent = sx;
+                side.appendChild(ex);
+              }
+            }
+            var sc = document.createElement('span');
+            sc.className = 'sb-score';
+            sc.textContent = String(score);
+            side.appendChild(sc);
+            r.appendChild(side);
+            return r;
+          }
+          if (!bug) {
+            bug = document.createElement('div');
+            bug.className = 'scorebug';
+            row.parentNode.insertBefore(bug, row.nextSibling);
+          }
+          bug.textContent = '';
+          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null));
+          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null));
+          row.classList.add('has-bug');
+          return true;
+        }
+
         function renderLiveLine(spec, match) {
           var status = match.status || {};
           var type = status.type || {};
@@ -4622,19 +4779,26 @@ and loads nothing.
           var awayScore = teamScore(match.away);
           var homeScore = teamScore(match.home);
 
+          // Scorebug first: when it renders, the strip slims to clock +
+          // bet status (the bug carries the score); when it doesn't, the
+          // strip keeps the full score text as before.
+          var bugOn = renderScorebug(spec, match, state);
+
           var tagText;
           var tagClass;
           var text;
           if (state === 'in') {
             tagText = 'Live';
             tagClass = 'live-tag';
-            text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
+            text = bugOn ? (detail || '') :
+              awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
               homeLabel + ' ' + (homeScore === null ? 0 : homeScore) +
               (detail ? ' · ' + detail : '');
           } else if (state === 'post') {
             tagText = 'Final';
             tagClass = 'live-tag is-final';
-            text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
+            text = bugOn ? '' :
+              awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
               homeLabel + ' ' + (homeScore === null ? 0 : homeScore);
           } else {
             tagText = 'ESPN';
@@ -4645,11 +4809,11 @@ and loads nothing.
           if (spec.isTotal && state !== 'pre' && awayScore !== null && homeScore !== null) {
             var combined = awayScore + homeScore;
             if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
-              text += ' · Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' run' + (combined === 1 ? '' : 's');
+              text += (text ? ' · ' : '') + 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' run' + (combined === 1 ? '' : 's');
             }
           } else if (!spec.isTotal && state !== 'pre') {
             var statusText = betStatusText(spec, match);
-            if (statusText) text += ' · ' + statusText;
+            if (statusText) text += (text ? ' · ' : '') + statusText;
           }
 
           var line = spec.card.querySelector('.live-score');

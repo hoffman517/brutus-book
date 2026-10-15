@@ -400,6 +400,44 @@
       box-shadow: inset 3px 0 0 #BB0000;
     }
 
+    /* Possession marker before the name: a miniature CSS football
+       (baseball gets a white ball with a scarlet ring — same language).
+       The slot exists on both rows; it is only VISIBLE on the row of
+       the team with the ball / at bat. */
+    .sb-poss {
+      flex: 0 0 auto;
+      position: relative;
+      width: 13px;
+      height: 9px;
+      border-radius: 50%;
+      background: #8a5a2b;
+      transform: rotate(-28deg);
+      box-shadow: 0 0 0 1.5px rgba(216,30,30,.85);
+    }
+
+    .sb-poss::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 6px;
+      height: 1.5px;
+      margin: -0.75px 0 0 -3px;
+      border-radius: 1px;
+      background: #fff;
+    }
+
+    .sb-poss.is-ball {
+      width: 10px;
+      height: 10px;
+      background: #f4f4f4;
+      transform: none;
+      box-shadow: 0 0 0 1.5px #d81e1e;
+    }
+
+    .sb-poss.is-ball::before { display: none; }
+    .sb-poss.is-off { visibility: hidden; }
+
     /* Per-period linescores between the name and the total: fixed
        columns so the two rows align; completed periods muted, the
        current period bright, unplayed shown as a dash. */
@@ -5032,6 +5070,32 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
+          // Possession marker: who has the ball, at a glance, in the
+          // scoreboard itself. Football reads situation.possession (the
+          // same field the info functions parse); baseball marks the
+          // batting team's row via the half-inning. Hockey has no
+          // possession state — no marker. Live games only; the marker
+          // slot is reserved (invisible) on the other row so the names
+          // stay aligned.
+          var markerMode = null;
+          var markedSide = null;
+          if (state === 'in') {
+            if (spec.sport === 'NFL' || spec.sport === 'CFB') {
+              markerMode = 'football';
+              var sitP = match.competition && match.competition.situation;
+              if (sitP && sitP.possession !== undefined && sitP.possession !== null && sitP.possession !== '') {
+                var pid = String(sitP.possession);
+                if (match.away.team && String(match.away.team.id) === pid) markedSide = match.away;
+                else if (match.home.team && String(match.home.team.id) === pid) markedSide = match.home;
+              }
+            } else if (spec.sport === 'MLB') {
+              markerMode = 'ball';
+              var tyP = (match.status && match.status.type) || {};
+              var dP = tyP.detail || tyP.shortDetail || '';
+              var hmP = String(dP).match(/^\s*(Top|Bot|Bottom)\b/i);
+              if (hmP) markedSide = /^top/i.test(hmP[1]) ? match.away : match.home;
+            }
+          }
           function buildRow(competitor, name, score, img, isOurs, cells) {
             var r = document.createElement('div');
             r.className = 'sb-row' + (isOurs ? ' sb-ours' : '');
@@ -5043,6 +5107,11 @@ and loads nothing.
               im.alt = '';
               lg.appendChild(im);
               r.appendChild(lg);
+            }
+            if (markerMode) {
+              var pm = document.createElement('span');
+              pm.className = 'sb-poss' + (markerMode === 'ball' ? ' is-ball' : '') + (markedSide === competitor ? '' : ' is-off');
+              r.appendChild(pm);
             }
             var nm = document.createElement('span');
             nm.className = 'sb-name';

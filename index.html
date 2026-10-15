@@ -446,26 +446,28 @@
 
     /* Two signals, two languages (Scott's rulings, final): RED IS
        THE BET — the scarlet row tint + the line chip mark our side
-       only (a pure total tints neither row). POSSESSION IS A CHIP —
-       a small labeled chip beside the possessing team's name, in the
-       bet chip's grammar but light with dark text: "BALL" (football /
-       basketball), "AT BAT" (baseball's batting team). If our team
-       has the ball, the row carries both chips — that stacking is
-       desired. No muting, no wash, no edge, no glyph. No chip
-       pre-game or at final; NHL has no possession state — no chip. */
+       only (a pure total tints neither row). POSSESSION IS THE
+       LEAGUE LINE-ICON — the same flat white outline icon the card
+       headers carry per league (football outline, baseball outline),
+       ~15px, immediately beside the possessing team's name (the
+       batting team's name for MLB). No chip background, no letters,
+       no wash, no edge, no muting. Absent pre-game and at final;
+       NHL has no possession state — no icon. */
     .sb-row.sb-ours {
       background-color: rgba(187,0,0,.14);
     }
 
-    .sb-poss-chip {
+    .sb-poss-icon {
       flex: 0 0 auto;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: #f2f4f5;
-      color: #14181c;
-      font-size: .7rem;
-      font-weight: 800;
-      letter-spacing: .04em;
+      display: inline-flex;
+      align-items: center;
+      color: #fff;
+    }
+
+    .sb-poss-icon svg {
+      width: 15px;
+      height: 15px;
+      display: block;
     }
 
     /* Per-period linescores between the name and the total: fixed
@@ -5001,6 +5003,16 @@ and loads nothing.
         // Returns true only when the board is actually on screen; on any
         // failure the matchup row is restored and the strip keeps the
         // full score text.
+        // The possession icon: the SAME flat line-icon SVGs the card
+        // headers use per league (sportIcon in the data script —
+        // duplicated here verbatim so the live module never depends
+        // on cross-script scope). Monochrome via currentColor.
+        function possIconSVG(sport) {
+          if (sport === 'MLB') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M8 5.2c1.8 1.6 2.7 3.8 2.7 6.8S9.8 17.2 8 18.8M16 5.2c-1.8 1.6-2.7 3.8-2.7 6.8s.9 5.2 2.7 6.8"></path></svg>';
+          if (sport === 'NHL') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="12" cy="9" rx="7.5" ry="3.5"></ellipse><path d="M4.5 9v5.5c0 1.9 3.4 3.5 7.5 3.5s7.5-1.6 7.5-3.5V9"></path></svg>';
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 15.8C2.7 12.4 6.2 6.1 11.8 4c4.6-1.7 7.6-.2 7.7.2.6 1.3-1.8 6.5-6.9 10.7-4.2 3.5-7.5 2-8.1.9Z"></path><path d="m9.2 12.7 5.6-4.5M10.1 9.7l2.1 2.6M12.2 8l2.1 2.6"></path></svg>';
+        }
+
         function renderScorebug(spec, match, state, board) {
           var row = spec.card.querySelector('.matchup-row');
           var bug = spec.card.querySelector('.scorebug');
@@ -5069,13 +5081,13 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
-          // Possession is a labeled CHIP beside the possessing team's
-          // name (Scott's final call): "BALL" for football, "AT BAT"
-          // for baseball's batting team. Football reads
+          // Possession is the league LINE-ICON beside the possessing
+          // team's name (Scott's final call — the same flat white
+          // outline icon the card headers carry). Football reads
           // situation.possession (the same field the info functions
-          // parse); baseball's chip follows the half-inning. Hockey
-          // has no possession state — no chip. Live games only, and
-          // only when the possessor is actually known.
+          // parse); baseball's icon follows the batting team
+          // (half-inning). Hockey has no possession state — no icon.
+          // Live games only, and only when the possessor is known.
           var markedSide = null;
           if (state === 'in') {
             if (spec.sport === 'NFL' || spec.sport === 'CFB') {
@@ -5115,10 +5127,12 @@ and loads nothing.
               r.appendChild(chip);
             }
             if (markedSide && markedSide === competitor) {
-              var possChip = document.createElement('span');
-              possChip.className = 'sb-poss-chip';
-              possChip.textContent = spec.sport === 'MLB' ? 'AT BAT' : 'BALL';
-              r.appendChild(possChip);
+              var possIcon = document.createElement('span');
+              possIcon.className = 'sb-poss-icon';
+              possIcon.innerHTML = possIconSVG(spec.sport);
+              possIcon.setAttribute('role', 'img');
+              possIcon.setAttribute('aria-label', spec.sport === 'MLB' ? 'At bat' : 'Has the ball');
+              r.appendChild(possIcon);
             }
             if (cells) {
               var lines = document.createElement('span');

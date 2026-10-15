@@ -3114,7 +3114,11 @@ and loads nothing.
 
   <script>
     // BRUTUS_DATA: daily cron appends one entry per day via artifact.edit.
-    // Each day includes publishedAt (the card-lock time in ISO 8601); the as-of line uses the latest day's value automatically.
+    // Each day includes lockedAt (ISO 8601) — the card's LOCK time, copied from that day's picks file
+    // "**Picks as of …**" header line (the header is written at lock time, so it IS the lock timestamp).
+    // The as-of line renders from the latest day's lockedAt ONLY. lockedAt is NEVER a build, publish,
+    // or grading time: grading updates results, units, dossiers, and the masthead only, and must
+    // never touch lockedAt or the as-of line.
     // Each pick: { matchup, sport, bet, line, odds, conf (1-5), time, why, result: "pending"|"win"|"loss"|"push", finalScore?: string, espnGameId?: string, book?: string }
     // book is the price book for the wager line's "Price: <book>" label — only set when a book was recorded; older picks omit it and render no label.
     // oppOdds (moneyline picks): the opponent's ML price at bet time, from our ESPN/DK captures — required to classify an ML pick whose own price is negative (both sides negative = a pick'em game; see roleClass).
@@ -3125,7 +3129,7 @@ and loads nothing.
         {
           date: "2026-10-10",
           label: "Sat Oct 10",
-          publishedAt: "2026-10-10T10:00:00-04:00",
+          lockedAt: "2026-10-10T10:00:00-04:00",
           picks: [
             {
               matchup: "White Sox @ Guardians", sport: "MLB", bet: "Total", line: "UNDER 7", odds: "+100", conf: 4, time: "8:08 PM ET",
@@ -3192,7 +3196,7 @@ and loads nothing.
         {
           date: "2026-10-11",
           label: "Sun Oct 11",
-          publishedAt: "2026-10-11T10:00:00-04:00",
+          lockedAt: "2026-10-11T10:00:00-04:00",
           picks: [
             {
               matchup: "Giants @ Commanders", sport: "NFL", bet: "Total", line: "UNDER 41.5", odds: "-109", conf: 3, stake: 0.75, time: "1:00 PM ET",
@@ -3259,7 +3263,7 @@ and loads nothing.
         {
           date: "2026-10-12",
           label: "Mon Oct 12",
-          publishedAt: "2026-10-13T00:01:00-04:00",
+          lockedAt: "2026-10-12T13:53:00-04:00",
           picks: [
             {
               matchup: "Dodgers @ Brewers", sport: "MLB", bet: "Total", line: "UNDER 7", odds: "-122", conf: 2, stake: 0.5, time: "5:00 PM ET",
@@ -3289,7 +3293,7 @@ and loads nothing.
         {
           date: "2026-10-13",
           label: "Tue Oct 13",
-          publishedAt: "2026-10-13T23:07:00-04:00",
+          lockedAt: "2026-10-13T13:52:00-04:00",
           picks: [
             {
               matchup: "Delaware @ Middle Tennessee", sport: "CFB", bet: "Spread", line: "MIDDLE TENNESSEE +1.5", odds: "-110", conf: 3, stake: 0.75, time: "7:00 PM ET",
@@ -3329,7 +3333,7 @@ and loads nothing.
         {
           date: "2026-10-14",
           label: "Wed Oct 14",
-          publishedAt: "2026-10-14T23:37:00-04:00",
+          lockedAt: "2026-10-14T13:52:00-04:00",
           picks: [
             {
               matchup: "Kennesaw State @ Missouri State", sport: "CFB", bet: "Spread", line: "KENNESAW STATE -3", odds: "-111", conf: 2, stake: 0.5, time: "7:30 PM ET",
@@ -3382,8 +3386,8 @@ and loads nothing.
       var grid = document.getElementById('pick-grid');
 
       function renderPicksAsOf() {
-        if (!latestDay.publishedAt) return;
-        var published = new Date(latestDay.publishedAt);
+        if (!latestDay.lockedAt) return;
+        var published = new Date(latestDay.lockedAt);
         if (Number.isNaN(published.getTime())) return;
         var dateText = new Intl.DateTimeFormat('en-US', {
           timeZone: 'America/New_York',
@@ -3398,7 +3402,7 @@ and loads nothing.
           hour12: true
         }).format(published);
         var timestamp = document.querySelector('#picks-as-of time');
-        timestamp.dateTime = latestDay.publishedAt;
+        timestamp.dateTime = latestDay.lockedAt;
         timestamp.textContent = 'Picks as of ' + dateText + ' — ' + timeText + ' ET';
       }
 

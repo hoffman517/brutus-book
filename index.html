@@ -400,6 +400,18 @@
       box-shadow: inset 3px 0 0 #BB0000;
     }
 
+    /* The bet line rides on our row (side bets only). */
+    .sb-chip {
+      flex: 0 0 auto;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #a30000;
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
     .sb-logo {
       flex: 0 0 auto;
       display: flex;
@@ -4471,6 +4483,22 @@ and loads nothing.
           return '';
         }
 
+        // The bet-line chip for side bets, from the pick's OWN card data
+        // (the same source the bet footer uses — never the feed): the
+        // signed line for a spread, the posted price for a moneyline.
+        // Empty when the line can't be formed — the footer then keeps
+        // the full bet text instead of a verdict with no line anywhere.
+        function chipTextFor(spec) {
+          if (spec.betType === 'spread' && spec.lineNumber !== null && spec.lineNumber !== undefined) {
+            return fmtSigned(spec.lineNumber);
+          }
+          if (spec.betType === 'moneyline') {
+            var oddsEl = spec.card.querySelector('.odds');
+            return oddsEl ? oddsEl.textContent.trim() : '';
+          }
+          return '';
+        }
+
         function runnersText(sit) {
           var bases = [];
           if (sit.onFirst) bases.push('1st');
@@ -4938,6 +4966,12 @@ and loads nothing.
             nm.className = 'sb-name';
             nm.textContent = name;
             r.appendChild(nm);
+            if (isOurs && board.chipText) {
+              var chip = document.createElement('span');
+              chip.className = 'sb-chip';
+              chip.textContent = board.chipText;
+              r.appendChild(chip);
+            }
             var side = document.createElement('span');
             side.className = 'sb-side';
             if (spec.sport === 'NHL') {
@@ -5081,6 +5115,7 @@ and loads nothing.
           // Bet status, composed once: it becomes the scoreboard's
           // footer line, or the strip's suffix when there is no board.
           var footText = '';
+          var chipText = '';
           if (state !== 'pre' && awayScore !== null && homeScore !== null) {
             if (spec.isTotal) {
               if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
@@ -5089,6 +5124,19 @@ and loads nothing.
               }
             } else {
               footText = betStatusText(spec, match);
+              // Side bets: the line rides on our row as a chip, so the
+              // footer keeps ONLY the live verdict. Totals never take
+              // this path — a total has no side to sit beside.
+              chipText = chipTextFor(spec);
+              if (chipText && footText) {
+                var vIdx = footText.indexOf(' — ');
+                if (vIdx !== -1) {
+                  var verdict = footText.slice(vIdx + 3);
+                  footText = verdict.charAt(0).toUpperCase() + verdict.slice(1);
+                } else {
+                  chipText = '';
+                }
+              }
             }
           }
 
@@ -5100,7 +5148,7 @@ and loads nothing.
           var bugOn = renderScorebug(spec, match, state, {
             tagText: tagText, tagClass: tagClass,
             detail: state === 'in' ? (detail || '') : '',
-            footText: footText
+            footText: footText, chipText: chipText
           });
 
           var line = spec.card.querySelector('.live-score');

@@ -1045,26 +1045,46 @@
       z-index: 3;
     }
 
+    /* The diamond sits on grass: a ~46px rounded green block in the
+       football bar's green, so the three sport surfaces read as one
+       family (green field · pale ice · diamond on grass). Bases are
+       drawn in a dirt/cream tone; occupied bases fill scarlet exactly
+       as before; home plate sits at the bottom. */
     .base-diamond {
       position: relative;
       flex: 0 0 auto;
-      width: 19px;
-      height: 17px;
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #1e5e34 0%, #174c2a 55%, #123e22 100%);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
     }
 
     .base-diamond i {
       position: absolute;
-      width: 6px;
-      height: 6px;
-      border: 1.5px solid #5b656d;
+      width: 8px;
+      height: 8px;
+      border: 1.5px solid #e8dcc3;
       background: transparent;
       transform: rotate(45deg);
+      box-sizing: border-box;
     }
 
     .base-diamond i.on { border-color: #BB0000; background: #BB0000; }
-    .base-diamond .bd-second { top: 0; left: 6px; }
-    .base-diamond .bd-first { top: 5px; right: 0; }
-    .base-diamond .bd-third { top: 5px; left: 0; }
+    .base-diamond .bd-second { top: 6px; left: 19px; }
+    .base-diamond .bd-first { top: 19px; right: 6px; }
+    .base-diamond .bd-third { top: 19px; left: 6px; }
+
+    .base-diamond .bd-home {
+      width: 7px;
+      height: 6px;
+      bottom: 6px;
+      left: 19.5px;
+      border: none;
+      background: #e8dcc3;
+      transform: none;
+      clip-path: polygon(0 0, 100% 0, 100% 55%, 50% 100%, 0 55%);
+    }
 
     .sport-time {
       display: flex;
@@ -4593,6 +4613,9 @@ and loads nothing.
           var diamond = document.createElement('span');
           diamond.className = 'base-diamond';
           diamond.setAttribute('aria-hidden', 'true');
+          var home = document.createElement('i');
+          home.className = 'bd-home';
+          diamond.appendChild(home);
           var spots = [
             ['bd-second', sit.onSecond],
             ['bd-first', sit.onFirst],
@@ -4850,10 +4873,14 @@ and loads nothing.
             gl.style.left = pct(10 + field.gain);
             track.appendChild(gl);
           }
-          var ball = document.createElement('i');
-          ball.className = 'field-ball';
-          ball.style.left = pct(10 + field.spot);
-          track.appendChild(ball);
+          // No spot (pre-game/final skeleton) → no marker. The bar
+          // still renders: zones, logos and yard ticks only.
+          if (field.spot !== null && field.spot !== undefined) {
+            var ball = document.createElement('i');
+            ball.className = 'field-ball';
+            ball.style.left = pct(10 + field.spot);
+            track.appendChild(ball);
+          }
           return track;
         }
 
@@ -4865,13 +4892,27 @@ and loads nothing.
         function renderFieldBar(spec, match, state, hardRemove) {
           var existingField = spec.card.querySelector('.live-field');
           function removeEl(n) { if (n && n.parentNode) n.parentNode.removeChild(n); }
-          if (hardRemove || state !== 'in' || (spec.sport !== 'NFL' && spec.sport !== 'CFB')) {
+          if (spec.sport !== 'NFL' && spec.sport !== 'CFB') {
             removeEl(existingField);
+            return;
+          }
+          if (state !== 'in') {
+            // ONE ANATOMY: pre-game and final cards carry the same
+            // field bar — end zones with logos (away left, home
+            // right), yard ticks, and NO spot/gain markers: no
+            // invented state before kickoff, markers off at final.
+            var skel = { spot: null, gain: null, possAbbr: teamAbbr(match.away, ''), defAbbr: teamAbbr(match.home, ''), possIsAway: true };
+            if (!skel.possAbbr || !skel.defAbbr) { removeEl(existingField); return; }
+            placeFieldBar(spec, skel, existingField);
             return;
           }
           var field = fieldBarInfo(match);
           if (!field) return;
-          var sitEl = spec.card.querySelector('.live-situation');
+          placeFieldBar(spec, field, existingField);
+        }
+
+        function placeFieldBar(spec, field, existingField) {
+          var sitEl = spec.card.querySelector('.live-situation') || spec.card.querySelector('.scorebug') || spec.card.querySelector('.live-score');
           if (!sitEl) return;
           // End-zone logos come from the card's own matchup-row images
           // (away first, home second); the abbreviation is the fallback
@@ -4888,7 +4929,8 @@ and loads nothing.
           }
           fieldEl.textContent = '';
           fieldEl.appendChild(buildFieldTrack(field));
-          fieldEl.setAttribute('data-spot', String(field.spot));
+          if (field.spot !== null && field.spot !== undefined) fieldEl.setAttribute('data-spot', String(field.spot));
+          else fieldEl.removeAttribute('data-spot');
           if (field.gain !== null && field.gain !== undefined) fieldEl.setAttribute('data-gain', String(field.gain));
           else fieldEl.removeAttribute('data-gain');
           if (fieldEl.parentNode !== sitEl.parentNode || fieldEl.previousSibling !== sitEl) {
@@ -4923,8 +4965,25 @@ and loads nothing.
               renderFieldBar(spec, match, state, false);
               return;
             }
-            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
             if (existingPlay && existingPlay.parentNode) existingPlay.parentNode.removeChild(existingPlay);
+            if (spec.sport === 'MLB') {
+              // ONE ANATOMY: the diamond row exists pre-game and at
+              // final too — empty bases, no situation text (the board
+              // header carries the state: start time / Final).
+              var diaEl = existing;
+              if (!diaEl) {
+                diaEl = document.createElement('p');
+                diaEl.className = 'live-situation';
+                var anchorD = spec.card.querySelector('.scorebug') || spec.card.querySelector('.live-score');
+                if (anchorD && anchorD.parentNode) anchorD.parentNode.insertBefore(diaEl, anchorD.nextSibling);
+                else spec.card.appendChild(diaEl);
+              }
+              diaEl.textContent = '';
+              diaEl.removeAttribute('data-partial');
+              diaEl.appendChild(buildDiamond({}));
+            } else if (existing && existing.parentNode) {
+              existing.parentNode.removeChild(existing);
+            }
             renderFieldBar(spec, match, state, true);
             return;
           }
@@ -5036,10 +5095,14 @@ and loads nothing.
             if (bug && bug.parentNode) bug.parentNode.removeChild(bug);
             if (row) row.classList.remove('has-bug');
           }
-          if (!row || state === 'pre') { teardown(); return false; }
+          if (!row) { teardown(); return false; }
           var awayScore = teamScore(match.away);
           var homeScore = teamScore(match.home);
-          if (awayScore === null || homeScore === null) { teardown(); return false; }
+          // ONE ANATOMY (Scott's rule): the scoreboard exists in EVERY
+          // state — pre-game included. Live/final still require real
+          // scores; pre-game renders the rows with NO score numerals
+          // (a 0-0 before first play would be invented state).
+          if (state !== 'pre' && (awayScore === null || homeScore === null)) { teardown(); return false; }
           // Scoreboard rows use the feed's SHORT name (nickname) for
           // BOTH teams, every sport (Scott's rule) — never a mix of
           // one row's full display name and the other's nickname.
@@ -5177,10 +5240,12 @@ and loads nothing.
                 side.appendChild(ex);
               }
             }
-            var sc = document.createElement('span');
-            sc.className = 'sb-score';
-            sc.textContent = String(score);
-            side.appendChild(sc);
+            if (score !== null && score !== undefined) {
+              var sc = document.createElement('span');
+              sc.className = 'sb-score';
+              sc.textContent = String(score);
+              side.appendChild(sc);
+            }
             r.appendChild(side);
             return r;
           }
@@ -5229,8 +5294,8 @@ and loads nothing.
             }
           }
           bug.appendChild(head);
-          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away), lm ? lm.away : null));
-          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null, !!(sides && sides.ours === match.home), lm ? lm.home : null));
+          bug.appendChild(buildRow(match.away, awayName, state === 'pre' ? null : awayScore, imgs[0] || null, !!(sides && sides.ours === match.away), lm ? lm.away : null));
+          bug.appendChild(buildRow(match.home, homeName, state === 'pre' ? null : homeScore, imgs[1] || null, !!(sides && sides.ours === match.home), lm ? lm.home : null));
           // Team names never truncate: a name that would ellipsize in
           // the full row (marker + chip + linescores + total) swaps to
           // the team's abbreviation, which reads as intentional.
@@ -5310,11 +5375,11 @@ and loads nothing.
 
         function renderRink(spec, match, state) {
           if (spec.sport !== 'NHL') return;
+          // ONE ANATOMY: the rink renders in every state (pre-game,
+          // live, final) — the surface is the same skeleton; only its
+          // content (shots labels, when the feed carries them) varies.
           var existing = spec.card.querySelector('.live-rink');
-          if (state !== 'in') {
-            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
-            return;
-          }
+          void (state);
           var rink = existing;
           if (!rink) {
             rink = document.createElement('div');
@@ -5350,7 +5415,7 @@ and loads nothing.
           var tagClass;
           if (state === 'in') { tagText = 'Live'; tagClass = 'live-tag'; }
           else if (state === 'post') { tagText = 'Final'; tagClass = 'live-tag is-final'; }
-          else { tagText = 'ESPN'; tagClass = 'live-tag is-pre'; }
+          else { tagText = 'Scheduled'; tagClass = 'live-tag is-pre'; }
 
           // Bet status, composed once: it becomes the scoreboard's
           // footer line, or the strip's suffix when there is no board.
@@ -5385,9 +5450,14 @@ and loads nothing.
           // and the separate strip is removed so the score lives in
           // exactly one place. If the bug cannot render, the strip stays
           // and keeps the full score text (never zero scores on screen).
+          // Pre-game, the board's clock slot carries the start time
+          // from the card's own header — same skeleton, state content.
+          var startText = '';
+          var gtEl = spec.card.querySelector('.game-time');
+          if (gtEl) startText = gtEl.textContent.trim();
           var bugOn = renderScorebug(spec, match, state, {
             tagText: tagText, tagClass: tagClass,
-            detail: state === 'in' ? (detail || '') : '',
+            detail: state === 'in' ? (detail || '') : (state === 'pre' ? startText : ''),
             footText: footText, chipText: chipText
           });
 

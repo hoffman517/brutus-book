@@ -676,6 +676,35 @@
       100% { opacity: 0; transform: scale(1.28); }
     }
 
+    /* Puck Drop egg (2026-10-15): a puck disc that slides across the
+       hero desk when the hero's puck is tapped. JS positions it from
+       the DAILY_EGG spot at fire time, same as the ring; idle state is
+       fully transparent and pointer-transparent. */
+    .egg-puck {
+      position: absolute;
+      z-index: 3;
+      width: 46px;
+      height: 30px;
+      margin: -15px 0 0 -23px;
+      border: 2px solid rgba(216, 221, 225, .55);
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 32%, #3d434a, #0e1013 72%);
+      box-shadow: 0 7px 16px rgba(0, 0, 0, .45);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .egg-puck.is-sliding {
+      animation: egg-puck-slide 1.35s ease-out 1;
+    }
+
+    @keyframes egg-puck-slide {
+      0% { opacity: 0; transform: translateX(0) rotate(0deg); }
+      12% { opacity: 1; }
+      68% { opacity: 1; transform: translateX(150px) rotate(22deg); }
+      100% { opacity: 0; transform: translateX(195px) rotate(28deg); }
+    }
+
     /* Flow layout (2026-10-14 fix): the caption takes its own space under
        the hero instead of floating over the "Picks as of" line, so when the
        egg fires both stay fully readable. */
@@ -2321,19 +2350,20 @@ and loads nothing.
       <div class="brand-lockup">
         <h1 class="brand">BRUTUS’ <span>BOOK</span></h1>
       </div>
-      <div class="date" data-card-date="2026-10-14"><span class="live-dot" aria-hidden="true"></span>Wednesday · Oct 14, 2026</div>
+      <div class="date" data-card-date="2026-10-15"><span class="live-dot" aria-hidden="true"></span>Thursday · Oct 15, 2026</div>
       <div class="masthead-record-block">
         <div class="record-badge"><span>Season</span><strong id="masthead-record">15–15–1 · −0.84u</strong><span>ROI</span><strong id="masthead-roi">−4.9%</strong></div>
         <div class="masthead-last" id="masthead-last"></div>
       </div>
       <div class="masthead-bottom">
-        <p class="book-note">Wednesday’s card is final: two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a plus-price Stars moneyline in Denver — 1.75u risked, nothing above conf 2.</p>
+        <p class="book-note">Thursday’s card is in: Thursday Night Football in Denver, two college football plays under the lights, NLCS Game 4 at Dodger Stadium, and a Panthers puck line in Sunrise — five picks, 2.50u risked at a flat 0.5u each.</p>
       </div>
     </header>
         <div class="egg-slot">
           <figure class="daily-hero" id="daily-hero">
-            <img src="assets/brutus-daily-2026-10-14-e.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Wednesday's card: Kennesaw State -3, Sam Houston +1.5, Brewers @ Dodgers under 7.5, Stars moneyline +130" width="1600" height="1067">
+            <img src="assets/brutus-daily-2026-10-15.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Thursday's card: Seahawks -2.5, Georgia Southern @ Old Dominion under 46.5, Colorado State +14.5, Dodgers moneyline -156, Panthers -1.5 — a hockey puck, a baseball and a football sit on the desk" width="1600" height="1067">
             <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
+            <span class="egg-puck" id="egg-puck" aria-hidden="true"></span>
           </figure>
           <p class="egg-caption" id="egg-caption" role="status"></p>
         </div>
@@ -2347,7 +2377,7 @@ and loads nothing.
 
     <main>
       <section id="card-panel" data-view="today" role="tabpanel" aria-labelledby="tab-today card-title">
-        <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-14T13:52:00-04:00">Picks as of Wednesday, October 14 — 1:52 PM ET</time></p>
+        <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-15T13:55:00-04:00">Picks as of Thursday, October 15 — 1:55 PM ET</time></p>
         <div class="section-heading card-heading">
           <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW · Live scores</span></h2>
           <div class="card-heading-actions">
@@ -2367,7 +2397,8 @@ and loads nothing.
         </div>
         <div class="list-controls">
           <div class="filters" aria-label="Filter today’s picks">
-            <button class="filter" type="button" data-filter="all" aria-pressed="true">All 4</button>
+            <button class="filter" type="button" data-filter="all" aria-pressed="true">All 5</button>
+            <button class="filter" type="button" data-filter="NFL" aria-pressed="false">NFL 1</button>
             <button class="filter" type="button" data-filter="CFB" aria-pressed="false">CFB 2</button>
             <button class="filter" type="button" data-filter="MLB" aria-pressed="false">MLB 1</button>
             <button class="filter" type="button" data-filter="NHL" aria-pressed="false">NHL 1</button>

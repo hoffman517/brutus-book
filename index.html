@@ -446,27 +446,39 @@
 
     /* Two signals, two languages (Scott's rulings, final): RED IS
        THE BET — the scarlet row tint + the line chip mark our side
-       only (a pure total tints neither row). POSSESSION IS THE
-       LEAGUE LINE-ICON — the same flat white outline icon the card
-       headers carry per league (football outline, baseball outline),
-       ~15px, immediately beside the possessing team's name (the
-       batting team's name for MLB). No chip background, no letters,
-       no wash, no edge, no muting. Absent pre-game and at final;
-       NHL has no possession state — no icon. */
+       only (a pure total tints neither row). POSSESSION IS A BADGE
+       ON THE LOGO — the league line-icon (the same flat white
+       outline the card headers carry) rides as a small dark-backed
+       badge overlaid on the possessing team's logo tile, bottom-
+       right corner, notification-badge style (the batting team's
+       logo for MLB). It consumes ZERO row width: names, chips and
+       linescores are untouched. Absent pre-game and at final; NHL
+       has no possession state — no badge. */
     .sb-row.sb-ours {
       background-color: rgba(187,0,0,.14);
     }
 
-    .sb-poss-icon {
-      flex: 0 0 auto;
-      display: inline-flex;
+    .sb-logo { position: relative; }
+
+    .sb-poss-badge {
+      position: absolute;
+      right: -4px;
+      bottom: -4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #14181c;
+      box-shadow: 0 0 0 1.5px rgba(255,255,255,.28);
+      display: flex;
       align-items: center;
+      justify-content: center;
       color: #fff;
+      pointer-events: none;
     }
 
-    .sb-poss-icon svg {
-      width: 15px;
-      height: 15px;
+    .sb-poss-badge svg {
+      width: 10px;
+      height: 10px;
       display: block;
     }
 
@@ -5081,13 +5093,14 @@ and loads nothing.
             return { away: cellsFor(a), home: cellsFor(h) };
           }
           var lm = linesModel();
-          // Possession is the league LINE-ICON beside the possessing
-          // team's name (Scott's final call — the same flat white
-          // outline icon the card headers carry). Football reads
-          // situation.possession (the same field the info functions
-          // parse); baseball's icon follows the batting team
-          // (half-inning). Hockey has no possession state — no icon.
-          // Live games only, and only when the possessor is known.
+          // Possession is a BADGE ON THE LOGO (Scott's final call):
+          // the league line-icon overlaid on the possessing team's
+          // logo tile — zero row width, so names/chips/linescores
+          // never move. Football reads situation.possession (the
+          // same field the info functions parse); baseball's badge
+          // follows the batting team (half-inning). Hockey has no
+          // possession state — no badge. Live games only, and only
+          // when the possessor is actually known.
           var markedSide = null;
           if (state === 'in') {
             if (spec.sport === 'NFL' || spec.sport === 'CFB') {
@@ -5114,6 +5127,14 @@ and loads nothing.
               im.src = img.getAttribute('src');
               im.alt = '';
               lg.appendChild(im);
+              if (markedSide && markedSide === competitor) {
+                var possBadge = document.createElement('span');
+                possBadge.className = 'sb-poss-badge';
+                possBadge.innerHTML = possIconSVG(spec.sport);
+                possBadge.setAttribute('role', 'img');
+                possBadge.setAttribute('aria-label', spec.sport === 'MLB' ? 'At bat' : 'Has the ball');
+                lg.appendChild(possBadge);
+              }
               r.appendChild(lg);
             }
             var nm = document.createElement('span');
@@ -5126,14 +5147,7 @@ and loads nothing.
               chip.textContent = board.chipText;
               r.appendChild(chip);
             }
-            if (markedSide && markedSide === competitor) {
-              var possIcon = document.createElement('span');
-              possIcon.className = 'sb-poss-icon';
-              possIcon.innerHTML = possIconSVG(spec.sport);
-              possIcon.setAttribute('role', 'img');
-              possIcon.setAttribute('aria-label', spec.sport === 'MLB' ? 'At bat' : 'Has the ball');
-              r.appendChild(possIcon);
-            }
+
             if (cells) {
               var lines = document.createElement('span');
               lines.className = 'sb-lines';

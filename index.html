@@ -1520,9 +1520,15 @@
       white-space: nowrap;
     }
 
-    .d-pill.led { background: var(--green); color: #fff; }
-    .d-pill.sup { background: #123720; color: #69e898; }
-    .d-pill.opp { background: #3a2f10; color: #eec25e; }
+    /* Dossier pills encode VALENCE, traffic-light style (Scott's
+       ruling): evidence FOR the pick reads green/amber by strength,
+       evidence AGAINST reads red; verdicts align (right green, wrong
+       red, didn't-matter/unverifiable neutral). The old map had LED
+       on var(--green) — which is the brand SCARLET (#BB0000) despite
+       its name — so our strongest evidence rendered "bad" red. */
+    .d-pill.led { background: #1e7d34; color: #fff; }
+    .d-pill.sup { background: #3a2f10; color: #eec25e; }
+    .d-pill.opp { background: #401718; color: #ff8a8a; }
     .d-pill.not { background: #2a2f35; color: var(--muted); }
     .d-pill.right { background: #123720; color: #69e898; }
     .d-pill.wrong { background: #401718; color: #ff8a8a; }

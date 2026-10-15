@@ -4624,6 +4624,16 @@ and loads nothing.
           return { text: segments.join(' · '), diamond: hasBases ? buildDiamond(sit) : null };
         }
 
+        // ESPN's compact spot code reads like a player's name in play
+        // text: "thrown to SAM00" is a pass thrown at Sam Houston's
+        // goal line (team abbr + 00 = the goal line). Render that one
+        // code as words — display layer only, the feed is never
+        // altered. Every other yard reference ("to the WKU35") stays
+        // exactly as fed.
+        function cleanPlayText(text) {
+          return String(text || '').replace(/\bto (?:the )?([A-Z]{2,4})00(?![0-9])/g, 'to the goal line');
+        }
+
         // Drive summary from the feed ("7 plays, 70 yards, 3:34") with
         // the trailing drive-clock separator switched to ' · '.
         function driveText(sit) {
@@ -4672,6 +4682,7 @@ and loads nothing.
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
           }
           lastPlay = String(lastPlay || '').trim();
+          lastPlay = cleanPlayText(lastPlay);
           if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay, drive: driveText(sit),
@@ -4729,6 +4740,7 @@ and loads nothing.
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
           }
           lastPlay = String(lastPlay || '').trim();
+          lastPlay = cleanPlayText(lastPlay);
           if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay, drive: driveText(sit),

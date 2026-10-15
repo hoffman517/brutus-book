@@ -909,69 +909,15 @@
       margin: 2px 10px 12px;
     }
 
-    .live-rink .rink-track {
-      position: relative;
-      height: 28px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #c6d4de 0%, #b0c1cf 55%, #9db2c2 100%);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
-      overflow: hidden;
+    /* The rink is ONE inline SVG in real rink coordinates
+       (viewBox 0 0 200 36): symmetry is by construction, not by
+       hand-positioned divs. It scales uniformly, so the faceoff
+       circles stay true circles. */
+    .live-rink .rink-svg {
+      display: block;
+      width: 100%;
+      height: auto;
     }
-
-    .live-rink .rink-zone-line {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      margin-left: -1px;
-      background: rgba(43,84,140,.55);
-    }
-
-    .live-rink .rink-center-line {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      width: 3px;
-      margin-left: -1px;
-      background: rgba(187,0,0,.55);
-    }
-
-    .live-rink .rink-circle {
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      margin: -8px 0 0 -8px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(43,84,140,.5);
-      box-sizing: border-box;
-    }
-
-    .live-rink .rink-circle.center { border-color: rgba(187,0,0,.45); }
-
-    .live-rink .rink-dot {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      margin: -2.5px 0 0 -2.5px;
-      border-radius: 50%;
-      background: rgba(187,0,0,.6);
-    }
-
-    .live-rink .rink-sog {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: .62rem;
-      font-weight: 800;
-      letter-spacing: .03em;
-      color: #22333f;
-      white-space: nowrap;
-      z-index: 2;
-    }
-
-    .live-rink .rink-sog-away { left: 8px; }
-    .live-rink .rink-sog-home { right: 8px; }
 
     .live-field {
       margin: -6px 10px 12px;
@@ -5174,51 +5120,55 @@ and loads nothing.
           return true;
         }
 
-        // Rink strip (NHL only): three zones, blue lines, scarlet center
-        // line, faceoff circles suggested. Real state only: each team's
-        // shots on goal at its end (away left, home right — the page's
-        // own ordering; no direction-of-play is claimed), and only when
-        // the feed's statistics carry shots. NO puck marker — there is
-        // no position data to place one with.
+        // Rink strip (NHL only): ONE inline SVG drawn in real rink
+        // coordinates (viewBox 0 0 200 36 — a 200 ft rink, scaled), so
+        // symmetry is by construction: goal lines at x=11/189, BLUE
+        // LINES at the real x=75/125, red line at x=100, faceoff
+        // circles at cx=44/100/156, all cy=18, all r=4.5. The left half
+        // mirrors the right half exactly; nothing is hand-positioned.
+        // Real state only: shots on goal as end labels when the feed's
+        // statistics carry them (away left, home right — the page's own
+        // ordering; no direction-of-play is claimed). NO puck marker —
+        // there is no position data to place one with.
         function buildRinkTrack(spec, match) {
-          var track = document.createElement('div');
-          track.className = 'rink-track';
-          [25, 75].forEach(function (x) {
-            var zl = document.createElement('i');
-            zl.className = 'rink-zone-line';
-            zl.style.left = x + '%';
-            track.appendChild(zl);
+          var NS = 'http://www.w3.org/2000/svg';
+          function el(tag, attrs) {
+            var n = document.createElementNS(NS, tag);
+            Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+            return n;
+          }
+          var svg = el('svg', { 'class': 'rink-svg', viewBox: '0 0 200 36', 'aria-hidden': 'true' });
+          // Ice + outline (rounded ends).
+          svg.appendChild(el('rect', { 'class': 'rink-ice', x: 0.6, y: 0.6, width: 198.8, height: 34.8, rx: 10, fill: '#b7c9d6', stroke: 'rgba(10,20,28,.5)', 'stroke-width': 1.2 }));
+          // Goal lines (thin, light scarlet).
+          [11, 189].forEach(function (x) {
+            svg.appendChild(el('rect', { 'class': 'rink-goal-line', x: x - 0.35, y: 1, width: 0.7, height: 34, fill: 'rgba(216,30,30,.4)' }));
           });
-          var cl = document.createElement('i');
-          cl.className = 'rink-center-line';
-          track.appendChild(cl);
-          [[14, false], [50, true], [86, false]].forEach(function (cfg) {
-            var circle = document.createElement('i');
-            circle.className = 'rink-circle' + (cfg[1] ? ' center' : '');
-            circle.style.left = cfg[0] + '%';
-            circle.style.top = '50%';
-            track.appendChild(circle);
-            var dot = document.createElement('i');
-            dot.className = 'rink-dot';
-            dot.style.left = cfg[0] + '%';
-            dot.style.top = '50%';
-            track.appendChild(dot);
+          // Blue lines at the real 75 / 125 marks.
+          [75, 125].forEach(function (x) {
+            svg.appendChild(el('rect', { 'class': 'rink-blue-line', x: x - 0.9, y: 1, width: 1.8, height: 34, fill: 'rgba(43,84,140,.6)' }));
           });
+          // Red line at center ice.
+          svg.appendChild(el('rect', { 'class': 'rink-red-line', x: 99.5, y: 1, width: 1, height: 34, fill: 'rgba(187,0,0,.55)' }));
+          // Faceoff circles: identical r, identical cy, mirrored cx.
+          [[44, 'rgba(43,84,140,.55)'], [100, 'rgba(187,0,0,.5)'], [156, 'rgba(43,84,140,.55)']].forEach(function (cfg) {
+            svg.appendChild(el('circle', { 'class': 'rink-faceoff', cx: cfg[0], cy: 18, r: 4.5, fill: 'none', stroke: cfg[1], 'stroke-width': 0.8 }));
+            svg.appendChild(el('circle', { 'class': 'rink-faceoff-dot', cx: cfg[0], cy: 18, r: 1, fill: 'rgba(216,30,30,.65)', stroke: 'none' }));
+          });
+          // Shots on goal at the ends — only when the feed carries them.
           var av = shotsValue(match.away);
           if (av) {
-            var as = document.createElement('span');
-            as.className = 'rink-sog rink-sog-away';
-            as.textContent = teamAbbr(match.away, '') + ' ' + av;
-            track.appendChild(as);
+            var at = el('text', { 'class': 'rink-sog', x: 5, y: 21.5, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+            at.textContent = teamAbbr(match.away, '') + ' ' + av;
+            svg.appendChild(at);
           }
           var hv = shotsValue(match.home);
           if (hv) {
-            var hs = document.createElement('span');
-            hs.className = 'rink-sog rink-sog-home';
-            hs.textContent = teamAbbr(match.home, '') + ' ' + hv;
-            track.appendChild(hs);
+            var ht = el('text', { 'class': 'rink-sog', x: 195, y: 21.5, 'text-anchor': 'end', 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+            ht.textContent = teamAbbr(match.home, '') + ' ' + hv;
+            svg.appendChild(ht);
           }
-          return track;
+          return svg;
         }
 
         function renderRink(spec, match, state) {

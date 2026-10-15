@@ -400,42 +400,20 @@
       box-shadow: inset 3px 0 0 #BB0000;
     }
 
-    /* Possession marker before the name: a miniature CSS football
-       (baseball gets a white ball with a scarlet ring — same language).
-       The slot exists on both rows; it is only VISIBLE on the row of
-       the team with the ball / at bat. */
+    /* Possession marker before the name: a flat scarlet chevron —
+       the broadcast convention, native to the palette. Same marker
+       for the batting team's row in baseball. The slot exists on
+       both rows; it is only VISIBLE on the row of the team with the
+       ball / at bat. */
     .sb-poss {
       flex: 0 0 auto;
-      position: relative;
-      width: 13px;
-      height: 9px;
-      border-radius: 50%;
-      background: #8a5a2b;
-      transform: rotate(-28deg);
-      box-shadow: 0 0 0 1.5px rgba(216,30,30,.85);
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #e02020;
     }
 
-    .sb-poss::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 6px;
-      height: 1.5px;
-      margin: -0.75px 0 0 -3px;
-      border-radius: 1px;
-      background: #fff;
-    }
-
-    .sb-poss.is-ball {
-      width: 10px;
-      height: 10px;
-      background: #f4f4f4;
-      transform: none;
-      box-shadow: 0 0 0 1.5px #d81e1e;
-    }
-
-    .sb-poss.is-ball::before { display: none; }
     .sb-poss.is-off { visibility: hidden; }
 
     /* Per-period linescores between the name and the total: fixed
@@ -1041,26 +1019,13 @@
     .live-field .field-ball {
       position: absolute;
       top: 50%;
-      width: 17px;
-      height: 12px;
-      margin: -6px 0 0 -9px;
+      width: 13px;
+      height: 13px;
+      margin: -7px 0 0 -7px;
       border-radius: 50%;
-      background: #8a5a2b;
-      box-shadow: 0 0 0 2px #d81e1e, 0 1px 3px rgba(0,0,0,.6);
-      transform: rotate(-28deg);
-      z-index: 3;
-    }
-
-    .live-field .field-ball::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 8px;
-      height: 2px;
-      margin: -1px 0 0 -4px;
-      border-radius: 1px;
       background: #fff;
+      box-shadow: 0 0 0 2px #d81e1e, 0 1px 3px rgba(0,0,0,.6);
+      z-index: 3;
     }
 
     .live-field .field-watermark {
@@ -1073,7 +1038,7 @@
       font-size: 21px;
       line-height: 1;
       color: #BB0000;
-      opacity: .12;
+      opacity: .2;
       pointer-events: none;
     }
 

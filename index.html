@@ -393,6 +393,13 @@
 
     .sb-row + .sb-row { border-top: 1px solid var(--line-soft); }
 
+    /* Our pick's row: scarlet left tick + a subtle lift. Only ever on
+       the side the bet is on — a pure total highlights neither row. */
+    .sb-row.sb-ours {
+      background: rgba(187,0,0,.14);
+      box-shadow: inset 3px 0 0 #BB0000;
+    }
+
     .sb-logo {
       flex: 0 0 auto;
       display: flex;
@@ -952,15 +959,40 @@
     .live-field .field-ball {
       position: absolute;
       top: 50%;
-      width: 12px;
+      width: 17px;
       height: 12px;
-      margin: -6px 0 0 -6px;
+      margin: -6px 0 0 -9px;
       border-radius: 50%;
-      background: #e02020;
-      border: 2px solid #fff;
-      box-sizing: border-box;
-      box-shadow: 0 0 5px rgba(0,0,0,.65);
+      background: #8a5a2b;
+      box-shadow: 0 0 0 2px #d81e1e, 0 1px 3px rgba(0,0,0,.6);
+      transform: rotate(-28deg);
       z-index: 3;
+    }
+
+    .live-field .field-ball::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 8px;
+      height: 2px;
+      margin: -1px 0 0 -4px;
+      border-radius: 1px;
+      background: #fff;
+    }
+
+    .live-field .field-watermark {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-weight: 800;
+      font-size: 21px;
+      line-height: 1;
+      color: #BB0000;
+      opacity: .12;
+      pointer-events: none;
     }
 
     .base-diamond {
@@ -4514,8 +4546,10 @@ and loads nothing.
         // the trailing drive-clock separator switched to ' · '.
         function driveText(sit) {
           if (sit && sit.lastPlay && sit.lastPlay.drive && sit.lastPlay.drive.description) {
-            return String(sit.lastPlay.drive.description).trim()
-              .replace(/,\s*(\d{1,2}:\d{2})\s*$/, ' · $1');
+            var raw = String(sit.lastPlay.drive.description).trim();
+            // A drive that has not started yet is noise, not information.
+            if (/^0 plays,\s*0 yards\b/.test(raw)) return '';
+            return raw.replace(/,\s*(\d{1,2}:\d{2})\s*$/, ' · $1');
           }
           return '';
         }
@@ -4582,8 +4616,17 @@ and loads nothing.
             else if (match.home.team && String(match.home.team.id) === possId) { poss = match.home; other = match.away; }
           }
           if (poss) segments.push(teamAbbr(poss, '') + ' ball');
+          // ESPN emits downDistanceText FRAGMENTS ("& 35", "& 4") when its
+          // down field is unset — timeouts, penalty enforcements. Accept
+          // the text only when it opens with a real down marker; anything
+          // else is treated as absent and the numeric path takes over.
+          var ddText = '';
           if (sit.downDistanceText) {
-            segments.push(String(sit.downDistanceText).trim());
+            var rawDd = String(sit.downDistanceText).trim();
+            if (/^(1st|2nd|3rd|4th|Goal)\b/.test(rawDd)) ddText = rawDd;
+          }
+          if (ddText) {
+            segments.push(ddText);
           } else {
             if (typeof sit.down === 'number' && Number.isFinite(sit.down) &&
                 typeof sit.distance === 'number' && Number.isFinite(sit.distance)) {
@@ -4607,7 +4650,7 @@ and loads nothing.
           if (lastPlay.length > 150) { var cutLP = lastPlay.slice(0, 150); var spLP = cutLP.lastIndexOf(' '); lastPlay = (spLP > 60 ? cutLP.slice(0, spLP) : cutLP) + '…'; }
           if (!segments.length && !lastPlay) return null;
           return { text: segments.join(' · '), diamond: null, lastPlay: lastPlay, drive: driveText(sit),
-            partial: !(poss && (sit.downDistanceText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };
+            partial: !(poss && (ddText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };
         }
 
         // Field-position bar (football only). Position comes ONLY from
@@ -4659,6 +4702,10 @@ and loads nothing.
           function pct(units) { return (units / 120 * 100) + '%'; }
           var track = document.createElement('div');
           track.className = 'field-track';
+          var wm = document.createElement('span');
+          wm.className = 'field-watermark';
+          wm.textContent = 'B';
+          track.appendChild(wm);
           var k;
           for (k = 0; k <= 100; k += 10) {
             var tick = document.createElement('i');
@@ -4754,17 +4801,24 @@ and loads nothing.
           var existing = spec.card.querySelector('.live-situation');
           var existingPlay = spec.card.querySelector('.live-last-play');
           if (!info) {
+            if (state === 'in') {
+              // HOLD RULE: while a game is live, a data gap never blanks
+              // what is already verified on screen — the situation line,
+              // the last-play line and the field bar all hold.
+              renderFieldBar(spec, match, state, false);
+              return;
+            }
             if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
             if (existingPlay && existingPlay.parentNode) existingPlay.parentNode.removeChild(existingPlay);
             renderFieldBar(spec, match, state, true);
             return;
           }
-          // Keep-last-good: ESPN's situation fields flicker between plays
-          // (possession / down-and-distance blank or truncated for a poll
-          // or two — a line that read "& 4" shipped 2026-10-14). A partial
-          // update never degrades a complete line already on screen; the
-          // next complete poll (<=60s) refreshes it.
-          if (info.partial && existing && existing.dataset && existing.dataset.partial !== '1') {
+          // HOLD RULE: a partial update never touches a situation line
+          // already on screen, and never creates one — a blank beats a
+          // fragment ("& 35 · Q2" shipped 2026-10-14 during a timeout).
+          // Complete info always updates; the field bar still gets its
+          // own chance to refresh, since it holds independently.
+          if (info.partial) {
             renderFieldBar(spec, match, state, false);
             return;
           }
@@ -4796,10 +4850,13 @@ and loads nothing.
           // uncluttered — 'Last play: X · Drive: Y', or just 'Drive: Y'
           // when the feed carries a drive but no play text; absent
           // entirely when it carries neither.
+          // Drive hold: a transiently missing drive description never
+          // strips the last verified drive from the line.
+          var effDrive = info.drive || (existingPlay && existingPlay.dataset ? existingPlay.dataset.drive : '') || '';
           var playText = '';
-          if (info.lastPlay && info.drive) playText = 'Last play: ' + info.lastPlay + ' · Drive: ' + info.drive;
+          if (info.lastPlay && effDrive) playText = 'Last play: ' + info.lastPlay + ' · Drive: ' + effDrive;
           else if (info.lastPlay) playText = 'Last play: ' + info.lastPlay;
-          else if (info.drive) playText = 'Drive: ' + info.drive;
+          else if (effDrive) playText = 'Drive: ' + effDrive;
           if (playText) {
             var playEl = existingPlay;
             if (!playEl) {
@@ -4807,6 +4864,7 @@ and loads nothing.
               playEl.className = 'live-last-play';
             }
             playEl.textContent = playText;
+            playEl.dataset.drive = effDrive;
             if (playEl.parentNode !== el.parentNode || playEl.previousSibling !== el) {
               el.parentNode.insertBefore(playEl, el.nextSibling);
             }
@@ -4861,9 +4919,12 @@ and loads nothing.
           var awayName = (names.length === 2 && names[0].trim()) ? names[0].trim() : teamLabel(match.away, spec.awayName);
           var homeName = (names.length === 2 && names[1].trim()) ? names[1].trim() : teamLabel(match.home, spec.homeName);
           var imgs = row.querySelectorAll('.team-logo img');
-          function buildRow(competitor, name, score, img) {
+          // Our side, when the bet has one (spread/ML). A pure total has
+          // no side — ourMatchup returns null and NEITHER row highlights.
+          var sides = ourMatchup(spec, match);
+          function buildRow(competitor, name, score, img, isOurs) {
             var r = document.createElement('div');
-            r.className = 'sb-row';
+            r.className = 'sb-row' + (isOurs ? ' sb-ours' : '');
             if (img) {
               var lg = document.createElement('span');
               lg.className = 'sb-logo';
@@ -4914,8 +4975,8 @@ and loads nothing.
             head.appendChild(clk);
           }
           bug.appendChild(head);
-          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null));
-          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null));
+          bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away)));
+          bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null, !!(sides && sides.ours === match.home)));
           if (board.footText) {
             var foot = document.createElement('div');
             foot.className = 'sb-foot';

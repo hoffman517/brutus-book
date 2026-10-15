@@ -2127,7 +2127,7 @@
         border-color: #4a4f4e;
       }
       .tab-button { min-height: 50px; padding-inline: 6px; }
-      .masthead { padding: 10px 12px; border-radius: 14px; }
+      .masthead { padding: 8px 12px 6px; border-radius: 14px; }
       .top-unit { border-radius: 14px; }
       .top-unit .masthead { border-radius: 0; }
       /* Hero framing (Scott, 2026-10-14 night): the daily hero renders
@@ -2137,8 +2137,19 @@
          same evening and sliced the board's top and first pick line.
          The base rule (width:100%, height:auto) governs; the egg
          handler's geometry mapping reduces to identity at full frame. */
+      /* Top chrome tightening (Scott, 2026-10-14 night): the fat was
+         spacing, not type — masthead internal margins, the empty
+         .masthead-bottom band under the Last card line (its note is
+         display:none on phones), and the gap chain unit → as-of →
+         heading → buttons → controls. No type sizes changed. */
+      .masthead .date { margin-top: 5px; }
+      .masthead-record-block { margin-top: 6px; }
+      .masthead-last { margin-top: 3px; }
+      .picks-as-of { margin: 6px 2px 14px; }
+      .section-heading { margin-bottom: 10px; }
+      .list-controls { margin: -2px 0 10px; gap: 8px; }
       .record-badge { flex-wrap: wrap; row-gap: 2px; margin-left: 0; min-height: 0; padding-block: 4px; }
-      .masthead-bottom { margin-top: 8px; align-items: center; }
+      .masthead-bottom { margin-top: 0; align-items: center; }
       .identity-line { font-size: .72rem; }
       .handicapper-hero {
         grid-template-columns: minmax(0, 1.45fr) minmax(190px, .72fr);
@@ -2151,11 +2162,11 @@
       .brand-mark { width: 82px; height: 82px; }
       .brand { font-size: clamp(1.8rem, 9.2vw, 4.2rem); }
       .book-note { display: none; }
-      main { gap: 34px; margin-top: 30px; }
+      main { gap: 34px; margin-top: 18px; }
       .section-heading { align-items: end; }
       .card-heading { align-items: flex-start; }
       .card-heading-actions { flex-direction: column; align-items: flex-end; gap: 8px; }
-      .copy-card, .share-card { min-height: 40px; padding-inline: 13px; }
+      .copy-card, .share-card { min-height: 36px; padding-inline: 13px; }
       .card-summary { grid-template-columns: 1fr; }
       .card-grid { grid-template-columns: 1fr; gap: 9px; }
       .pick-card { padding: 16px; }
@@ -2200,7 +2211,7 @@
       .date { font-size: .67rem; letter-spacing: .08em; }
       .record-badge { gap: 7px; padding-inline: 10px; font-size: .68rem; }
       .section-note { max-width: 16ch; }
-      .card-heading { flex-direction: column; align-items: stretch; gap: 12px; }
+      .card-heading { flex-direction: column; align-items: stretch; gap: 8px; }
       .card-heading-actions { flex-direction: column; align-items: stretch; justify-content: flex-start; }
       .card-heading .section-note { max-width: none; text-align: left; }
       .share-actions { width: 100%; }
@@ -5353,8 +5364,9 @@ and loads nothing.
         // mirrors the right half exactly; nothing is hand-positioned.
         // Real state only: shots on goal as end labels when the feed's
         // statistics carry them (away left, home right — the page's own
-        // ordering; no direction-of-play is claimed). NO puck marker —
-        // there is no position data to place one with.
+        // ordering; no direction-of-play is claimed), each captioned
+        // SHOTS in micro-caps under the count. NO puck marker — there
+        // is no position data to place one with.
         function buildRinkTrack(spec, match) {
           var NS = 'http://www.w3.org/2000/svg';
           function el(tag, attrs) {
@@ -5386,18 +5398,29 @@ and loads nothing.
             svg.appendChild(el('circle', { 'class': 'rink-faceoff', cx: cfg[0], cy: 18, r: 4.5, fill: 'none', stroke: cfg[1], 'stroke-width': 0.8 }));
             svg.appendChild(el('circle', { 'class': 'rink-faceoff-dot', cx: cfg[0], cy: 18, r: 1, fill: 'rgba(216,30,30,.65)', stroke: 'none' }));
           });
-          // Shots on goal at the ends — only when the feed carries them.
+          // Shots on goal at the ends — only when the feed carries
+          // them, and always LABELED (Scott: no unlabeled shorthand —
+          // the CONF-dots lesson): the team + count line carries the
+          // word SHOTS in micro-caps directly beneath it. Away end
+          // left, home end right, the pair mirrored exactly; the two
+          // lines center on the crease midline (y 12–24).
           var av = shotsValue(match.away);
           if (av) {
-            var at = el('text', { 'class': 'rink-sog', x: 5, y: 21.5, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+            var at = el('text', { 'class': 'rink-sog', x: 5, y: 17, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
             at.textContent = teamAbbr(match.away, '') + ' ' + av;
             svg.appendChild(at);
+            var ac = el('text', { 'class': 'rink-sog-label', x: 5, y: 23, 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
+            ac.textContent = 'SHOTS';
+            svg.appendChild(ac);
           }
           var hv = shotsValue(match.home);
           if (hv) {
-            var ht = el('text', { 'class': 'rink-sog', x: 195, y: 21.5, 'text-anchor': 'end', 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+            var ht = el('text', { 'class': 'rink-sog', x: 195, y: 17, 'text-anchor': 'end', 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
             ht.textContent = teamAbbr(match.home, '') + ' ' + hv;
             svg.appendChild(ht);
+            var hc = el('text', { 'class': 'rink-sog-label', x: 195, y: 23, 'text-anchor': 'end', 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
+            hc.textContent = 'SHOTS';
+            svg.appendChild(hc);
           }
           return svg;
         }

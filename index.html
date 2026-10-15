@@ -1045,8 +1045,19 @@
 
     .confidence {
       display: flex;
+      align-items: center;
       gap: 4px;
       flex: 0 0 auto;
+    }
+
+    /* The dots explain themselves: a small muted CONF caption rides
+       immediately before the confidence dot group. */
+    .conf-label {
+      color: var(--muted);
+      font-size: .58rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      margin-right: 2px;
     }
 
     .confidence i {
@@ -2195,7 +2206,7 @@ and loads nothing.
           <article class="pick-card conf-2" data-sport="CFB" data-original-rank="0" data-game-time="0">
             <div class="pick-top">
               <div class="sport-time"><span class="sport-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 15.8C2.7 12.4 6.2 6.1 11.8 4c4.6-1.7 7.6-.2 7.7.2.6 1.3-1.8 6.5-6.9 10.7-4.2 3.5-7.5 2-8.1.9Z"></path><path d="m9.2 12.7 5.6-4.5M10.1 9.7l2.1 2.6M12.2 8l2.1 2.6"></path></svg>CFB</span><span class="game-time">7:30 PM ET</span></div>
-              <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+              <div class="confidence" aria-label="Confidence 2 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_kenn.png" alt="Kennesaw State logo" width="34" height="34"></span><p class="matchup">Kennesaw State @ Missouri State</p><span class="team-logo"><img src="assets/team_logos/ncaaf_most.png" alt="Missouri State logo" width="34" height="34"></span></div>
@@ -2209,7 +2220,7 @@ and loads nothing.
           <article class="pick-card conf-2" data-sport="CFB" data-original-rank="1" data-game-time="0">
             <div class="pick-top">
               <div class="sport-time"><span class="sport-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 15.8C2.7 12.4 6.2 6.1 11.8 4c4.6-1.7 7.6-.2 7.7.2.6 1.3-1.8 6.5-6.9 10.7-4.2 3.5-7.5 2-8.1.9Z"></path><path d="m9.2 12.7 5.6-4.5M10.1 9.7l2.1 2.6M12.2 8l2.1 2.6"></path></svg>CFB</span><span class="game-time">8:00 PM ET</span></div>
-              <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+              <div class="confidence" aria-label="Confidence 2 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_wku.png" alt="Western Kentucky logo" width="34" height="34"></span><p class="matchup">Western Kentucky @ Sam Houston</p><span class="team-logo"><img src="assets/team_logos/ncaaf_shsu.png" alt="Sam Houston logo" width="34" height="34"></span></div>
@@ -2223,7 +2234,7 @@ and loads nothing.
           <article class="pick-card conf-2" data-sport="MLB" data-original-rank="2" data-game-time="0">
             <div class="pick-top">
               <div class="sport-time"><span class="sport-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M8 5.2c1.8 1.6 2.7 3.8 2.7 6.8S9.8 17.2 8 18.8M16 5.2c-1.8 1.6-2.7 3.8-2.7 6.8s.9 5.2 2.7 6.8"></path></svg>MLB</span><span class="game-time">8:00 PM ET</span></div>
-              <div class="confidence" aria-label="Confidence 2 out of 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+              <div class="confidence" aria-label="Confidence 2 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/mlb_mil.png" alt="Milwaukee Brewers logo" width="34" height="34"></span><p class="matchup">Brewers @ Dodgers</p><span class="team-logo"><img src="assets/team_logos/mlb_lad.png" alt="Los Angeles Dodgers logo" width="34" height="34"></span></div>
@@ -2237,7 +2248,7 @@ and loads nothing.
           <article class="pick-card conf-1" data-sport="NHL" data-original-rank="3" data-game-time="0">
             <div class="pick-top">
               <div class="sport-time"><span class="sport-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="12" cy="9" rx="7.5" ry="3.5"></ellipse><path d="M4.5 9v5.5c0 1.9 3.4 3.5 7.5 3.5s7.5-1.6 7.5-3.5V9"></path></svg>NHL</span><span class="game-time">8:30 PM ET</span></div>
-              <div class="confidence" aria-label="Confidence 1 out of 5"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+              <div class="confidence" aria-label="Confidence 1 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/nhl_dal.png" alt="Dallas Stars logo" width="34" height="34"></span><p class="matchup">Stars @ Avalanche</p><span class="team-logo"><img src="assets/team_logos/nhl_col.png" alt="Colorado Avalanche logo" width="34" height="34"></span></div>
@@ -3344,7 +3355,7 @@ and loads nothing.
         grid.innerHTML = PICKS.map(function (pick, index) {
           return '<article class="pick-card conf-' + pick.conf + '" data-sport="' + escapeHTML(pick.sport) + '"' + cardDataAttrs(pick) + ' data-original-rank="' + index + '" data-game-time="' + gameTimeMinutes(pick.time) + '">' +
             '<div class="pick-top"><div class="sport-time"><span class="sport-tag">' + sportIcon(pick.sport) + escapeHTML(pick.sport) + '</span><span class="game-time">' + escapeHTML(pick.time) + '</span></div>' +
-            '<div class="confidence" aria-label="Confidence ' + pick.conf + ' out of 5">' + confidenceDots(pick.conf) + '</div></div>' +
+            '<div class="confidence" aria-label="Confidence ' + pick.conf + ' out of 5"><span class="conf-label">CONF</span>' + confidenceDots(pick.conf) + '</div></div>' +
             pickResultMarkup(pick) +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
@@ -5081,11 +5092,17 @@ and loads nothing.
           // beside the inning — filled scarlet for outs recorded,
           // hollow for outs remaining. The count (balls/strikes) stays
           // in the at-bat line; per-pitch data does not belong up here.
-          // No outs value in the feed → no dots at all.
+          // No outs value in the feed → no dots at all. And only while
+          // a half-inning is actually live (Top/Bot): at Middle/End of
+          // an inning there is no at-bat, and three hollow dots would
+          // be noise — the situation line below carries that state.
           if (spec.sport === 'MLB' && state === 'in') {
             var sitO = match.competition && match.competition.situation;
             var outsNow = sitO ? sitO.outs : null;
-            if (typeof outsNow === 'number' && Number.isFinite(outsNow)) {
+            var tyO = (match.status && match.status.type) || {};
+            var detO = tyO.detail || tyO.shortDetail || '';
+            var liveHalf = /^\s*(Top|Bot|Bottom)\b/i.test(detO);
+            if (liveHalf && typeof outsNow === 'number' && Number.isFinite(outsNow)) {
               var dots = document.createElement('span');
               dots.className = 'sb-outs';
               dots.setAttribute('aria-label', outsNow + ' out' + (outsNow === 1 ? '' : 's'));

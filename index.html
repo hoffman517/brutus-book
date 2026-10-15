@@ -359,6 +359,29 @@
       overflow: hidden;
     }
 
+    .sb-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px 1px;
+    }
+
+    .sb-clock {
+      color: var(--muted);
+      font-size: .74rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .sb-foot {
+      padding: 6px 12px 8px;
+      border-top: 1px solid var(--line-soft);
+      color: var(--text);
+      font-size: .8rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
     .sb-row {
       display: flex;
       align-items: center;
@@ -907,6 +930,13 @@
 
     .live-field .field-zone-own { left: 0; background: rgba(187,0,0,.5); }
     .live-field .field-zone-def { right: 0; background: rgba(0,0,0,.38); }
+
+    .live-field .field-zone img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      display: block;
+    }
 
     .live-field .field-gain {
       position: absolute;
@@ -4622,7 +4652,7 @@ and loads nothing.
             if (g > spot && g < 100) gain = g;
             else if (g >= 100) gain = 100;
           }
-          return { spot: spot, gain: gain, possAbbr: possAbbr, defAbbr: defAbbr };
+          return { spot: spot, gain: gain, possAbbr: possAbbr, defAbbr: defAbbr, possIsAway: poss === match.away };
         }
 
         function buildFieldTrack(field) {
@@ -4636,14 +4666,22 @@ and loads nothing.
             tick.style.left = pct(10 + k);
             track.appendChild(tick);
           }
-          var zl = document.createElement('span');
-          zl.className = 'field-zone field-zone-own';
-          zl.textContent = field.possAbbr;
-          track.appendChild(zl);
-          var zr = document.createElement('span');
-          zr.className = 'field-zone field-zone-def';
-          zr.textContent = field.defAbbr;
-          track.appendChild(zr);
+          function zoneEl(cls, abbr, logoSrc) {
+            var z = document.createElement('span');
+            z.className = 'field-zone ' + cls;
+            if (logoSrc) {
+              var im = document.createElement('img');
+              im.src = logoSrc;
+              im.alt = abbr;
+              im.addEventListener('error', function () { z.textContent = abbr; });
+              z.appendChild(im);
+            } else {
+              z.textContent = abbr;
+            }
+            return z;
+          }
+          track.appendChild(zoneEl('field-zone-own', field.possAbbr, field.possLogo));
+          track.appendChild(zoneEl('field-zone-def', field.defAbbr, field.defLogo));
           if (field.gain !== null && field.gain !== undefined && field.gain < 100) {
             var gl = document.createElement('i');
             gl.className = 'field-gain';
@@ -4673,6 +4711,14 @@ and loads nothing.
           if (!field) return;
           var sitEl = spec.card.querySelector('.live-situation');
           if (!sitEl) return;
+          // End-zone logos come from the card's own matchup-row images
+          // (away first, home second); the abbreviation is the fallback
+          // when a logo is missing or fails to load.
+          var cardLogos = spec.card.querySelectorAll('.matchup-row .team-logo img');
+          if (cardLogos.length >= 2) {
+            field.possLogo = cardLogos[field.possIsAway ? 0 : 1].getAttribute('src');
+            field.defLogo = cardLogos[field.possIsAway ? 1 : 0].getAttribute('src');
+          }
           var fieldEl = existingField;
           if (!fieldEl) {
             fieldEl = document.createElement('div');
@@ -4686,6 +4732,13 @@ and loads nothing.
           if (fieldEl.parentNode !== sitEl.parentNode || fieldEl.previousSibling !== sitEl) {
             sitEl.parentNode.insertBefore(fieldEl, sitEl.nextSibling);
           }
+          // A logo that already failed before its error handler attached
+          // still falls back to the abbreviation.
+          fieldEl.querySelectorAll('.field-zone img').forEach(function (im) {
+            if (im.complete && im.naturalWidth === 0) {
+              im.parentNode.textContent = im.alt || '';
+            }
+          });
         }
 
         // Situation line under the score line: rendered only while the game
@@ -4725,6 +4778,12 @@ and loads nothing.
             } else {
               spec.card.appendChild(el);
             }
+          }
+          // Anchor: directly under the strip — or under the scoreboard
+          // when the strip has been merged into it.
+          var anchor = spec.card.querySelector('.live-score') || spec.card.querySelector('.scorebug');
+          if (anchor && anchor.parentNode && el.previousSibling !== anchor) {
+            anchor.parentNode.insertBefore(el, anchor.nextSibling);
           }
           el.textContent = '';
           el.dataset.partial = info.partial ? '1' : '0';
@@ -4779,12 +4838,14 @@ and loads nothing.
           return v ? 'SOG ' + v : '';
         }
 
-        // Scorebug: transforms the card's matchup row into two team rows
-        // (logo · name · score) while the game is live or final. Returns
-        // true only when the bug is actually on screen, so the caller can
-        // slim the strip; on any failure the matchup row is restored and
-        // the strip keeps the full score text.
-        function renderScorebug(spec, match, state) {
+        // Scorebug: the card's ONE scoreboard while a game is live or
+        // final — a header row (state pill + clock/period), the two team
+        // rows (logo · name · score), and the bet status as its footer.
+        // It replaces the matchup row AND absorbs the live strip.
+        // Returns true only when the board is actually on screen; on any
+        // failure the matchup row is restored and the strip keeps the
+        // full score text.
+        function renderScorebug(spec, match, state, board) {
           var row = spec.card.querySelector('.matchup-row');
           var bug = spec.card.querySelector('.scorebug');
           function teardown() {
@@ -4840,8 +4901,27 @@ and loads nothing.
             row.parentNode.insertBefore(bug, row.nextSibling);
           }
           bug.textContent = '';
+          var head = document.createElement('div');
+          head.className = 'sb-head';
+          var pill = document.createElement('span');
+          pill.className = board.tagClass;
+          pill.textContent = board.tagText;
+          head.appendChild(pill);
+          if (board.detail) {
+            var clk = document.createElement('span');
+            clk.className = 'sb-clock';
+            clk.textContent = board.detail;
+            head.appendChild(clk);
+          }
+          bug.appendChild(head);
           bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null));
           bug.appendChild(buildRow(match.home, homeName, homeScore, imgs[1] || null));
+          if (board.footText) {
+            var foot = document.createElement('div');
+            foot.className = 'sb-foot';
+            foot.textContent = board.footText;
+            bug.appendChild(foot);
+          }
           row.classList.add('has-bug');
           return true;
         }
@@ -4911,6 +4991,12 @@ and loads nothing.
               spec.card.appendChild(rink);
             }
           }
+          // Anchor: directly under the scoreboard (the strip is merged
+          // into it while a game is live), else under the strip.
+          var anchorEl = spec.card.querySelector('.scorebug') || spec.card.querySelector('.live-score');
+          if (anchorEl && anchorEl.parentNode && rink.previousSibling !== anchorEl) {
+            anchorEl.parentNode.insertBefore(rink, anchorEl.nextSibling);
+          }
           rink.textContent = '';
           rink.appendChild(buildRinkTrack(spec, match));
         }
@@ -4925,60 +5011,70 @@ and loads nothing.
           var awayScore = teamScore(match.away);
           var homeScore = teamScore(match.home);
 
-          // Scorebug first: when it renders, the strip slims to clock +
-          // bet status (the bug carries the score); when it doesn't, the
-          // strip keeps the full score text as before.
-          var bugOn = renderScorebug(spec, match, state);
-
           var tagText;
           var tagClass;
-          var text;
-          if (state === 'in') {
-            tagText = 'Live';
-            tagClass = 'live-tag';
-            text = bugOn ? (detail || '') :
-              awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
-              homeLabel + ' ' + (homeScore === null ? 0 : homeScore) +
-              (detail ? ' · ' + detail : '');
-          } else if (state === 'post') {
-            tagText = 'Final';
-            tagClass = 'live-tag is-final';
-            text = bugOn ? '' :
-              awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
-              homeLabel + ' ' + (homeScore === null ? 0 : homeScore);
-          } else {
-            tagText = 'ESPN';
-            tagClass = 'live-tag is-pre';
-            text = awayLabel + ' @ ' + homeLabel + (detail ? ' · ' + detail : '');
+          if (state === 'in') { tagText = 'Live'; tagClass = 'live-tag'; }
+          else if (state === 'post') { tagText = 'Final'; tagClass = 'live-tag is-final'; }
+          else { tagText = 'ESPN'; tagClass = 'live-tag is-pre'; }
+
+          // Bet status, composed once: it becomes the scoreboard's
+          // footer line, or the strip's suffix when there is no board.
+          var footText = '';
+          if (state !== 'pre' && awayScore !== null && homeScore !== null) {
+            if (spec.isTotal) {
+              if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
+                var combined = awayScore + homeScore;
+                footText = 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' run' + (combined === 1 ? '' : 's');
+              }
+            } else {
+              footText = betStatusText(spec, match);
+            }
           }
 
-          if (spec.isTotal && state !== 'pre' && awayScore !== null && homeScore !== null) {
-            var combined = awayScore + homeScore;
-            if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
-              text += (text ? ' · ' : '') + 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' run' + (combined === 1 ? '' : 's');
-            }
-          } else if (!spec.isTotal && state !== 'pre') {
-            var statusText = betStatusText(spec, match);
-            if (statusText) text += (text ? ' · ' : '') + statusText;
-          }
+          // ONE scoreboard per card: when the scorebug renders it carries
+          // the pill + clock, the team rows and the bet-status footer —
+          // and the separate strip is removed so the score lives in
+          // exactly one place. If the bug cannot render, the strip stays
+          // and keeps the full score text (never zero scores on screen).
+          var bugOn = renderScorebug(spec, match, state, {
+            tagText: tagText, tagClass: tagClass,
+            detail: state === 'in' ? (detail || '') : '',
+            footText: footText
+          });
 
           var line = spec.card.querySelector('.live-score');
-          if (!line) {
-            line = document.createElement('p');
-            line.className = 'live-score';
-            var result = spec.card.querySelector('.pick-result');
-            if (result && result.parentNode) {
-              result.parentNode.insertBefore(line, result.nextSibling);
+          if (bugOn) {
+            if (line && line.parentNode) line.parentNode.removeChild(line);
+          } else {
+            var text;
+            if (state === 'in') {
+              text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
+                homeLabel + ' ' + (homeScore === null ? 0 : homeScore) +
+                (detail ? ' · ' + detail : '');
+            } else if (state === 'post') {
+              text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
+                homeLabel + ' ' + (homeScore === null ? 0 : homeScore);
             } else {
-              spec.card.appendChild(line);
+              text = awayLabel + ' @ ' + homeLabel + (detail ? ' · ' + detail : '');
             }
+            if (footText && state !== 'pre') text += ' · ' + footText;
+            if (!line) {
+              line = document.createElement('p');
+              line.className = 'live-score';
+              var result = spec.card.querySelector('.pick-result');
+              if (result && result.parentNode) {
+                result.parentNode.insertBefore(line, result.nextSibling);
+              } else {
+                spec.card.appendChild(line);
+              }
+            }
+            line.textContent = '';
+            var tag = document.createElement('span');
+            tag.className = tagClass;
+            tag.textContent = tagText;
+            line.appendChild(tag);
+            line.appendChild(document.createTextNode(text));
           }
-          line.textContent = '';
-          var tag = document.createElement('span');
-          tag.className = tagClass;
-          tag.textContent = tagText;
-          line.appendChild(tag);
-          line.appendChild(document.createTextNode(text));
 
           renderSituation(spec, match, state);
           renderRink(spec, match, state);

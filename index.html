@@ -1007,20 +1007,29 @@
     /* The rink is ONE inline SVG in real rink coordinates
        (viewBox 0 0 200 36): symmetry is by construction, not by
        hand-positioned divs. It scales uniformly, so the faceoff
-       circles stay true circles. */
+       circles stay true circles. Its height is the shared surface
+       band (see .field-track): at phone width the rink's natural
+       height IS the band, and pinning it keeps the band exact —
+       preserveAspectRatio (meet) letterboxes rather than distorts
+       at other widths. */
     .live-rink .rink-svg {
       display: block;
       width: 100%;
-      height: auto;
+      height: 56px;
     }
 
     .live-field {
       margin: -6px 10px 12px;
     }
 
+    /* ONE SURFACE BAND: the field bar, the rink and the diamond
+       block are all exactly 56px tall on every card — the rink's
+       natural height at phone width (312 x 36/200), since it carries
+       the most (logo + number + SOG). Ticks and zones are
+       top:0/bottom:0, so the grass fills the band full-height. */
     .live-field .field-track {
       position: relative;
-      height: 28px;
+      height: 56px;
       border-radius: 6px;
       background: linear-gradient(180deg, #1e5e34 0%, #174c2a 55%, #123e22 100%);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
@@ -1097,7 +1106,7 @@
       position: relative;
       flex: 0 0 auto;
       width: 46px;
-      height: 46px;
+      height: 56px;
       border-radius: 8px;
       background: linear-gradient(180deg, #1e5e34 0%, #174c2a 55%, #123e22 100%);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
@@ -1114,14 +1123,17 @@
     }
 
     .base-diamond i.on { border-color: #BB0000; background: #BB0000; }
-    .base-diamond .bd-second { top: 6px; left: 19px; }
-    .base-diamond .bd-first { top: 19px; right: 6px; }
-    .base-diamond .bd-third { top: 19px; left: 6px; }
+    /* Base spots are centered on the band: second sits above center,
+       first/third on the center line, home below it. */
+    .base-diamond .bd-second { top: calc(50% - 17px); left: 19px; }
+    .base-diamond .bd-first { top: calc(50% - 4px); right: 6px; }
+    .base-diamond .bd-third { top: calc(50% - 4px); left: 6px; }
 
     .base-diamond .bd-home {
       width: 7px;
       height: 6px;
-      bottom: 6px;
+      top: calc(50% + 11px);
+      bottom: auto;
       left: 19.5px;
       border: none;
       background: #e8dcc3;
@@ -2469,7 +2481,7 @@ and loads nothing.
 
     <footer class="footer">
       <span><strong>Staking:</strong> flat sizing, no tiers — stake shown on every pick</span>
-      <span>For entertainment · Track process, not streaks.</span>
+      <span>Track process, not streaks.</span>
     </footer>
   </div>
 
@@ -4741,6 +4753,9 @@ and loads nothing.
           if (batter) duel = batter + ' at bat';
           if (pitcher) duel = duel ? duel + ', ' + pitcher + ' pitching' : pitcher + ' pitching';
           if (duel) segments.push(duel);
+          if (pitcher && typeof sit.pitchCount === 'number' && Number.isFinite(sit.pitchCount)) {
+            segments.push(sit.pitchCount + ' pitches');
+          }
           if (typeof sit.balls === 'number' && Number.isFinite(sit.balls) &&
               typeof sit.strikes === 'number' && Number.isFinite(sit.strikes)) {
             segments.push(sit.balls + '–' + sit.strikes);

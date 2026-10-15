@@ -793,6 +793,78 @@
       line-height: 1.45;
     }
 
+    /* Rink strip (NHL): same slot/family as the football field bar —
+       a slim three-zone rink. It carries real state only (shots on
+       goal per team at the ends, when the feed reports them). There is
+       deliberately NO puck marker: no position data exists. */
+    .live-rink {
+      margin: -6px 10px 12px;
+    }
+
+    .live-rink .rink-track {
+      position: relative;
+      height: 28px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #c6d4de 0%, #b0c1cf 55%, #9db2c2 100%);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
+      overflow: hidden;
+    }
+
+    .live-rink .rink-zone-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      margin-left: -1px;
+      background: rgba(43,84,140,.55);
+    }
+
+    .live-rink .rink-center-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      margin-left: -1px;
+      background: rgba(187,0,0,.55);
+    }
+
+    .live-rink .rink-circle {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      margin: -8px 0 0 -8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(43,84,140,.5);
+      box-sizing: border-box;
+    }
+
+    .live-rink .rink-circle.center { border-color: rgba(187,0,0,.45); }
+
+    .live-rink .rink-dot {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%;
+      background: rgba(187,0,0,.6);
+    }
+
+    .live-rink .rink-sog {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      color: #22333f;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .live-rink .rink-sog-away { left: 8px; }
+    .live-rink .rink-sog-home { right: 8px; }
+
     .live-field {
       margin: -6px 10px 12px;
     }
@@ -4688,7 +4760,7 @@ and loads nothing.
         // NHL shots on goal, ONLY when the feed's competitor statistics
         // actually carry a shots entry — otherwise the empty string and
         // the scorebug ships without it. No other statistic is read.
-        function shotsText(competitor) {
+        function shotsValue(competitor) {
           var stats = competitor && competitor.statistics;
           if (!stats || !stats.length) return '';
           for (var i = 0; i < stats.length; i += 1) {
@@ -4696,10 +4768,15 @@ and loads nothing.
             var key = String(s.name || s.abbreviation || s.displayName || '').toLowerCase();
             if (key.indexOf('shot') !== -1) {
               var v = (s.displayValue !== undefined && s.displayValue !== null) ? s.displayValue : s.value;
-              if (v !== undefined && v !== null && v !== '') return 'SOG ' + v;
+              if (v !== undefined && v !== null && v !== '') return String(v);
             }
           }
           return '';
+        }
+
+        function shotsText(competitor) {
+          var v = shotsValue(competitor);
+          return v ? 'SOG ' + v : '';
         }
 
         // Scorebug: transforms the card's matchup row into two team rows
@@ -4769,6 +4846,75 @@ and loads nothing.
           return true;
         }
 
+        // Rink strip (NHL only): three zones, blue lines, scarlet center
+        // line, faceoff circles suggested. Real state only: each team's
+        // shots on goal at its end (away left, home right — the page's
+        // own ordering; no direction-of-play is claimed), and only when
+        // the feed's statistics carry shots. NO puck marker — there is
+        // no position data to place one with.
+        function buildRinkTrack(spec, match) {
+          var track = document.createElement('div');
+          track.className = 'rink-track';
+          [25, 75].forEach(function (x) {
+            var zl = document.createElement('i');
+            zl.className = 'rink-zone-line';
+            zl.style.left = x + '%';
+            track.appendChild(zl);
+          });
+          var cl = document.createElement('i');
+          cl.className = 'rink-center-line';
+          track.appendChild(cl);
+          [[14, false], [50, true], [86, false]].forEach(function (cfg) {
+            var circle = document.createElement('i');
+            circle.className = 'rink-circle' + (cfg[1] ? ' center' : '');
+            circle.style.left = cfg[0] + '%';
+            circle.style.top = '50%';
+            track.appendChild(circle);
+            var dot = document.createElement('i');
+            dot.className = 'rink-dot';
+            dot.style.left = cfg[0] + '%';
+            dot.style.top = '50%';
+            track.appendChild(dot);
+          });
+          var av = shotsValue(match.away);
+          if (av) {
+            var as = document.createElement('span');
+            as.className = 'rink-sog rink-sog-away';
+            as.textContent = teamAbbr(match.away, '') + ' ' + av;
+            track.appendChild(as);
+          }
+          var hv = shotsValue(match.home);
+          if (hv) {
+            var hs = document.createElement('span');
+            hs.className = 'rink-sog rink-sog-home';
+            hs.textContent = teamAbbr(match.home, '') + ' ' + hv;
+            track.appendChild(hs);
+          }
+          return track;
+        }
+
+        function renderRink(spec, match, state) {
+          if (spec.sport !== 'NHL') return;
+          var existing = spec.card.querySelector('.live-rink');
+          if (state !== 'in') {
+            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+            return;
+          }
+          var rink = existing;
+          if (!rink) {
+            rink = document.createElement('div');
+            rink.className = 'live-rink';
+            var strip = spec.card.querySelector('.live-score');
+            if (strip && strip.parentNode) {
+              strip.parentNode.insertBefore(rink, strip.nextSibling);
+            } else {
+              spec.card.appendChild(rink);
+            }
+          }
+          rink.textContent = '';
+          rink.appendChild(buildRinkTrack(spec, match));
+        }
+
         function renderLiveLine(spec, match) {
           var status = match.status || {};
           var type = status.type || {};
@@ -4835,6 +4981,7 @@ and loads nothing.
           line.appendChild(document.createTextNode(text));
 
           renderSituation(spec, match, state);
+          renderRink(spec, match, state);
         }
 
         function fetchScoreboard(url) {

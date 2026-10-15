@@ -718,9 +718,6 @@
       font-size: .72rem;
       font-weight: 500;
       line-height: 1.45;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .base-diamond {
@@ -4300,7 +4297,7 @@ and loads nothing.
           if (status.period) clockSegment = 'Q' + status.period;
           if (status.displayClock) clockSegment = (clockSegment ? clockSegment + ' ' : '') + status.displayClock;
           if (clockSegment) segments.push(clockSegment);
-          if (sit.isRedZone) segments.push('in the red zone');
+          if (sit.possessionText && other) { var rzP = String(sit.possessionText).trim().split(/\s+/); if (rzP.length >= 2 && teamAbbr(other, '') === rzP[0] && parseInt(rzP[1], 10) <= 20) segments.push('in the red zone'); }
           var lastPlay = '';
           if (sit.lastPlay) {
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';
@@ -4348,7 +4345,7 @@ and loads nothing.
           if (status.period) clockSegment = 'Q' + status.period;
           if (status.displayClock) clockSegment = (clockSegment ? clockSegment + ' ' : '') + status.displayClock;
           if (clockSegment) segments.push(clockSegment);
-          if (sit.isRedZone) segments.push('in the red zone');
+          if (sit.possessionText && other) { var rzP = String(sit.possessionText).trim().split(/\s+/); if (rzP.length >= 2 && teamAbbr(other, '') === rzP[0] && parseInt(rzP[1], 10) <= 20) segments.push('in the red zone'); }
           var lastPlay = '';
           if (sit.lastPlay) {
             lastPlay = sit.lastPlay.text || sit.lastPlay.shortText || '';

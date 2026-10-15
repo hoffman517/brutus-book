@@ -2130,10 +2130,13 @@
       .masthead { padding: 10px 12px; border-radius: 14px; }
       .top-unit { border-radius: 14px; }
       .top-unit .masthead { border-radius: 0; }
-      /* Scroll compression: the hero takes a shorter crop on phones.
-         The egg handler maps taps through the object-fit geometry,
-         so the tap zone stays exact under the crop. */
-      .daily-hero img { height: 168px; object-fit: cover; object-position: 50% 78%; }
+      /* Hero framing (Scott, 2026-10-14 night): the daily hero renders
+         FULL FRAME on phones too — no object-fit crop, no fixed height.
+         The whiteboard must be complete in frame (rails + every pick
+         line); a shorter phone crop (168px/cover/78%) was tried the
+         same evening and sliced the board's top and first pick line.
+         The base rule (width:100%, height:auto) governs; the egg
+         handler's geometry mapping reduces to identity at full frame. */
       .record-badge { flex-wrap: wrap; row-gap: 2px; margin-left: 0; min-height: 0; padding-block: 4px; }
       .masthead-bottom { margin-top: 8px; align-items: center; }
       .identity-line { font-size: .72rem; }
@@ -5679,9 +5682,9 @@ and loads nothing.
       var timers = [];
       function later(fn, ms) { timers.push(window.setTimeout(fn, ms)); }
 
-      // The config's zone/spot are fractions of the IMAGE. When the
-      // hero is cropped (object-fit: cover on phones), the image's
-      // box and its content no longer coincide — map through the
+      // The config's zone/spot are fractions of the IMAGE. If the
+      // hero were ever cropped (object-fit: cover), the image's
+      // box and its content would no longer coincide — map through the
       // real object-fit geometry so the tap stays exact at any crop.
       function heroGeometry() {
         var rect = img.getBoundingClientRect();

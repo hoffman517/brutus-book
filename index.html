@@ -373,6 +373,29 @@
       letter-spacing: .02em;
     }
 
+    /* Outs on the big board (MLB only): three dots beside the inning
+       in the scoreboard header — filled scarlet = outs recorded,
+       hollow = remaining. The count stays in the at-bat line. */
+    .sb-outs {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 2px;
+    }
+
+    .sb-outs i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      box-sizing: border-box;
+      border: 1px solid rgba(255,255,255,.4);
+    }
+
+    .sb-outs i.on {
+      background: #e02020;
+      border-color: #e02020;
+    }
+
     .sb-foot {
       padding: 6px 12px 8px;
       border-top: 1px solid var(--line-soft);
@@ -5134,6 +5157,26 @@ and loads nothing.
             clk.className = 'sb-clock';
             clk.textContent = board.detail;
             head.appendChild(clk);
+          }
+          // Outs ride the big board (MLB only, live only): three dots
+          // beside the inning — filled scarlet for outs recorded,
+          // hollow for outs remaining. The count (balls/strikes) stays
+          // in the at-bat line; per-pitch data does not belong up here.
+          // No outs value in the feed → no dots at all.
+          if (spec.sport === 'MLB' && state === 'in') {
+            var sitO = match.competition && match.competition.situation;
+            var outsNow = sitO ? sitO.outs : null;
+            if (typeof outsNow === 'number' && Number.isFinite(outsNow)) {
+              var dots = document.createElement('span');
+              dots.className = 'sb-outs';
+              dots.setAttribute('aria-label', outsNow + ' out' + (outsNow === 1 ? '' : 's'));
+              for (var oi = 0; oi < 3; oi += 1) {
+                var dot = document.createElement('i');
+                if (oi < outsNow) dot.className = 'on';
+                dots.appendChild(dot);
+              }
+              head.appendChild(dots);
+            }
           }
           bug.appendChild(head);
           bug.appendChild(buildRow(match.away, awayName, awayScore, imgs[0] || null, !!(sides && sides.ours === match.away), lm ? lm.away : null));

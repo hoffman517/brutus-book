@@ -720,6 +720,83 @@
       line-height: 1.45;
     }
 
+    .live-field {
+      margin: -6px 10px 12px;
+    }
+
+    .live-field .field-track {
+      position: relative;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #1e5e34 0%, #174c2a 55%, #123e22 100%);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.45);
+      overflow: hidden;
+    }
+
+    .live-field .field-tick {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,.26);
+    }
+
+    .live-field .field-tick.major { background: rgba(255,255,255,.55); }
+
+    .live-field .field-zone {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8.333%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .54rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      color: rgba(255,255,255,.94);
+      white-space: nowrap;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .live-field .field-zone-own { left: 0; background: rgba(187,0,0,.5); }
+    .live-field .field-zone-def { right: 0; background: rgba(0,0,0,.38); }
+
+    .live-field .field-gain {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      margin-left: -1px;
+      background: #f2b234;
+      box-shadow: 0 0 4px rgba(0,0,0,.6);
+      z-index: 2;
+    }
+
+    .live-field .field-ball {
+      position: absolute;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      margin: -6px 0 0 -6px;
+      border-radius: 50%;
+      background: #e02020;
+      border: 2px solid #fff;
+      box-sizing: border-box;
+      box-shadow: 0 0 5px rgba(0,0,0,.65);
+      z-index: 3;
+    }
+
+    .live-drive {
+      margin: -4px 0 12px;
+      padding: 0 10px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
     .base-diamond {
       position: relative;
       flex: 0 0 auto;
@@ -4357,6 +4434,132 @@ and loads nothing.
             partial: !(poss && (sit.downDistanceText || (typeof sit.down === 'number' && typeof sit.distance === 'number'))) };
         }
 
+        // Field-position bar (football only). Position comes ONLY from
+        // situation.possession + situation.possessionText, whose meaning
+        // is unambiguous ("KENN 19" = the ball at the KENN 19). ESPN's raw
+        // yardLine is deliberately NOT used — its orientation semantics
+        // are unverified. The bar reads from the possessing team's own
+        // goal (0, left) to the target goal (100, right); the track is
+        // 120 units wide on screen (10 end zone + 100 field + 10 end
+        // zone), so a spot s renders at (10 + s) / 120 of the width.
+        // Returns null whenever the spot cannot be placed unambiguously.
+        function fieldBarInfo(match) {
+          var competition = match.competition;
+          var sit = competition && competition.situation;
+          if (!sit) return null;
+          if (sit.possession === undefined || sit.possession === null || sit.possession === '') return null;
+          var possId = String(sit.possession);
+          var poss = null;
+          var other = null;
+          if (match.away.team && String(match.away.team.id) === possId) { poss = match.away; other = match.home; }
+          else if (match.home.team && String(match.home.team.id) === possId) { poss = match.home; other = match.away; }
+          if (!poss || !other) return null;
+          if (!sit.possessionText) return null;
+          var parts = String(sit.possessionText).trim().split(/\s+/);
+          if (parts.length < 2) return null;
+          var yard = parseInt(parts[1], 10);
+          if (!Number.isFinite(yard) || yard < 1 || yard > 50) return null;
+          var possAbbr = teamAbbr(poss, '');
+          var defAbbr = teamAbbr(other, '');
+          if (!possAbbr || !defAbbr) return null;
+          var spot;
+          if (parts[0] === possAbbr) spot = yard;
+          else if (parts[0] === defAbbr) spot = 100 - yard;
+          else return null;
+          // Line to gain: spot + distance, unless the down text says Goal
+          // (then the goal line IS the line to gain — no separate marker).
+          var gain = null;
+          var ddText = sit.downDistanceText ? String(sit.downDistanceText) : '';
+          if (!/goal/i.test(ddText) &&
+              typeof sit.distance === 'number' && Number.isFinite(sit.distance)) {
+            var g = spot + sit.distance;
+            if (g > spot && g < 100) gain = g;
+            else if (g >= 100) gain = 100;
+          }
+          var drive = '';
+          if (sit.lastPlay && sit.lastPlay.drive && sit.lastPlay.drive.description) {
+            drive = String(sit.lastPlay.drive.description).trim()
+              .replace(/,\s*(\d{1,2}:\d{2})\s*$/, ' · $1');
+          }
+          return { spot: spot, gain: gain, possAbbr: possAbbr, defAbbr: defAbbr, drive: drive };
+        }
+
+        function buildFieldTrack(field) {
+          function pct(units) { return (units / 120 * 100) + '%'; }
+          var track = document.createElement('div');
+          track.className = 'field-track';
+          var k;
+          for (k = 0; k <= 100; k += 10) {
+            var tick = document.createElement('i');
+            tick.className = 'field-tick' + (k === 50 ? ' major' : '');
+            tick.style.left = pct(10 + k);
+            track.appendChild(tick);
+          }
+          var zl = document.createElement('span');
+          zl.className = 'field-zone field-zone-own';
+          zl.textContent = field.possAbbr;
+          track.appendChild(zl);
+          var zr = document.createElement('span');
+          zr.className = 'field-zone field-zone-def';
+          zr.textContent = field.defAbbr;
+          track.appendChild(zr);
+          if (field.gain !== null && field.gain !== undefined && field.gain < 100) {
+            var gl = document.createElement('i');
+            gl.className = 'field-gain';
+            gl.style.left = pct(10 + field.gain);
+            track.appendChild(gl);
+          }
+          var ball = document.createElement('i');
+          ball.className = 'field-ball';
+          ball.style.left = pct(10 + field.spot);
+          track.appendChild(ball);
+          return track;
+        }
+
+        // The bar + drive line live directly under .live-situation.
+        // Keep-last-good applies here too: when the new situation cannot
+        // place the ball (flicker), whatever is on screen stays; the bar
+        // is removed only on a hard remove (game not live / no situation
+        // at all / non-football sport).
+        function renderFieldBar(spec, match, state, hardRemove) {
+          var existingField = spec.card.querySelector('.live-field');
+          var existingDrive = spec.card.querySelector('.live-drive');
+          function removeEl(n) { if (n && n.parentNode) n.parentNode.removeChild(n); }
+          if (hardRemove || state !== 'in' || (spec.sport !== 'NFL' && spec.sport !== 'CFB')) {
+            removeEl(existingField);
+            removeEl(existingDrive);
+            return;
+          }
+          var field = fieldBarInfo(match);
+          if (!field) return;
+          var sitEl = spec.card.querySelector('.live-situation');
+          if (!sitEl) return;
+          var fieldEl = existingField;
+          if (!fieldEl) {
+            fieldEl = document.createElement('div');
+            fieldEl.className = 'live-field';
+          }
+          fieldEl.textContent = '';
+          fieldEl.appendChild(buildFieldTrack(field));
+          fieldEl.setAttribute('data-spot', String(field.spot));
+          if (field.gain !== null && field.gain !== undefined) fieldEl.setAttribute('data-gain', String(field.gain));
+          else fieldEl.removeAttribute('data-gain');
+          if (fieldEl.parentNode !== sitEl.parentNode || fieldEl.previousSibling !== sitEl) {
+            sitEl.parentNode.insertBefore(fieldEl, sitEl.nextSibling);
+          }
+          if (field.drive) {
+            var driveEl = existingDrive;
+            if (!driveEl) {
+              driveEl = document.createElement('p');
+              driveEl.className = 'live-drive';
+            }
+            driveEl.textContent = 'Drive: ' + field.drive;
+            if (driveEl.parentNode !== fieldEl.parentNode || driveEl.previousSibling !== fieldEl) {
+              fieldEl.parentNode.insertBefore(driveEl, fieldEl.nextSibling);
+            }
+          }
+        }
+
         // Situation line under the score line: rendered only while the game
         // is live and the feed returns situation data; otherwise the element
         // is removed so the card falls back to score + bet status only.
@@ -4372,6 +4575,7 @@ and loads nothing.
           if (!info) {
             if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
             if (existingPlay && existingPlay.parentNode) existingPlay.parentNode.removeChild(existingPlay);
+            renderFieldBar(spec, match, state, true);
             return;
           }
           // Keep-last-good: ESPN's situation fields flicker between plays
@@ -4380,6 +4584,7 @@ and loads nothing.
           // update never degrades a complete line already on screen; the
           // next complete poll (<=60s) refreshes it.
           if (info.partial && existing && existing.dataset && existing.dataset.partial !== '1') {
+            renderFieldBar(spec, match, state, false);
             return;
           }
           var el = existing;
@@ -4414,6 +4619,7 @@ and loads nothing.
           } else if (existingPlay && existingPlay.parentNode) {
             existingPlay.parentNode.removeChild(existingPlay);
           }
+          renderFieldBar(spec, match, state, false);
         }
 
         function renderLiveLine(spec, match) {

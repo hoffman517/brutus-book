@@ -215,44 +215,64 @@
       text-align: right;
     }
 
-    /* The identity one-liner: the old explainer panel's whole content,
-       condensed into one small line inside the masthead itself. */
-    .masthead-identity {
-      position: relative;
-      z-index: 1;
-      margin: 9px 0 0;
-      color: rgba(255, 255, 255, .88);
+    /* Masthead order (Scott's ruling, 2026-10-14): the name leads —
+       BRUTUS' BOOK first and largest, the date as a small line under
+       it, then the record pill with its last-card sub-line. */
+    .masthead .date { margin-top: 8px; }
+
+    .masthead-record-block { margin-top: 9px; }
+
+    .masthead-bottom { justify-content: flex-end; }
+
+    /* Last-card sub-line under the record pill — the old record
+       band's only unique content, folded into the masthead. Rendered
+       from BRUTUS_DATA by renderRecordBand(), like the pill itself. */
+    .masthead-last {
+      margin-top: 5px;
+      color: rgba(255, 255, 255, .85);
+      font-size: .72rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    /* The identity one-liner lives BELOW Today's Card now (small
+       type, with the how-it-works material) — out of the masthead. */
+    .identity-line {
+      margin: 14px 2px 0;
+      color: var(--muted);
       font-size: .76rem;
       line-height: 1.45;
     }
 
-    /* Record front and center: a compact band directly under the
-       masthead. Values are rendered from BRUTUS_DATA — the same
-       object the Stats tab renders — never hand-typed. */
-    .record-band {
-      display: flex;
-      align-items: baseline;
-      flex-wrap: wrap;
-      gap: 4px 12px;
-      margin-top: 12px;
-      padding: 9px 14px;
-      border: 1px solid var(--line-soft);
-      border-radius: var(--radius-md);
-      background: var(--panel-2);
+    /* Masthead + hero = ONE visual object (Scott's continuity
+       ruling, 2026-10-14): a single rounded container — red masthead
+       on top, hero flush beneath with no gap and no separate frame.
+       The radius lives on the container and the overflow clip gives
+       the hero its bottom corners; the egg caption zone sits on the
+       container's dark ground under the image. */
+    .top-unit {
+      overflow: hidden;
+      border: 1px solid #d0d5d9;
+      border-radius: var(--radius-lg);
+      background: #0b0d10;
+      box-shadow: 0 22px 60px rgba(0,0,0,.44);
     }
 
-    .record-band-main {
-      font-size: 1.02rem;
-      font-weight: 800;
-      letter-spacing: .01em;
-      color: var(--text);
+    .top-unit .masthead {
+      border: 0;
+      border-radius: 0;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.28);
     }
 
-    .record-band-last {
-      color: var(--muted);
-      font-size: .8rem;
-      font-weight: 600;
+    .top-unit .egg-slot { margin: 0; }
+
+    .top-unit .daily-hero {
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
     }
+
+    .top-unit .egg-caption { margin: 10px auto; }
 
     main { display: grid; gap: 40px; margin-top: 38px; }
 
@@ -329,7 +349,7 @@
     }
 
     .picks-as-of {
-      margin: -17px 2px 27px;
+      margin: 14px 2px 27px;
       color: var(--muted);
       font-size: .75rem;
       line-height: 1.45;
@@ -1165,8 +1185,8 @@
       display: flex;
       align-items: baseline;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 15px;
+      gap: 4px 8px;
+      margin-bottom: 9px;
     }
 
     .bet {
@@ -1194,7 +1214,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 11px;
+      padding: 4px 11px;
       border: 1px solid #e02331;
       border-radius: 999px;
       background: rgba(187,0,0,.24);
@@ -2108,14 +2128,15 @@
       }
       .tab-button { min-height: 50px; padding-inline: 6px; }
       .masthead { padding: 10px 12px; border-radius: 14px; }
+      .top-unit { border-radius: 14px; }
+      .top-unit .masthead { border-radius: 0; }
       /* Scroll compression: the hero takes a shorter crop on phones.
          The egg handler maps taps through the object-fit geometry,
          so the tap zone stays exact under the crop. */
       .daily-hero img { height: 168px; object-fit: cover; object-position: 50% 78%; }
-      .masthead-top { flex-direction: column; align-items: flex-start; gap: 6px; }
       .record-badge { flex-wrap: wrap; row-gap: 2px; margin-left: 0; min-height: 0; padding-block: 4px; }
       .masthead-bottom { margin-top: 8px; align-items: center; }
-      .masthead-identity { margin-top: 7px; font-size: .72rem; line-height: 1.4; }
+      .identity-line { font-size: .72rem; }
       .handicapper-hero {
         grid-template-columns: minmax(0, 1.45fr) minmax(190px, .72fr);
         min-height: 270px;
@@ -2216,23 +2237,27 @@ and loads nothing.
 </head>
 <body>
   <div class="page-shell">
+    <div class="top-unit" data-view="today">
     <header class="masthead">
-      <div class="masthead-top">
-        <div class="date" data-card-date="2026-10-14"><span class="live-dot" aria-hidden="true"></span>Wednesday · Oct 14, 2026</div>
+      <div class="brand-lockup">
+        <h1 class="brand">BRUTUS’ <span>BOOK</span></h1>
+      </div>
+      <div class="date" data-card-date="2026-10-14"><span class="live-dot" aria-hidden="true"></span>Wednesday · Oct 14, 2026</div>
+      <div class="masthead-record-block">
         <div class="record-badge"><span>Season</span><strong id="masthead-record">14–12–1 · +0.33u</strong><span>ROI</span><strong id="masthead-roi">+2.2%</strong></div>
+        <div class="masthead-last" id="masthead-last"></div>
       </div>
       <div class="masthead-bottom">
-        <div class="brand-lockup">
-          <h1 class="brand">BRUTUS’ <span>BOOK</span></h1>
-        </div>
-        <p class="book-note">Wednesday’s card is live: two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a plus-price Stars moneyline in Denver — 1.75u risked, nothing above conf 2. Yesterday graded 3–0–1 for +1.59u. Season: 14–12–1 (53.8%) for +0.33u.</p>
+        <p class="book-note">Wednesday’s card is live: two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a plus-price Stars moneyline in Denver — 1.75u risked, nothing above conf 2.</p>
       </div>
-      <p class="masthead-identity">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
     </header>
-
-    <div class="record-band" id="record-band" aria-label="Season record">
-      <strong class="record-band-main" id="record-band-main">—</strong>
-      <span class="record-band-last" id="record-band-last"></span>
+        <div class="egg-slot">
+          <figure class="daily-hero" id="daily-hero">
+            <img src="assets/brutus-daily-2026-10-14-e.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Wednesday's card: Kennesaw State -3, Sam Houston +1.5, Brewers @ Dodgers under 7.5, Stars moneyline +130" width="1600" height="1067">
+            <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
+          </figure>
+          <p class="egg-caption" id="egg-caption" role="status"></p>
+        </div>
     </div>
 
     <nav class="tab-nav" role="tablist" aria-label="Dashboard views">
@@ -2243,19 +2268,10 @@ and loads nothing.
 
     <main>
       <section id="card-panel" data-view="today" role="tabpanel" aria-labelledby="tab-today card-title">
-        <div class="egg-slot">
-          <figure class="daily-hero" id="daily-hero">
-            <img src="assets/brutus-daily-2026-10-14-d.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the buckeye handicapper, person-sized in his scarlet cap and sweater, seated at his desk beside a big whiteboard carrying Wednesday's card: Kennesaw State -3, Sam Houston +1.5, Brewers @ Dodgers under 7.5, Stars moneyline +130" width="1600" height="1067">
-            <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
-          </figure>
-          <p class="egg-caption" id="egg-caption" role="status"></p>
-        </div>
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-10-14T13:52:00-04:00">Picks as of Wednesday, October 14 — 1:52 PM ET</time></p>
         <div class="section-heading card-heading">
           <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW · Live scores</span></h2>
           <div class="card-heading-actions">
-            <p class="section-note" id="sort-note">Ranked by confidence · ET</p>
-            <p class="section-note staking-line">Staking today: Conf 2 = 0.5u · Conf 1 = 0.25u · Total risked: 1.75u</p>
             <div class="share-actions">
               <button class="copy-card" id="copy-card" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"></path></svg>
@@ -2292,7 +2308,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_kenn.png" alt="Kennesaw State logo" width="34" height="34"></span><p class="matchup">Kennesaw State @ Missouri State</p><span class="team-logo"><img src="assets/team_logos/ncaaf_most.png" alt="Missouri State logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">KENNESAW STATE -3</span><span class="odds">−111</span><span class="price-book">Price: Fanatics</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
+            <div class="wager-line"><span class="bet">KENNESAW STATE -3</span><span class="odds">−111</span><span class="price-book">Fanatics</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
             <p class="conditions">Outdoor · Springfield, MO · No weather edge claimed</p>
             <ul class="reason-list"><li>Action Network's best bet is Kennesaw State -3 or better, and the Tony's Picks panel agrees.</li><li>Missouri State has allowed 30+ points in four of five games.</li><li>Kennesaw State QB Ricky Collins adds a running element against a defense that rarely reaches the passer.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/college-football/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Kennesaw State @ Missouri State">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2306,7 +2322,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/ncaaf_wku.png" alt="Western Kentucky logo" width="34" height="34"></span><p class="matchup">Western Kentucky @ Sam Houston</p><span class="team-logo"><img src="assets/team_logos/ncaaf_shsu.png" alt="Sam Houston logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">SAM HOUSTON +1.5</span><span class="odds">−108</span><span class="price-book">Price: Bleacher Report odds listing</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
+            <div class="wager-line"><span class="bet">SAM HOUSTON +1.5</span><span class="odds">−108</span><span class="price-book">Bleacher Report odds listing</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Spread</span></div>
             <p class="conditions">Outdoor · ~79°F, clear · Wind 9 mph</p>
             <ul class="reason-list"><li>Ensemble -2.7 and v0.2 -4.4 for Sam Houston — a 4.2-point disagreement with the market.</li><li>VSIN, USA Today and SportsGambler all take Sam Houston.</li><li>Western Kentucky owns the nation's worst run defense at about 6 yards per carry allowed.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/college-football/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Western Kentucky @ Sam Houston">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2320,7 +2336,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/mlb_mil.png" alt="Milwaukee Brewers logo" width="34" height="34"></span><p class="matchup">Brewers @ Dodgers</p><span class="team-logo"><img src="assets/team_logos/mlb_lad.png" alt="Los Angeles Dodgers logo" width="34" height="34"></span></div>
             <p class="series-line">NLCS · Game 3 · MIL leads series 2–0</p>
-            <div class="wager-line"><span class="bet">UNDER 7.5</span><span class="odds">−114</span><span class="price-book">Price: DraftKings</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Total</span></div>
+            <div class="wager-line"><span class="bet">UNDER 7.5</span><span class="odds">−114</span><span class="price-book">DraftKings</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Total</span></div>
             <p class="conditions">Dodger Stadium · Outdoor · ~70°F, clear · Wind 3 mph</p>
             <ul class="reason-list"><li>Blake Snell (1.90 ERA) vs Robert Gasser, with Milwaukee's bullpen at one earned run through six postseason games.</li><li>Game 1 of this series finished 2-1.</li><li>Clear and calm at Dodger Stadium — no weather push either way.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/mlb/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Brewers @ Dodgers">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2334,7 +2350,7 @@ and loads nothing.
             <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/nhl_dal.png" alt="Dallas Stars logo" width="34" height="34"></span><p class="matchup">Stars @ Avalanche</p><span class="team-logo"><img src="assets/team_logos/nhl_col.png" alt="Colorado Avalanche logo" width="34" height="34"></span></div>
             
-            <div class="wager-line"><span class="bet">STARS ML</span><span class="odds">+130</span><span class="price-book">Price: FanDuel</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.25u</span><span class="market">Moneyline</span></div>
+            <div class="wager-line"><span class="bet">STARS ML</span><span class="odds">+130</span><span class="price-book">FanDuel</span><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.25u</span><span class="market">Moneyline</span></div>
             <p class="conditions">Denver · Colorado on the second night of a back-to-back · Makar game-time decision</p>
             <ul class="reason-list"><li>Casey DeSmith is confirmed for Dallas (.923 save %) against likely starter Scott Wedgewood (.897).</li><li>Colorado played with 17 skaters last night; Cale Makar is a game-time decision.</li><li>At +130 the Stars need only a 43.5% win rate to break even — sized small at conf 1.</li></ul>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/nhl/scoreboard" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Stars @ Avalanche">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
@@ -2344,6 +2360,7 @@ and loads nothing.
         <div class="card-summary" aria-label="Card composition">
           <p><strong>Card mix</strong><br>2 spreads, 1 total, 1 moneyline — two CUSA football plays, the NLCS Game 3 under at Dodger Stadium, and a Stars moneyline in Denver.</p>
         </div>
+        <p class="identity-line">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
         <p class="source-note">Card locked at 1:52 PM ET on Oct 14. Total risked: 1.75u · Tuesday graded: 3–0–1 for +1.59u · Season: 14–12–1 for +0.33u.</p>
       </section>
 
@@ -3444,7 +3461,7 @@ and loads nothing.
             pickResultMarkup(pick) +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
-            '<div class="wager-line"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">Price: ' + escapeHTML(pick.book) + '</span>' : '') + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div>' +
+            '<div class="wager-line"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">' + escapeHTML(pick.book) + '</span>' : '') + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div>' +
             '<p class="conditions">' + escapeHTML(pick.conditions || '') + '</p>' +
             '<ul class="reason-list">' + (pick.reasons || [pick.why]).map(function (reason) { return '<li>' + escapeHTML(reason) + '</li>'; }).join('') + '</ul>' +
             (intelSource(pick) ? '<p class="source"><strong>Intel via</strong> ' + escapeHTML(intelSource(pick)) + '</p>' : '') +
@@ -3870,28 +3887,29 @@ and loads nothing.
         document.getElementById('form-note').textContent = recent.length ? 'Oldest to newest · last ' + recent.length + ' graded picks' : 'No graded picks yet.';
       }
 
-      // The record band under the masthead — and the masthead badge's
-      // record text — render from the SAME computation as the Stats
-      // tab (allPicks/summarize over BRUTUS_DATA). One source of truth:
-      // no hand-typed record numbers anywhere in the chrome.
+      // The record lives in exactly ONE place above the card: the
+      // masthead pill, with the last graded card as a small sub-line
+      // under it (#masthead-last). Both render from the SAME
+      // computation as the Stats tab (allPicks/summarize over
+      // BRUTUS_DATA). One source of truth: no hand-typed record
+      // numbers anywhere in the chrome.
       function renderRecordBand() {
-        var main = document.getElementById('record-band-main');
-        var last = document.getElementById('record-band-last');
-        if (!main || !last) return;
+        var badge = document.getElementById('masthead-record');
+        var last = document.getElementById('masthead-last');
+        if (!badge && !last) return;
         var picks = allPicks();
         var graded = picks.filter(function (pick) { return pick.result !== 'pending'; });
         var overall = summarize(graded);
-        var roi = overall.risked ? (overall.units > 0 ? '+' : '') + (overall.units / overall.risked * 100).toFixed(1) + '%' : '—';
-        main.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units) + ' · ROI ' + roi).replace(/-/g, '−');
-        var badge = document.getElementById('masthead-record');
         if (badge) badge.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units)).replace(/-/g, '−');
-        var days = BRUTUS_DATA.days;
-        for (var i = days.length - 1; i >= 0; i -= 1) {
-          var dayGraded = days[i].picks.filter(function (pick) { return pick.result !== 'pending'; });
-          if (dayGraded.length) {
-            var s = summarize(dayGraded);
-            last.textContent = 'Last card: ' + (recordText(s) + ', ' + signedUnits(s.units)).replace(/-/g, '−');
-            break;
+        if (last) {
+          var days = BRUTUS_DATA.days;
+          for (var i = days.length - 1; i >= 0; i -= 1) {
+            var dayGraded = days[i].picks.filter(function (pick) { return pick.result !== 'pending'; });
+            if (dayGraded.length) {
+              var s = summarize(dayGraded);
+              last.textContent = 'Last card: ' + (recordText(s) + ' · ' + signedUnits(s.units)).replace(/-/g, '−');
+              break;
+            }
           }
         }
       }
@@ -3956,7 +3974,6 @@ and loads nothing.
       });
 
       var sortButtons = document.querySelectorAll('.sort-button');
-      var sortNote = document.getElementById('sort-note');
       function sortCards(mode) {
         var orderedCards = Array.prototype.slice.call(cards);
         orderedCards.sort(function (first, second) {
@@ -3966,7 +3983,6 @@ and loads nothing.
         });
         orderedCards.forEach(function (card) { grid.appendChild(card); });
         grid.setAttribute('data-sort', mode);
-        sortNote.textContent = mode === 'time' ? 'Earliest game first · ET' : 'Ranked by confidence · ET';
         sortButtons.forEach(function (button) {
           button.setAttribute('aria-pressed', button.getAttribute('data-sort') === mode ? 'true' : 'false');
         });

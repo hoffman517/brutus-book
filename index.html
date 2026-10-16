@@ -4267,6 +4267,7 @@ and loads nothing.
         var pill = document.getElementById('dossier-pill');
         var entries = [];
         var panels = {};
+        var gridPanels = {};
         store.querySelectorAll('.dossier-panel').forEach(function (panel) {
           // A matchup can own two panels on back-to-back days (Brewers @
           // Dodgers, Games 3 and 4) — keep them all, in store order.
@@ -4342,6 +4343,7 @@ and loads nothing.
           // its history row below.
           var panel = queue && queue.length ? queue.pop() : null;
           if (!panel) return;
+          gridPanels[matchup] = panel;
           var panelId = 'dossier-' + index;
           var toggle = document.createElement('button');
           toggle.type = 'button';
@@ -4389,12 +4391,23 @@ and loads nothing.
         // Rows render newest-day-first, but panel queues are oldest-first:
         // walk the rows in reverse so a repeated matchup (Brewers @
         // Dodgers on consecutive days) pairs each row with its OWN day's
-        // panel. Today's row comes last and finds its panel already
-        // consumed by the grid pass — skipped, as before.
+        // panel. Today's row comes last and finds its panel already taken
+        // by the grid pass — appendChild moved the element itself into
+        // the grid card, so the row is wired to a deep clone of that same
+        // panel instead (D179): the grid keeps the original, the history
+        // row gets its own copy, and both toggles work.
         var historyRows = Array.prototype.slice.call(document.querySelectorAll('#history-list .history-pick[data-matchup]')).reverse();
         historyRows.forEach(function (row, hIndex) {
-          var queue = panels[row.getAttribute('data-matchup')];
+          var matchup = row.getAttribute('data-matchup');
+          var queue = panels[matchup];
           var panel = queue && queue.length ? queue.shift() : null;
+          if (!panel && gridPanels[matchup]) {
+            panel = gridPanels[matchup].cloneNode(true);
+            // The grid pass already appended its own close button to the
+            // original, and a clone inherits the button without its
+            // listener. Drop the copy — this pass appends the row's own.
+            panel.querySelectorAll('.dossier-end-close').forEach(function (stale) { stale.remove(); });
+          }
           if (!panel) return;
           var panelId = 'dossier-h' + hIndex;
           var toggle = document.createElement('button');

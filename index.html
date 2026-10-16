@@ -5997,6 +5997,11 @@ and loads nothing.
           rink.appendChild(buildRinkTrack(spec, match));
         }
 
+        function totalNoun(sport, combined) {
+          var base = sport === 'MLB' ? 'run' : (sport === 'NHL' ? 'goal' : 'point');
+          return combined === 1 ? base : base + 's';
+        }
+
         function renderLiveLine(spec, match) {
           var status = match.status || {};
           var type = status.type || {};
@@ -6033,7 +6038,7 @@ and loads nothing.
             if (spec.isTotal) {
               if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
                 var combined = awayScore + homeScore;
-                footText = 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' run' + (combined === 1 ? '' : 's');
+                footText = 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' ' + totalNoun(spec.sport, combined);
               }
             } else {
               footText = betStatusText(spec, match);

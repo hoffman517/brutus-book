@@ -6158,6 +6158,14 @@ and loads nothing.
           return Promise.resolve().then(fn);
         }
 
+        function feedIsFresh(data, nowMs) {
+          if (!data || typeof data.feed_ts !== 'string') return false;
+          var parsed = Date.parse(data.feed_ts);
+          if (!Number.isFinite(parsed)) return false;
+          var age = nowMs - parsed;
+          return age <= 180000 && age >= -60000;
+        }
+
         // The transport chain, in order: our server-fed feed → ESPN
         // primary → ESPN mirror → relay fetch → alternate relay fetch.
         // The first rung that returns parseable scoreboard JSON wins;
@@ -6167,7 +6175,12 @@ and loads nothing.
           var rungs = [];
           var feedURL = FEED_URLS[sport];
           if (feedURL) {
-            rungs.push(function () { return fetchScoreboard(feedURL + '?t=' + Date.now()); });
+            rungs.push(function () {
+              return fetchScoreboard(feedURL + '?t=' + Date.now()).then(function (data) {
+                if (!feedIsFresh(data, Date.now())) throw new Error('Stale feed');
+                return data;
+              });
+            });
           }
           rungs.push(function () { return fetchScoreboard(url); });
           if (mirror !== url) rungs.push(function () { return fetchScoreboard(mirror); });

@@ -2484,10 +2484,11 @@ and loads nothing.
               <div class="confidence" aria-label="Confidence 2 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
             <div class="pick-result win"><strong>WIN</strong><span>Boston 4, Anaheim 2 · +0.45u</span></div>
+            <p class="pregame-status">Resolved 9:15 PM ET — Michael DiPietro started for Boston; Jeremy Swayman sat; Lukas Dostal was confirmed for Anaheim. The goalie-edge lead angle was dead before puck drop — the pick stayed on the record and won on the talent gap.</p>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/nhl_bos.png" alt="Boston Bruins logo" width="34" height="34"></span><p class="matchup">Boston Bruins @ Anaheim Ducks</p><span class="team-logo"><img src="assets/team_logos/nhl_ana.png" alt="Anaheim Ducks logo" width="34" height="34"></span></div>
             <div class="wager-line"><div class="wager-main"><span class="bet">BRUINS ML</span><span class="odds">−112</span><span class="price-book">DK NJ</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Moneyline</span></div></div>
             <p class="conditions">Honda Center · Indoor</p>
-            <ul class="reason-list"><li>Goalie edge (structured league feed): Jeremy Swayman .930 SV% / 1.99 GAA vs Lukas Dostal .892 / 2.98 — both listed expected by SportsGambler and TheSpread.</li><li>Boston allows 2.29 goals per game vs Anaheim’s 2.83, with a positive MoneyPuck xG differential (+0.07) against Anaheim’s negative one (-0.11).</li><li>Anaheim is without Troy Terry (IR) and Ryan Poehling (out); Mikael Granlund is day-to-day.</li><li>Counter logged: goalies are expected, not confirmed — a T-45 pregame check is scheduled; if Swayman does not start, the lead angle is gone.</li></ul>
+            <ul class="reason-list"><li>Goalie edge (structured league feed): Jeremy Swayman .930 SV% / 1.99 GAA vs Lukas Dostal .892 / 2.98 — both listed expected by SportsGambler and TheSpread.</li><li>Boston allows 2.29 goals per game vs Anaheim’s 2.83, with a positive MoneyPuck xG differential (+0.07) against Anaheim’s negative one (-0.11).</li><li>Anaheim is without Troy Terry (IR) and Ryan Poehling (out); Mikael Granlund is day-to-day.</li><li>Counter logged: goalies were expected, not confirmed — resolved at the 9:15 PM ET pregame check: DiPietro started over Swayman, so the lead angle was gone before puck drop.</li></ul>
             <p class="source"><strong>Intel via</strong> SportsGambler / TheSpread</p>
             <div class="pick-meta"><a class="score-link" href="https://www.espn.com/nhl/game/_/gameId/401892518" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Boston Bruins @ Anaheim Ducks">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
           </article>
@@ -4021,8 +4022,9 @@ and loads nothing.
               why: "Swayman (.930) over Dostal (.892) in net, the better defensive team, and Anaheim's lineup is thin.",
               result: "win", finalScore: "Bruins 4, Ducks 2",
               angleCheck: "goalie edge died before puck drop — DiPietro started over Swayman at the 9:15 PM ET check — the win came on the talent gap: Boston held Anaheim to 2 and won 4-2 on the road.",
+              resolutionNote: "Resolved 9:15 PM ET — Michael DiPietro started for Boston; Jeremy Swayman sat; Lukas Dostal was confirmed for Anaheim. The goalie-edge lead angle was dead before puck drop — the pick stayed on the record and won on the talent gap.",
               conditions: "Honda Center · Indoor",
-              reasons: ["Goalie edge (structured league feed): Jeremy Swayman .930 SV% / 1.99 GAA vs Lukas Dostal .892 / 2.98 — both listed expected by SportsGambler and TheSpread.", "Boston allows 2.29 goals per game vs Anaheim's 2.83, with a positive MoneyPuck xG differential (+0.07) against Anaheim's negative one (-0.11).", "Anaheim is without Troy Terry (IR) and Ryan Poehling (out); Mikael Granlund is day-to-day.", "Counter logged: goalies are expected, not confirmed — a T-45 pregame check is scheduled; if Swayman does not start, the lead angle is gone."], source: "SportsGambler / TheSpread"
+              reasons: ["Goalie edge (structured league feed): Jeremy Swayman .930 SV% / 1.99 GAA vs Lukas Dostal .892 / 2.98 — both listed expected by SportsGambler and TheSpread.", "Boston allows 2.29 goals per game vs Anaheim's 2.83, with a positive MoneyPuck xG differential (+0.07) against Anaheim's negative one (-0.11).", "Anaheim is without Troy Terry (IR) and Ryan Poehling (out); Mikael Granlund is day-to-day.", "Counter logged: goalies were expected, not confirmed — resolved at the 9:15 PM ET pregame check: DiPietro started over Swayman, so the lead angle was gone before puck drop."], source: "SportsGambler / TheSpread"
             }
           ]
         }
@@ -4208,6 +4210,7 @@ and loads nothing.
             pickResultMarkup(pick) +
             (pick.result === 'pending' && pick.pendingNote ? '<p class="pregame-status">' + escapeHTML(pick.pendingNote) + '</p>' : '') +
             (pick.result === 'void' && pick.voidNote ? '<p class="pregame-status">' + escapeHTML(pick.voidNote) + '</p>' : '') +
+            (pick.result !== 'pending' && pick.result !== 'void' && pick.resolutionNote ? '<p class="pregame-status">' + escapeHTML(pick.resolutionNote) + '</p>' : '') +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
             '<div class="wager-line"><div class="wager-main"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">' + escapeHTML(pick.book) + '</span>' : '') + '</div><div class="wager-sub">' + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div></div>' +

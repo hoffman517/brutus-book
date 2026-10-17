@@ -6314,6 +6314,12 @@ and loads nothing.
             return;
           }
           spec.card.dataset.liveSeen = '1';
+          // D180 fix (2026-10-16): ESPN reports a postponed/cancelled
+          // game as state 'post' with completed false — it is NOT a
+          // final. Such an event renders like a pre-game (no scores,
+          // no bet footer) under its own detail tag ('Postponed').
+          var notPlayed = state === 'post' && type.completed !== true;
+          var displayState = notPlayed ? 'pre' : state;
           var detail = type.shortDetail || type.detail || '';
           var awayLabel = teamLabel(match.away, spec.awayName);
           var homeLabel = teamLabel(match.home, spec.homeName);
@@ -6322,7 +6328,8 @@ and loads nothing.
 
           var tagText;
           var tagClass;
-          if (state === 'in') { tagText = 'Live'; tagClass = 'live-tag'; }
+          if (notPlayed) { tagText = type.detail || type.shortDetail || 'Postponed'; tagClass = 'live-tag is-pre'; }
+          else if (state === 'in') { tagText = 'Live'; tagClass = 'live-tag'; }
           else if (state === 'post') { tagText = 'Final'; tagClass = 'live-tag is-final'; }
           else { tagText = 'Scheduled'; tagClass = 'live-tag is-pre'; }
 
@@ -6330,7 +6337,7 @@ and loads nothing.
           // footer line, or the strip's suffix when there is no board.
           var footText = '';
           var chipText = '';
-          if (state !== 'pre' && awayScore !== null && homeScore !== null) {
+          if (state !== 'pre' && !notPlayed && awayScore !== null && homeScore !== null) {
             if (spec.isTotal) {
               if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
                 var combined = awayScore + homeScore;
@@ -6364,9 +6371,9 @@ and loads nothing.
           var startText = '';
           var gtEl = spec.card.querySelector('.game-time');
           if (gtEl) startText = gtEl.textContent.trim();
-          var bugOn = renderScorebug(spec, match, state, {
+          var bugOn = renderScorebug(spec, match, displayState, {
             tagText: tagText, tagClass: tagClass,
-            detail: state === 'in' ? (detail || '') : (state === 'pre' ? startText : ''),
+            detail: notPlayed ? (type.detail || type.shortDetail || detail || '') : (state === 'in' ? (detail || '') : (state === 'pre' ? startText : '')),
             footText: footText, chipText: chipText
           });
 
@@ -6379,6 +6386,8 @@ and loads nothing.
               text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
                 homeLabel + ' ' + (homeScore === null ? 0 : homeScore) +
                 (detail ? ' · ' + detail : '');
+            } else if (notPlayed) {
+              text = awayLabel + ' @ ' + homeLabel + ' · ' + (type.detail || type.shortDetail || 'Postponed');
             } else if (state === 'post') {
               text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
                 homeLabel + ' ' + (homeScore === null ? 0 : homeScore);

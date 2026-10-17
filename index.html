@@ -978,6 +978,8 @@
     .pick-result.pending strong { color: var(--gray); }
     .pick-result.push { background: #3b3216; color: #f3ddab; }
     .pick-result.push strong { color: #eec25e; }
+    .pick-result.void { background: #3b3216; color: #f3ddab; }
+    .pick-result.void strong { color: #eec25e; }
 
     .live-score {
       display: flex;
@@ -1551,6 +1553,8 @@
     .d-state.loss .d-state-lab { color: #ff8a8a; }
     .d-state.push { background: #2b2e31; color: #d3d8db; }
     .d-state.push .d-state-lab { color: #9aa3ab; }
+    .d-state.void { background: #2b2e31; color: #d3d8db; }
+    .d-state.void .d-state-lab { color: #9aa3ab; }
     .d-state.pending { background: #2b2e31; color: #d3d8db; }
     .d-state.pending .d-state-lab { color: #9aa3ab; }
 
@@ -2168,6 +2172,7 @@
     .result-chip.win { background: #123720; color: #69e898; }
     .result-chip.loss { background: #401718; color: #ff8a8a; }
     .result-chip.push { background: #3b3216; color: var(--gold); }
+    .result-chip.void { background: #3b3216; color: var(--gold); }
     .result-chip.pending { min-width: 66px; }
 
     .empty-state {
@@ -2373,7 +2378,7 @@ and loads nothing.
       </div>
       <div class="date" data-card-date="2026-10-16"><span class="live-dot" aria-hidden="true"></span>Friday · Oct 16, 2026</div>
       <div class="masthead-record-block">
-        <div class="record-badge"><span>Season</span><strong id="masthead-record">18–20–1 · −1.98u</strong><span>ROI</span><strong id="masthead-roi">−9.4%</strong></div>
+        <div class="record-badge"><span>Season</span><strong id="masthead-record">18–20–2 · −1.98u</strong><span>ROI</span><strong id="masthead-roi">−9.4%</strong></div>
         <div class="masthead-last" id="masthead-last"></div>
       </div>
       <div class="masthead-bottom">
@@ -2463,14 +2468,14 @@ and loads nothing.
               <div class="sport-time"><span class="sport-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M8 5.2c1.8 1.6 2.7 3.8 2.7 6.8S9.8 17.2 8 18.8M16 5.2c-1.8 1.6-2.7 3.8-2.7 6.8s.9 5.2 2.7 6.8"></path></svg>MLB</span><span class="game-time">8:00 PM ET</span></div>
               <div class="confidence" aria-label="Confidence 2 out of 5"><span class="conf-label">CONF</span><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
             </div>
-            <div class="pick-result pending"><strong>PENDING</strong><span>Game not final</span></div>
-            <p class="pregame-status">Postponed — rain in Cleveland washed out Game 4 on Friday night; rescheduled for Saturday, October 17 at 8:00 PM ET. The pick is pending, not graded.</p>
+            <div class="pick-result void"><strong>VOID</strong><span>Postponed — game not played · 0.00u</span></div>
+            <p class="pregame-status">Void — rain in Cleveland postponed Game 4 on Friday night, and the bet is voided per the pick's stated condition. The 0.5u stake is refunded (0.0u), and the pick will not be graded from the rescheduled game on Saturday, October 17.</p>
             <div class="matchup-row"><span class="team-logo"><img src="assets/team_logos/mlb_tb.png" alt="Tampa Bay Rays logo" width="34" height="34"></span><p class="matchup">Tampa Bay Rays @ Cleveland Guardians</p><span class="team-logo"><img src="assets/team_logos/mlb_cle.png" alt="Cleveland Guardians logo" width="34" height="34"></span></div>
             <div class="wager-line"><div class="wager-main"><span class="bet">RAYS ML</span><span class="odds">−112</span><span class="price-book">DK NJ</span></div><div class="wager-sub"><span class="stake-chip"><span class="stake-chip-label">Stake</span>0.5u</span><span class="market">Moneyline</span></div></div>
             <p class="conditions">Progressive Field · Outdoor · 52.2°F · Wind 25.3 mph · Rain 26% · ALCS Game 4 — Cleveland leads 2-1</p>
             <ul class="reason-list"><li>Pitching matchup: Nick Martinez starts for Tampa Bay (3.10 ERA this season; xERA 3.98 in today’s model run) vs a Cleveland bullpen game opened by reliever Shawn Armstrong (NBC Sports / Beacon Journal).</li><li>Talent gap: Tampa Bay won 98 games to Cleveland’s 85 and carries baseball’s best team WHIP (1.140).</li><li>Market: the Rays ML moved from +117 overnight to -112 by midday at DK NJ as pitching plans firmed.</li><li>Counter logged: Cleveland leads 2-1 and its bullpen game is a designed plan; Covers expert Jon Metler picked Cleveland.</li></ul>
             <p class="source"><strong>Intel via</strong> NBC Sports / Akron Beacon Journal</p>
-            <div class="pick-meta"><span class="to-win">To win <strong>+0.45u</strong></span><a class="score-link" href="https://www.espn.com/mlb/game/_/gameId/401908026" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Tampa Bay Rays @ Cleveland Guardians">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
+            <div class="pick-meta"><a class="score-link" href="https://www.espn.com/mlb/game/_/gameId/401908026" target="_blank" rel="noopener noreferrer" aria-label="View ESPN scores for Tampa Bay Rays @ Cleveland Guardians">Scores <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5"></path><path d="M10 14 19 5"></path><path d="M19 13v6H5V5h6"></path></svg></a></div>
           </article>
 
           <article class="pick-card conf-2" data-sport="NHL" data-away="Boston Bruins" data-home="Anaheim Ducks" data-bet-type="moneyline" data-our-side="BRUINS" data-day-date="2026-10-16" data-espn-game-id="401892518" data-original-rank="3" data-game-time="1320">
@@ -2493,7 +2498,7 @@ and loads nothing.
         </div>
         <p class="source-note"><strong>Card notes:</strong> NBA games today are preseason — capture only, no picks, and there are no NFL games today. All four picks carry a pending-resolution fact (Washington's quarterback, App State's quarterback, Cleveland's weather, Anaheim's starting goalies) with pregame checks scheduled — 7:15 PM ET for the three 8:00 PM ET starts, 9:15 PM ET for the Bruins.</p>
         <p class="identity-line">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
-        <p class="source-note">Card locked at 2:53 PM ET on Oct 16. Total risked: 2.00u · Thursday graded: 1–4 for −1.55u · Season: 18–20–1 for −1.98u.</p>
+        <p class="source-note">Card locked at 2:53 PM ET on Oct 16. Total risked: 2.00u · Thursday graded: 1–4 for −1.55u · Season: 18–20–2 for −1.98u.</p>
       </section>
 
       <section id="stats-panel" data-view="stats" role="tabpanel" aria-labelledby="tab-stats stats-title" hidden>
@@ -3567,7 +3572,7 @@ and loads nothing.
     </section>
     <section class="dossier-panel" data-dossier-for="Tampa Bay Rays @ Cleveland Guardians">
       <p class="d-sub">MLB · ALCS Game 4 · Friday, October 16, 2026 · 8:00 PM ET · Progressive Field, Cleveland (outdoor) · Cleveland leads the series 2-1</p>
-      <p class="d-state pending"><span class="d-state-lab">Tonight</span><strong>Rays ML (-112) · Conf 2 · 0.5u</strong>First pitch 8:00 PM ET — the verdict is appended here at grading.</p>
+      <p class="d-state void"><span class="d-state-lab">Final</span><strong>Postponed — game not played — VOID</strong>Void — the stake was refunded in full</p>
       <div class="d-linestrip">
         <div class="d-linebox"><span class="lab">Opened</span><span class="val">Rays −114</span><span class="det">Action Network opening-line column</span></div>
         <div class="d-linebox ours"><span class="lab">We bet</span><span class="val">Rays ML −112</span><span class="det">DK NJ · 2:53 PM ET card — from +117 overnight</span></div>
@@ -3692,7 +3697,7 @@ and loads nothing.
     // The as-of line renders from the latest day's lockedAt ONLY. lockedAt is NEVER a build, publish,
     // or grading time: grading updates results, units, dossiers, and the masthead only, and must
     // never touch lockedAt or the as-of line.
-    // Each pick: { matchup, sport, bet, line, odds, conf (1-5), time, why, result: "pending"|"win"|"loss"|"push", finalScore?: string, espnGameId?: string, book?: string }
+    // Each pick: { matchup, sport, bet, line, odds, conf (1-5), time, why, result: "pending"|"win"|"loss"|"push"|"void", finalScore?: string, espnGameId?: string, book?: string }
     // book is the price book for the wager line's "Price: <book>" label — only set when a book was recorded; older picks omit it and render no label.
     // oppOdds (moneyline picks): the opponent's ML price at bet time, from our ESPN/DK captures — required to classify an ML pick whose own price is negative (both sides negative = a pick'em game; see roleClass).
     // gameSpread (moneyline picks in spread sports): the game's spread from OUR side's perspective, signed — when present it governs the ML pick's favorite/dog class (Scott's ruling, 2026-10-14).
@@ -4024,8 +4029,8 @@ and loads nothing.
               espnGameId: "401908026",
               book: "DK NJ",
               why: "A real starter (Nick Martinez) against a bullpen game — and the deeper team, with the market moving its way all day.",
-              result: "pending",
-              pendingNote: "Postponed — rain in Cleveland washed out Game 4 on Friday night; rescheduled for Saturday, October 17 at 8:00 PM ET. The pick is pending, not graded.",
+              result: "void", finalScore: "Postponed — game not played",
+              voidNote: "Void — rain in Cleveland postponed Game 4 on Friday night, and the bet is voided per the pick's stated condition. The 0.5u stake is refunded (0.0u), and the pick will not be graded from the rescheduled game on Saturday, October 17.",
               conditions: "Progressive Field · Outdoor · 52.2°F · Wind 25.3 mph · Rain 26% · ALCS Game 4 — Cleveland leads 2-1",
               reasons: ["Pitching matchup: Nick Martinez starts for Tampa Bay (3.10 ERA this season; xERA 3.98 in today's model run) vs a Cleveland bullpen game opened by reliever Shawn Armstrong (NBC Sports / Beacon Journal).", "Talent gap: Tampa Bay won 98 games to Cleveland's 85 and carries baseball's best team WHIP (1.140).", "Market: the Rays ML moved from +117 overnight to -112 by midday at DK NJ as pitching plans firmed.", "Counter logged: Cleveland leads 2-1 and its bullpen game is a designed plan; Covers expert Jon Metler picked Cleveland."], source: "NBC Sports / Akron Beacon Journal"
             },
@@ -4129,7 +4134,7 @@ and loads nothing.
       }
 
       function pickResultMarkup(pick) {
-        var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : pick.result === 'push' ? 'PUSH' : 'PENDING';
+        var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : pick.result === 'push' ? 'PUSH' : pick.result === 'void' ? 'VOID' : 'PENDING';
         var detail = pick.finalScore || 'Game not final';
         // Graded bands end with the settled unit result, computed by the
         // same profitForPick/signedUnits the Stats tab uses.
@@ -4222,6 +4227,7 @@ and loads nothing.
             '<div class="confidence" aria-label="Confidence ' + pick.conf + ' out of 5"><span class="conf-label">CONF</span>' + confidenceDots(pick.conf) + '</div></div>' +
             pickResultMarkup(pick) +
             (pick.result === 'pending' && pick.pendingNote ? '<p class="pregame-status">' + escapeHTML(pick.pendingNote) + '</p>' : '') +
+            (pick.result === 'void' && pick.voidNote ? '<p class="pregame-status">' + escapeHTML(pick.voidNote) + '</p>' : '') +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
             '<div class="wager-line"><div class="wager-main"><span class="bet">' + escapeHTML(pick.line) + '</span><span class="odds">' + escapeHTML(pick.odds) + '</span>' + (pick.book ? '<span class="price-book">' + escapeHTML(pick.book) + '</span>' : '') + '</div><div class="wager-sub">' + stakeChip(pick) + '<span class="market">' + escapeHTML(pick.bet) + '</span></div></div>' +
@@ -4258,9 +4264,11 @@ and loads nothing.
           if (!pick || pick.result === 'pending' || !pick.finalScore) return;
           var state = panel.querySelector('.d-state');
           if (!state) return;
-          var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : 'PUSH';
+          var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : pick.result === 'void' ? 'VOID' : 'PUSH';
           var detail = pick.result === 'push'
             ? 'Push — the stake was refunded'
+            : pick.result === 'void'
+            ? 'Void — the stake was refunded in full'
             : 'Graded ' + signedUnits(profitForPick(pick));
           state.className = 'd-state ' + pick.result;
           state.innerHTML = '<span class="d-state-lab">Final</span><strong>' + escapeHTML(pick.finalScore) + ' — ' + label + '</strong>' + escapeHTML(detail);
@@ -4494,7 +4502,7 @@ and loads nothing.
       }
 
       function profitForPick(pick) {
-        if (pick.result === 'pending' || pick.result === 'push') return 0;
+        if (pick.result === 'pending' || pick.result === 'push' || pick.result === 'void') return 0;
         var stake = getStake(pick);
         if (pick.result === 'loss') return -stake;
         var odds = americanOdds(pick);
@@ -4514,7 +4522,7 @@ and loads nothing.
         return picks.reduce(function (summary, pick) {
           if (pick.result === 'win') summary.wins += 1;
           if (pick.result === 'loss') summary.losses += 1;
-          if (pick.result === 'push') summary.pushes += 1;
+          if (pick.result === 'push' || pick.result === 'void') summary.pushes += 1;
           // House convention (pick_tracker / angle_scorecard): a push refunds
           // the stake, so pushes never count toward staked. Every ROI and
           // staked total on this page uses this one denominator — the
@@ -4670,7 +4678,7 @@ and loads nothing.
         document.getElementById('date-breakdown').innerHTML = breakdownRows(BRUTUS_DATA.days.map(function (day) { return day.date; }), 'date', picks);
         document.getElementById('odds-breakdown').innerHTML = roleRows(picks);
         document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + (picks.length - graded.length) + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
-        var pushedStake = graded.filter(function (pick) { return pick.result === 'push'; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
+        var pushedStake = graded.filter(function (pick) { return pick.result === 'push' || pick.result === 'void'; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
         var pushNote = document.getElementById('conventions-push-note');
         if (pushNote) pushNote.textContent = pushedStake > 0 ? ' This season ' + overall.pushes + (overall.pushes === 1 ? ' push has' : ' pushes have') + ' refunded ' + pushedStake.toFixed(2) + 'u — that refund is the gap between the stakes placed and the staked total.' : '';
         var recent = graded.slice(-10);
@@ -4717,7 +4725,7 @@ and loads nothing.
           return '<article class="history-day">' +
             '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
             '<div class="history-details"' + (open ? '' : ' hidden') + '>' + day.picks.map(function (pick, index) {
-              var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : 'P') + ' ' + signedUnits(profitForPick(pick));
+              var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : pick.result === 'void' ? 'VOID' : 'P') + ' ' + signedUnits(profitForPick(pick));
               return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + (pick.angleCheck ? '<span class="history-angle"><strong>Angle check:</strong> ' + escapeHTML(pick.angleCheck) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';
             }).join('') + '</div></article>';
         }).join('');

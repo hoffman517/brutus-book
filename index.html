@@ -5763,6 +5763,89 @@ and loads nothing.
           return '';
         }
 
+        // SETTLED BAND (2026-10-17): when a game completes, the live
+        // layer settles the card's own result band in the same pass —
+        // WIN/LOSS/PUSH + final score + units, computed from the
+        // final score against the card's own line, the same math the
+        // scorebug's covering verdict already shows. Before this, the
+        // band waited for the grading republish: on 2026-10-17 the
+        // Ohio State–Indiana card showed a FINAL scorebug reading
+        // "Not covering" directly under a band still saying
+        // "PENDING — Game not final" for ~100 minutes after the
+        // final whistle (Scott catch). Grading still owns the
+        // official record; this only stops the page contradicting
+        // itself in public. A postponed game (notPlayed) never
+        // settles here — void vs carry is a grading decision.
+        function finalOutcome(spec, match, awayScore, homeScore) {
+          if (spec.isTotal) {
+            if (!spec.totalDirection || spec.lineNumber === null || spec.lineNumber === undefined) return null;
+            var combined = awayScore + homeScore;
+            if (combined === spec.lineNumber) return 'push';
+            var over = spec.totalDirection === 'Over';
+            return (combined > spec.lineNumber) === over ? 'win' : 'loss';
+          }
+          var sides = ourMatchup(spec, match);
+          if (!sides) return null;
+          var ourScore = teamScore(sides.ours);
+          var oppScore = teamScore(sides.opp);
+          if (ourScore === null || oppScore === null) return null;
+          var diff = ourScore - oppScore;
+          if (spec.betType === 'moneyline') {
+            if (diff > 0) return 'win';
+            if (diff < 0) return 'loss';
+            return 'push';
+          }
+          if (spec.betType === 'spread' && spec.lineNumber !== null && spec.lineNumber !== undefined) {
+            var margin = diff + spec.lineNumber;
+            if (margin > 0) return 'win';
+            if (margin < 0) return 'loss';
+            return 'push';
+          }
+          return null;
+        }
+
+        function bandUnits(card, outcome) {
+          if (outcome === 'push') return 0;
+          var chip = card.querySelector('.stake-chip');
+          var stake = NaN;
+          if (chip) {
+            var stakeMatch = chip.textContent.replace(/−/g, '-').match(/(\d+(?:\.\d+)?)\s*u/);
+            if (stakeMatch) stake = parseFloat(stakeMatch[1]);
+          }
+          if (!Number.isFinite(stake)) return null;
+          if (outcome === 'loss') return -stake;
+          var oddsEl = card.querySelector('.odds');
+          if (!oddsEl) return null;
+          var odds = parseFloat(oddsEl.textContent.replace(/−/g, '-').replace('+', ''));
+          if (!Number.isFinite(odds) || odds === 0) return null;
+          var profit = odds > 0 ? stake * (odds / 100) : stake * (100 / Math.abs(odds));
+          return Math.round(profit * 100) / 100;
+        }
+
+        function bandUnitsText(value) {
+          if (Math.abs(value) < .005) return '0.00u';
+          return (value > 0 ? '+' : '') + value.toFixed(2) + 'u';
+        }
+
+        function settleBand(spec, match, awayLabel, homeLabel, awayScore, homeScore) {
+          var band = spec.card.querySelector('.pick-result.pending');
+          if (!band) return;
+          var outcome = finalOutcome(spec, match, awayScore, homeScore);
+          if (!outcome) return;
+          var label = outcome === 'win' ? 'WIN' : outcome === 'loss' ? 'LOSS' : 'PUSH';
+          var detail = awayLabel + ' ' + awayScore + ', ' + homeLabel + ' ' + homeScore;
+          var units = bandUnits(spec.card, outcome);
+          if (units !== null) detail += ' · ' + bandUnitsText(units);
+          band.className = 'pick-result ' + outcome;
+          band.textContent = '';
+          var strong = document.createElement('strong');
+          strong.textContent = label;
+          var span = document.createElement('span');
+          span.textContent = detail;
+          band.appendChild(strong);
+          band.appendChild(span);
+        }
+
         function runnersText(sit) {
           var bases = [];
           if (sit.onFirst) bases.push('1st');
@@ -6721,6 +6804,14 @@ and loads nothing.
             tag.textContent = tagText;
             line.appendChild(tag);
             line.appendChild(document.createTextNode(text));
+          }
+
+          // SETTLED BAND (2026-10-17): in the same pass that renders
+          // the final scorebug, settle the card's result band so the
+          // page never shows PENDING over a final score. Postponed
+          // games (notPlayed) are excluded — grading decides those.
+          if (state === 'post' && !notPlayed && awayScore !== null && homeScore !== null) {
+            settleBand(spec, match, awayLabel, homeLabel, awayScore, homeScore);
           }
 
           // SURFACES UNDER REAL LIVE STATE ONLY (2026-10-15): the

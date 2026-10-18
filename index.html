@@ -4996,7 +4996,7 @@ and loads nothing.
         document.getElementById('confidence-breakdown').innerHTML = breakdownRows([5, 4, 3, 2, 1], 'conf', picks);
         document.getElementById('date-breakdown').innerHTML = breakdownRows(BRUTUS_DATA.days.map(function (day) { return day.date; }), 'date', picks);
         document.getElementById('odds-breakdown').innerHTML = roleRows(picks);
-        document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + (picks.length - graded.length) + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
+        document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + picks.filter(function (pick) { return pick.result === 'pending'; }).length + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
         var refundStake = function (result) {
           return picks.filter(function (pick) { return pick.result === result; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
         };

@@ -2311,6 +2311,7 @@
     .history-pick .history-score { display: block; margin-top: 3px; color: #c4ccc8; font-size: .72rem; }
     .history-pick .history-angle { display: block; margin-top: 3px; color: var(--muted); font-size: .72rem; line-height: 1.45; }
     .history-pick .history-angle strong { color: #c4ccc8; font-weight: 700; }
+    .history-pick .history-void { display: block; margin-top: 3px; color: #d8b25c; font-size: .72rem; line-height: 1.45; }
 
     :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 
@@ -4435,6 +4436,7 @@ and loads nothing.
               book: "FanDuel",
               why: "Home dog vs a road favorite whose QB room is unresolved; MTSU is 2-0 at home.",
               result: "win", finalScore: "Middle Tennessee 33, Delaware 30",
+              angleCheck: "home-dog spot + outside consensus led — MTSU won outright, 33-30, so the +1.5 was insurance never cashed; the post-lock QB news broke our way, but the win came from MTSU's offense in a shootout.",
               conditions: "Outdoor · ~85°F, clear · Wind SSW 6 mph",
               reasons: ["Home underdog against a road favorite whose quarterback room is unresolved.", "Middle Tennessee is 2–0 at home this season.", "Clear and warm at kickoff (~85°F, wind SSW 6 mph) — no weather wrinkle to take away the home edge."], source: "FanDuel"
             },
@@ -4443,6 +4445,7 @@ and loads nothing.
               book: "BetRivers",
               why: "Full field goal with the better defense (12.2 ppg allowed) in a 43.5-total game.",
               result: "push", finalScore: "Jacksonville State 27, FIU 24",
+              angleCheck: "the defense + the full field goal led — Jacksonville State won by exactly three, 27-24, so the +3 we shopped for turned a loss into a push and the stake came back.",
               conditions: "Outdoor · ~74°F, clear · Calm",
               reasons: ["FIU gets the full field goal at +3.", "FIU owns the better defense — 12.2 points per game allowed.", "The total is 43.5: in a low-scoring game, a full field goal of cushion is worth more."], source: "BetRivers"
             },
@@ -4452,6 +4455,7 @@ and loads nothing.
               series: "ALCS · Game 2 · Guardians lead series 1–0",
               why: "ALCS Game 2 indoors at Tropicana Field; the model projects 6.14 total runs.",
               result: "win", finalScore: "Rays 3, Guardians 1 · Total 4",
+              angleCheck: "the MLB model projection led — the game finished with 4 total runs (Rays 3, Guardians 1), under the model's 6.14 projection and never close to the 7 we bought; the Messick–Peralta matchup was the game.",
               conditions: "Tropicana Field · Indoor · ALCS Game 2",
               reasons: ["The model projects 6.14 total runs — a full run under the 7.", "Indoors at Tropicana Field: no wind, no weather variance in the total.", "Game 2 of the ALCS with Cleveland up 1–0 — a tight, low-scoring script fits."], source: "DraftKings"
             },
@@ -4460,6 +4464,7 @@ and loads nothing.
               book: "DraftKings",
               why: "Goalie gap — Hofer vs Ersson (both expected) — plus Ottawa on a back-to-back.",
               result: "win", finalScore: "Blues 7, Senators 2",
+              angleCheck: "the goalie gap led — Ersson was shelled as Ottawa gave up 7 in the 7-2 loss; the lead angle was the game, and Ottawa's back-to-back paid with it.",
               conditions: "Ottawa · Senators on the second night of a back-to-back",
               reasons: ["Goalie gap: Hofer for St. Louis vs Ersson for Ottawa — both expected.", "Ottawa is on the second night of a back-to-back.", "At −105 the Blues need only a 51.2% win rate to break even."], source: "DraftKings"
             }
@@ -4475,6 +4480,7 @@ and loads nothing.
               book: "Fanatics",
               why: "Two angles (favorites rule): Action Network best bet plus panel consensus on Kennesaw State -3, and the run-game matchup — Missouri State has allowed 30+ points in four of five games and QB Ricky Collins is a dual threat.",
               result: "loss", finalScore: "Missouri State 24, Kennesaw State 21",
+              angleCheck: "outside consensus led — Action Network's best bet and the Tony's Picks panel had Kennesaw State −3, but Missouri State won outright, 24-21; laying a field goal with a team that loses outright is a full loss.",
               conditions: "Outdoor · Springfield, MO · No weather edge claimed",
               reasons: ["Action Network's best bet is Kennesaw State -3 or better, and the Tony's Picks panel agrees.", "Missouri State has allowed 30+ points in four of five games.", "Kennesaw State QB Ricky Collins adds a running element against a defense that rarely reaches the passer."], source: "Fanatics"
             },
@@ -4483,6 +4489,7 @@ and loads nothing.
               book: "Bleacher Report odds listing",
               why: "Our model blend makes Sam Houston -2.7 (v0.2: -4.4) against a split market; VSIN, USA Today and SportsGambler are all on Sam Houston, and Western Kentucky allows about 6 yards per carry.",
               result: "loss", finalScore: "Western Kentucky 16, Sam Houston 3",
+              angleCheck: "the models' 4.2-point disagreement led — wrong, and not close: Western Kentucky won 16-3 and Sam Houston scored 3 points all night; the model blend's Sam Houston −2.7 was the miss of the card.",
               conditions: "Outdoor · ~79°F, clear · Wind 9 mph",
               reasons: ["Model blend -2.7 and v0.2 -4.4 for Sam Houston — a 4.2-point disagreement with the market.", "VSIN, USA Today and SportsGambler all take Sam Houston.", "Western Kentucky owns the nation's worst run defense at about 6 yards per carry allowed."], source: "Bleacher Report odds listing"
             },
@@ -4492,6 +4499,7 @@ and loads nothing.
               series: "NLCS · Game 3 · MIL leads series 2–0",
               why: "NLCS Game 3: Snell vs Gasser, Milwaukee's bullpen has allowed one earned run all postseason, and the panel's strongest position was the under.",
               result: "loss", finalScore: "Brewers 6, Dodgers 2 · Total 8",
+              angleCheck: "pitching & bullpens led — Milwaukee won 6-2, eight total runs, a half-run past the 7.5; the bullpen's one-earned-run postseason run ended in this park, and the under never had its Game 1 script.",
               conditions: "Dodger Stadium · Outdoor · ~70°F, clear · Wind 3 mph",
               reasons: ["Blake Snell (1.90 ERA) vs Robert Gasser, with Milwaukee's bullpen at one earned run through six postseason games.", "Game 1 of this series finished 2-1.", "Clear and calm at Dodger Stadium — no weather push either way."], source: "DraftKings"
             },
@@ -4500,6 +4508,7 @@ and loads nothing.
               book: "FanDuel",
               why: "Thin edge at a good price: Colorado is short-benched on the second night of a home-and-home (Makar a game-time decision), and DeSmith is confirmed against the likely Wedgewood.",
               result: "win", finalScore: "Stars 3, Avalanche 2 (SO)",
+              angleCheck: "price + the short-bench spot led — Dallas won 3-2 in a shootout, the day's only winner; the confirmed-vs-likely goalie gap we priced is how the game was won.",
               conditions: "Denver · Colorado on the second night of a back-to-back · Makar game-time decision",
               reasons: ["Casey DeSmith is confirmed for Dallas (.923 save %) against likely starter Scott Wedgewood (.897).", "Colorado played with 17 skaters last night; Cale Makar is a game-time decision.", "At +130 the Stars need only a 43.5% win rate to break even — sized small at conf 1."], source: "FanDuel"
             }
@@ -4589,7 +4598,7 @@ and loads nothing.
               book: "DK NJ",
               why: "A real starter (Nick Martinez) against a bullpen game — and the deeper team, with the market moving its way all day.",
               result: "void", finalScore: "Postponed — game not played",
-              voidNote: "Void — rain in Cleveland postponed Game 4 on Friday night, and the bet is voided per the pick's stated condition. The 0.5u stake is refunded (0.0u), and the pick will not be graded from the rescheduled game on Saturday, October 17.",
+              voidReason: "postponed (rain), stake refunded 0.0u; will not be graded from the rescheduled game",
               angleCheck: "the postponement condition written into the pick at lock did its job — rain voided the bet before a pitch was thrown, the stake was refunded, and nothing carried to Saturday's rescheduled game. The same matchup was re-evaluated and re-locked fresh on Saturday's card.",
               conditions: "Progressive Field · Outdoor · 52.2°F · Wind 25.3 mph · Rain 26% · ALCS Game 4 — Cleveland leads 2-1",
               reasons: ["Pitching matchup: Nick Martinez starts for Tampa Bay (3.10 ERA this season; xERA 3.98 in today's model run) vs a Cleveland bullpen game opened by reliever Shawn Armstrong (NBC Sports / Beacon Journal).", "Talent gap: Tampa Bay won 98 games to Cleveland's 85 and carries baseball's best team WHIP (1.140).", "Market: the Rays ML moved from +117 overnight to -112 by midday at DK NJ as pitching plans firmed.", "Counter logged: Cleveland leads 2-1 and its bullpen game is a designed plan; Covers expert Jon Metler picked Cleveland."], source: "NBC Sports / Akron Beacon Journal"
@@ -4618,6 +4627,7 @@ and loads nothing.
               book: "DraftKings",
               why: "UCLA's starting QB is out for the season and its perfect record leans on 19 forced turnovers in five games — Wisconsin at +120 is the day's largest measured edge.",
               result: "loss", finalScore: "UCLA 17, Wisconsin 7",
+              angleCheck: "QB change + turnover-luck regression led — UCLA's replacement quarterback played a clean first start (22-of-33 for 264 yards) and UCLA owned third down (13-of-20) and possession (37:02); Wisconsin threw for 66 yards and lost 17-7.",
               conditions: "Rose Bowl · Outdoor · 85.5°F · Wind 10.2 mph · Rain 1%",
               reasons: ["QB change: UCLA starter Nico Iamaleava is out for the season (leg/knee) on the official Big Ten availability report; backup Ty Dieffenbach — a Cal Poly transfer who went 9 TD / 9 INT at the FCS level — makes the start, and UCLA's starting left tackle is doubtful.", "Turnover luck: UCLA's 5-0 start is built on 19 forced turnovers in five games — the most in the FBS and a rate no defense sustains — against a Wisconsin defense allowing 16.6 points and 4.1 yards per play, off a bye.", "Price: breakeven 45.5% at +120 against our 54% estimate — the day's largest measured edge (+8.6 points). Second path FanDuel +116.", "Counter: the ratings make UCLA about a 3.7-point favorite — but those ratings were built on Iamaleava's games, and he is out for the season. DK Network's best bet is UCLA -2.5, against us (DK Network is 1-6, on the fade list)."], source: "Milwaukee Journal Sentinel / Covers"
             },
@@ -4648,6 +4658,7 @@ and loads nothing.
               book: "DK NJ",
               why: "Oregon's starting QB is out for a second straight game and its backups produced 43 passing yards last week — a full touchdown at Autzen against Nebraska's defense is too many.",
               result: "win", finalScore: "Oregon 17, Nebraska 14",
+              angleCheck: "QB change led — Oregon's replacement was benched after three ineffective quarters (9-of-20, 54 yards, one interception) and Nebraska's defense held Oregon to 91 yards through three quarters; the late comeback won by only three, so +7 cashed.",
               conditions: "Autzen Stadium · Outdoor · 52.9°F · Wind 4.1 mph · Rain 0%",
               reasons: ["QB change: Oregon starter Dante Moore is out for a second straight game (concussion) on Oregon's Big Ten availability reports, reported independently by 247Sports, SI and Ducks Wire.", "Replacement production: last week Oregon's backups managed 6-of-19 for 43 yards and 2 interceptions before a walk-on finished the game; leading receiver Evan Stewart is doubtful and Jeremiah McClellan is out.", "Nebraska's defense allows 15.2 points per game and defends third down at 19.7% — best in the nation. Both models sit inside the number (ensemble Oregon -6.5; v0.2 makes Nebraska a near pick'em at +0.2) — support, not an angle.", "Counter: the market has known about Moore all week — the bet is that a full touchdown still overpays for Oregon's backup offense; Nebraska is without starting safety Jamir Conn."], source: "247Sports / Ducks Wire"
             },
@@ -4658,6 +4669,7 @@ and loads nothing.
               series: "ALCS · Game 4 · Cleveland leads series 2–1",
               why: "A real starter (Martinez, 3.10 ERA) against Armstrong (4.58) and the AL's top seed playing to avoid a 3-1 hole — re-locked fresh after Friday's rainout.",
               result: "win", finalScore: "Rays 7, Guardians 3",
+              angleCheck: "the pitching matchup led — Tampa Bay's starter held Cleveland to one run on two hits over 5⅓ innings, and the middle of the Rays' order finally produced together in the 7-3 win.",
               conditions: "Progressive Field · Outdoor · 46.2°F · Wind 5.9 mph · Rain 0%",
               reasons: ["Pitching matchup: Nick Martinez (15-6, 3.10 ERA) for Tampa Bay against Shawn Armstrong (2-1, 4.58 ERA) for Cleveland (FanDuel Research probable starters).", "Talent gap: Tampa Bay is the AL's top seed at 98-64 against Cleveland's 85-77 — a 13-game regular-season gap — playing to avoid a 3-1 series hole.", "Price: breakeven 52.8% at -112 against our 55% estimate. Game 4 was postponed by rain on Friday; this is the same matchup re-locked on today's fresh pulls, not a carryover. numberFire's 56.5% is corroboration only.", "Counter: Cleveland leads the series 2-1 and is at home. Our run model sits this one out — it can't price a bullpen-game start — so the call rests on the verified pitching matchup."], source: "FanDuel Research"
             }
@@ -4801,6 +4813,13 @@ and loads nothing.
 
       function pickResultMarkup(pick) {
         var label = pick.result === 'win' ? 'WIN' : pick.result === 'loss' ? 'LOSS' : pick.result === 'push' ? 'PUSH' : pick.result === 'void' ? 'VOID' : 'PENDING';
+        // Dashboard queue item 20: a void pick's band is generated ONLY
+        // from the ledger result state + the structured voidReason field
+        // ("VOID — postponed (rain), stake refunded 0.0u; ..." shape) —
+        // never from free-prose status notes.
+        if (pick.result === 'void' && pick.voidReason) {
+          return '<div class="pick-result void"><strong>VOID</strong><span>— ' + escapeHTML(pick.voidReason) + '</span></div>';
+        }
         var detail = pick.finalScore || 'Game not final';
         // Graded bands end with the settled unit result, computed by the
         // same profitForPick/signedUnits the Stats tab uses.
@@ -4866,7 +4885,11 @@ and loads nothing.
         'Wisconsin Badgers @ UCLA Bruins': { away: ['assets/team_logos/ncaaf_wis.png', 'Wisconsin Badgers logo'], home: ['assets/team_logos/ncaaf_ucla.png', 'UCLA Bruins logo'] },
         'Alabama Crimson Tide @ Tennessee Volunteers': { away: ['assets/team_logos/ncaaf_ala.png', 'Alabama Crimson Tide logo'], home: ['assets/team_logos/ncaaf_tenn.png', 'Tennessee Volunteers logo'] },
         'Ohio State Buckeyes @ Indiana Hoosiers': { away: ['assets/team_logos/ncaaf_osu.png', 'Ohio State Buckeyes logo'], home: ['assets/team_logos/ncaaf_iu.png', 'Indiana Hoosiers logo'] },
-        'Nebraska Cornhuskers @ Oregon Ducks': { away: ['assets/team_logos/ncaaf_neb.png', 'Nebraska Cornhuskers logo'], home: ['assets/team_logos/ncaaf_ore.png', 'Oregon Ducks logo'] }
+        'Nebraska Cornhuskers @ Oregon Ducks': { away: ['assets/team_logos/ncaaf_neb.png', 'Nebraska Cornhuskers logo'], home: ['assets/team_logos/ncaaf_ore.png', 'Oregon Ducks logo'] },
+        'Dallas Cowboys @ Green Bay Packers': { away: ['assets/team_logos/nfl_dal.png', 'Dallas Cowboys logo'], home: ['assets/team_logos/nfl_gb.png', 'Green Bay Packers logo'] },
+        'Carolina Panthers @ Philadelphia Eagles': { away: ['assets/team_logos/nfl_car.png', 'Carolina Panthers logo'], home: ['assets/team_logos/nfl_phi.png', 'Philadelphia Eagles logo'] },
+        'Los Angeles Chargers @ Kansas City Chiefs': { away: ['assets/team_logos/nfl_lac.png', 'Los Angeles Chargers logo'], home: ['assets/team_logos/nfl_kc.png', 'Kansas City Chiefs logo'] },
+        'Pittsburgh Steelers @ Tampa Bay Buccaneers': { away: ['assets/team_logos/nfl_pit.png', 'Pittsburgh Steelers logo'], home: ['assets/team_logos/nfl_tb.png', 'Tampa Bay Buccaneers logo'] }
       };
 
       function matchupMarkup(pick) {
@@ -4897,7 +4920,7 @@ and loads nothing.
             '<div class="confidence" aria-label="Confidence ' + pick.conf + ' out of 5"><span class="conf-label">CONF</span>' + confidenceDots(pick.conf) + '</div></div>' +
             pickResultMarkup(pick) +
             (pick.result === 'pending' && pick.pendingNote ? '<p class="pregame-status">' + escapeHTML(pick.pendingNote) + '</p>' : '') +
-            (pick.result === 'void' && pick.voidNote ? '<p class="pregame-status">' + escapeHTML(pick.voidNote) + '</p>' : '') +
+            (pick.result === 'void' && pick.voidReason ? '<p class="pregame-status">VOID — ' + escapeHTML(pick.voidReason) + '</p>' : '') +
             (pick.result !== 'pending' && pick.result !== 'void' && pick.resolutionNote ? '<p class="pregame-status">' + escapeHTML(pick.resolutionNote) + '</p>' : '') +
             matchupMarkup(pick) +
             (pick.series ? '<p class="series-line">' + escapeHTML(pick.series) + '</p>' : '') +
@@ -5461,7 +5484,7 @@ and loads nothing.
             '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
             '<div class="history-details"' + (open ? '' : ' hidden') + '>' + day.picks.map(function (pick, index) {
               var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : pick.result === 'void' ? 'VOID' : 'P') + ' ' + signedUnits(profitForPick(pick));
-              return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + (pick.angleCheck ? '<span class="history-angle"><strong>Angle check:</strong> ' + escapeHTML(pick.angleCheck) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';
+              return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + (pick.result === 'void' && pick.voidReason ? '<span class="history-void">VOID — ' + escapeHTML(pick.voidReason) + '</span>' : '') + (pick.angleCheck ? '<span class="history-angle"><strong>Angle check:</strong> ' + escapeHTML(pick.angleCheck) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';
             }).join('') + stillOut + '</div></article>';
         }).join('');
 
@@ -7202,7 +7225,7 @@ and loads nothing.
           if (gtEl) startText = gtEl.textContent.trim();
           var bugOn = renderScorebug(spec, match, displayState, {
             tagText: tagText, tagClass: tagClass,
-            detail: notPlayed ? (type.detail || type.shortDetail || detail || '') : (state === 'in' ? (detail || '') : (state === 'pre' ? startText : '')),
+            detail: notPlayed ? 'POSTPONED — awaiting disposition' : (state === 'in' ? (detail || '') : (state === 'pre' ? startText : '')),
             footText: footText, chipText: chipText
           });
 
@@ -7216,7 +7239,7 @@ and loads nothing.
                 homeLabel + ' ' + (homeScore === null ? 0 : homeScore) +
                 (detail ? ' · ' + detail : '');
             } else if (notPlayed) {
-              text = awayLabel + ' @ ' + homeLabel + ' · ' + (type.detail || type.shortDetail || 'Postponed');
+              text = awayLabel + ' @ ' + homeLabel + ' · POSTPONED — awaiting disposition';
             } else if (state === 'post') {
               text = awayLabel + ' ' + (awayScore === null ? 0 : awayScore) + ', ' +
                 homeLabel + ' ' + (homeScore === null ? 0 : homeScore);

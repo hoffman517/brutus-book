@@ -2386,7 +2386,7 @@ and loads nothing.
       </div>
       <div class="date" data-card-date="2026-10-17"><span class="live-dot" aria-hidden="true"></span>Saturday · Oct 17, 2026</div>
       <div class="masthead-record-block">
-        <div class="record-badge"><span>Season</span><strong id="masthead-record">21–22–1 · 1 void · −1.62u</strong><span>ROI</span><strong id="masthead-roi">−6.9%</strong></div>
+        <div class="record-badge"><span>Season</span><strong id="masthead-record">21–22–1 · −1.62u</strong><span>ROI</span><strong id="masthead-roi">−6.9%</strong></div>
         <div class="masthead-last" id="masthead-last"></div>
         <div class="masthead-next" id="masthead-next" hidden></div>
       </div>
@@ -2517,7 +2517,7 @@ and loads nothing.
         </div>
         <p class="source-note"><strong>Card notes:</strong> NHL: no pick today — the league's best play (Carolina ML) failed our price check (breakeven 65.0% vs our 65% estimate), so the league passes rather than forcing a sub-bar pick. NBA is preseason — capture only.</p>
         <p class="identity-line">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
-        <p class="source-note">Card locked at 9:33 AM ET on Oct 17. Total risked: 2.50u · Friday graded: 2–1 · 1 void for +0.41u · Season: 21–22–1 · 1 void for −1.62u.</p>
+        <p class="source-note">Card locked at 9:33 AM ET on Oct 17. Total risked: 2.50u · Friday graded: 2–1 for +0.41u · Season: 21–22–1 for −1.62u.</p>
       </section>
 
       <section id="stats-panel" data-view="stats" role="tabpanel" aria-labelledby="tab-stats stats-title" hidden>
@@ -4834,9 +4834,10 @@ and loads nothing.
           if (pick.result === 'win') summary.wins += 1;
           if (pick.result === 'loss') summary.losses += 1;
           if (pick.result === 'push') summary.pushes += 1;
-          // A void is NOT a push: it is its own count, shown beside the
-          // W–L–P record ('19–21–1 · 1 void'), never folded into it. Like
-          // a push it refunds the stake, so it stays out of risked.
+          // A void is counted here ONLY so the Stats conventions note can
+          // reconcile refunds. It is never printed in a record line: to
+          // the winning record the game never happened (Scott, 2026-10-18).
+          // Like a push it refunds the stake, so it stays out of risked.
           if (pick.result === 'void') summary.voids += 1;
           // House convention (pick_tracker / angle_scorecard): a push refunds
           // the stake, so pushes never count toward staked. Every ROI and
@@ -4849,7 +4850,7 @@ and loads nothing.
       }
 
       function recordText(summary) {
-        return summary.wins + '–' + summary.losses + '–' + summary.pushes + (summary.voids ? ' · ' + summary.voids + ' void' : '');
+        return summary.wins + '–' + summary.losses + '–' + summary.pushes;
       }
 
       function winPct(summary) {
@@ -4976,7 +4977,10 @@ and loads nothing.
 
       function renderStats() {
         var picks = allPicks();
-        var graded = picks.filter(function (pick) { return pick.result !== 'pending'; });
+        // Graded means decided: win, loss, or push. A void is not graded —
+        // to the record the game never happened (Scott, 2026-10-18) — so it
+        // stays out of the record, the form strip, and the graded count.
+        var graded = picks.filter(function (pick) { return pick.result === 'win' || pick.result === 'loss' || pick.result === 'push'; });
         var overall = summarize(graded);
         var sports = picks.reduce(function (list, pick) { return list.indexOf(pick.sport) === -1 ? list.concat(pick.sport) : list; }, []);
         document.getElementById('overall-record').textContent = recordText(overall);
@@ -4994,13 +4998,14 @@ and loads nothing.
         document.getElementById('odds-breakdown').innerHTML = roleRows(picks);
         document.getElementById('stats-period').textContent = 'All tracked picks · ' + graded.length + ' graded · ' + (picks.length - graded.length) + ' pending · ' + overall.risked.toFixed(2) + 'u staked';
         var refundStake = function (result) {
-          return graded.filter(function (pick) { return pick.result === result; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
+          return picks.filter(function (pick) { return pick.result === result; }).reduce(function (sum, pick) { return sum + getStake(pick); }, 0);
         };
         var pushNote = document.getElementById('conventions-push-note');
         if (pushNote) {
           var refundBits = [];
           if (overall.pushes) refundBits.push(overall.pushes + (overall.pushes === 1 ? ' push' : ' pushes') + ' refunding ' + refundStake('push').toFixed(2) + 'u');
-          if (overall.voids) refundBits.push(overall.voids + (overall.voids === 1 ? ' void' : ' voids') + ' refunding ' + refundStake('void').toFixed(2) + 'u');
+          var voidCount = picks.filter(function (pick) { return pick.result === 'void'; }).length;
+          if (voidCount) refundBits.push(voidCount + (voidCount === 1 ? ' void' : ' voids') + ' refunding ' + refundStake('void').toFixed(2) + 'u');
           pushNote.textContent = refundBits.length ? ' This season has ' + refundBits.join(' and ') + ' — those refunds are the gap between the stakes placed and the staked total.' : '';
         }
         var recent = graded.slice(-10);
@@ -5083,7 +5088,7 @@ and loads nothing.
           var pending = day.picks.filter(function (pick) { return pick.result === 'pending'; }).length;
           var open = dayIndex === 0;
           return '<article class="history-day">' +
-            '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + (summary.voids ? ' · ' + summary.voids + ' void' : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
+            '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
             '<div class="history-details"' + (open ? '' : ' hidden') + '>' + day.picks.map(function (pick, index) {
               var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : pick.result === 'void' ? 'VOID' : 'P') + ' ' + signedUnits(profitForPick(pick));
               return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + (pick.angleCheck ? '<span class="history-angle"><strong>Angle check:</strong> ' + escapeHTML(pick.angleCheck) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';

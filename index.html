@@ -234,6 +234,14 @@
       font-weight: 600;
       line-height: 1.4;
     }
+    .masthead-next {
+      margin-top: 3px;
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .masthead-next[hidden] { display: none; }
 
     /* The identity one-liner lives BELOW Today's Card now (small
        type, with the how-it-works material) — out of the masthead. */
@@ -2380,6 +2388,7 @@ and loads nothing.
       <div class="masthead-record-block">
         <div class="record-badge"><span>Season</span><strong id="masthead-record">21–22–1 · 1 void · −1.62u</strong><span>ROI</span><strong id="masthead-roi">−6.9%</strong></div>
         <div class="masthead-last" id="masthead-last"></div>
+        <div class="masthead-next" id="masthead-next" hidden></div>
       </div>
       <div class="masthead-bottom">
         <p class="book-note">Saturday’s card is in: four college football plays — two built on backup quarterbacks, two home dogs getting points — plus ALCS Game 4 in Cleveland. Five picks, 2.50u risked at a flat 0.5u each.</p>
@@ -5029,6 +5038,44 @@ and loads nothing.
         }
       }
 
+      // When no card for today is on the page yet, the masthead says when
+      // today's card posts (Scott, 2026-10-18). Computed at view time from
+      // the run schedule — nothing hand-posts it, so it can't go stale the
+      // way a written note would: it appears on its own each morning and
+      // hides the moment a card dated today exists. Estimates are the
+      // scheduled run start + the typical build/publish time, rounded
+      // conservatively: Sat run 9:15 -> ~10:00, Sun 9:45 -> ~10:30,
+      // Mon-Fri 13:45 -> ~2:30 PM (all ET).
+      function renderNextCard() {
+        var el = document.getElementById('masthead-next');
+        if (!el) return;
+        var parts = {};
+        new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+          .formatToParts(new Date())
+          .forEach(function (p) { parts[p.type] = p.value; });
+        var today = parts.year + '-' + parts.month + '-' + parts.day;
+        var latest = '';
+        (BRUTUS_DATA.days || []).forEach(function (day) { if (day.date > latest) latest = day.date; });
+        var dateEl = document.querySelector('.date');
+        var cardDate = dateEl ? dateEl.getAttribute('data-card-date') : '';
+        if (cardDate && cardDate > latest) latest = cardDate;
+        if (latest >= today) { el.hidden = true; return; }
+        var estMin = parts.weekday === 'Sat' ? 600 : (parts.weekday === 'Sun' ? 630 : 870);
+        var nowMin = parseInt(parts.hour, 10) * 60 + parseInt(parts.minute, 10);
+        var h = Math.floor(estMin / 60), m = estMin % 60;
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        var h12 = h % 12 === 0 ? 12 : h % 12;
+        var est = h12 + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm + ' ET';
+        if (nowMin > estMin + 120) {
+          el.textContent = 'Today’s card is running late — it’s still coming today.';
+        } else if (nowMin > estMin) {
+          el.textContent = 'Today’s card is being posted now — check back in a few minutes.';
+        } else {
+          el.textContent = 'Today’s card posts ~' + est + '.';
+        }
+        el.hidden = false;
+      }
+
       function renderHistory() {
         var history = document.getElementById('history-list');
         history.innerHTML = BRUTUS_DATA.days.slice().reverse().map(function (day, dayIndex) {
@@ -5070,6 +5117,7 @@ and loads nothing.
 
       renderStats();
       renderRecordBand();
+      renderNextCard();
       renderHistory();
       applyDossierFinals();
       attachDrillDowns();

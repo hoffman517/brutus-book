@@ -2594,7 +2594,7 @@ and loads nothing.
         </div>
         <p class="source-note"><strong>Card notes:</strong> NHL: declared pass — both moneylines breach the −150 cap (Carolina −218, Minnesota −185) and both cap-compliant puck lines failed our price check (Carolina −1.5 at +114 needs 46.7% against our 44% estimate; Minnesota −1.5 at +136 needs 42.4% against 40%). NBA is preseason and CBB is not in season — capture only.</p>
         <p class="identity-line">Brutus is an AI analyst — picks are posted before the game and graded win or lose · 1u = our standard unit of stake.</p>
-        <p class="source-note">Card locked at 10:49 AM ET on Oct 18. Total risked: 2.50u · Yesterday graded: 3–2 for +0.36u · Season: 21–22–1 · 1 void for −1.62u.</p>
+        <p class="source-note">Card locked at 10:04 AM ET on Oct 18. Total risked: 2.50u · Yesterday graded: 3–2 for +0.36u · Season: 21–22–1 · −1.62u.</p>
       </section>
 
       <section id="stats-panel" data-view="stats" role="tabpanel" aria-labelledby="tab-stats stats-title" hidden>
@@ -4666,7 +4666,7 @@ and loads nothing.
         {
           date: "2026-10-18",
           label: "Sun Oct 18",
-          lockedAt: "2026-10-18T10:49:00-04:00",
+          lockedAt: "2026-10-18T10:04:00-04:00",
           picks: [
             {
               matchup: "Dallas Cowboys @ Green Bay Packers", sport: "NFL", bet: "Spread", line: "PACKERS -1.5", odds: "-102", conf: 3, stake: 0.5, time: "8:20 PM ET",
@@ -5425,7 +5425,7 @@ and loads nothing.
         var cardDate = dateEl ? dateEl.getAttribute('data-card-date') : '';
         if (cardDate && cardDate > latest) latest = cardDate;
         if (latest >= today) { el.hidden = true; return; }
-        var estMin = parts.weekday === 'Sat' ? 600 : (parts.weekday === 'Sun' ? 630 : 870);
+        var estMin = parts.weekday === 'Sat' ? 600 : (parts.weekday === 'Sun' ? 660 : 870);
         var nowMin = parseInt(parts.hour, 10) * 60 + parseInt(parts.minute, 10);
         var h = Math.floor(estMin / 60), m = estMin % 60;
         var ampm = h >= 12 ? 'PM' : 'AM';

@@ -737,6 +737,61 @@
       display: block;
     }
 
+    /* "The Backup's Cap" egg (2026-10-18): a fact POPOVER anchored over
+       the hero's front-left corner, where the scarlet cap sits in the
+       scene — a different mechanic from the caption eggs: it stays
+       until dismissed (close control, a tap anywhere else, or Escape).
+       Positioned inside .egg-slot, so it tracks the hero at any width. */
+    .egg-popover {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 5;
+      width: min(330px, calc(100% - 24px));
+      padding: 13px 34px 13px 15px;
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 12px;
+      background: rgba(10, 12, 14, .96);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+      color: #e8edf0;
+    }
+
+    .egg-popover[hidden] { display: none; }
+
+    .egg-popover-title {
+      margin: 0 0 5px;
+      color: #ff9c9c;
+      font-size: .66rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .egg-popover-text {
+      margin: 0;
+      font-size: .82rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .egg-popover-close {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .egg-popover-close:hover { color: #fff; background: rgba(255, 255, 255, .1); }
+
     .section-heading {
       display: flex;
       align-items: flex-end;
@@ -2225,6 +2280,23 @@
     .history-chevron { color: var(--green); font-size: 1.1rem; transition: transform .18s ease; }
     .history-toggle[aria-expanded="true"] .history-chevron { transform: rotate(180deg); }
     .history-details { padding: 0 16px 16px; }
+
+    /* Pending-pick closing-line receipt (dashboard queue item 21):
+       one compact line in a graded day card's note area while some of
+       its picks are still ungraded. Rendered by renderHistory() from
+       the ledger's pending rows only; absent when nothing is pending. */
+    .history-still-out {
+      margin: 10px 0 0;
+      padding: 8px 10px;
+      border: 1px dashed var(--line-soft);
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .history-still-out strong { color: #c9d0d5; }
     .history-pick {
       display: grid;
       grid-template-columns: 34px minmax(0, 1fr) auto auto;
@@ -2384,23 +2456,28 @@ and loads nothing.
       <div class="brand-lockup">
         <h1 class="brand">BRUTUS’ <span>BOOK</span></h1>
       </div>
-      <div class="date" data-card-date="2026-10-17"><span class="live-dot" aria-hidden="true"></span>Saturday · Oct 17, 2026</div>
+      <div class="date" data-card-date="2026-10-18"><span class="live-dot" aria-hidden="true"></span>Sunday · Oct 18, 2026</div>
       <div class="masthead-record-block">
         <div class="record-badge"><span>Season</span><strong id="masthead-record">21–22–1 · −1.62u</strong><span>ROI</span><strong id="masthead-roi">−6.9%</strong></div>
         <div class="masthead-last" id="masthead-last"></div>
         <div class="masthead-next" id="masthead-next" hidden></div>
       </div>
       <div class="masthead-bottom">
-        <p class="book-note">Saturday’s card is in: four college football plays — two built on backup quarterbacks, two home dogs getting points — plus ALCS Game 4 in Cleveland. Five picks, 2.50u risked at a flat 0.5u each.</p>
+        <p class="book-note">Sunday’s card is in: four NFL plays — a Lambeau public fade, a backup-QB spot in Philly, the day’s biggest personnel gap at Arrowhead, and a wind-driven under in Tampa — plus ALCS Game 5 in Cleveland. Five picks, 2.50u risked at a flat 0.5u each.</p>
       </div>
     </header>
         <div class="egg-slot">
           <figure class="daily-hero" id="daily-hero">
-            <img src="assets/brutus-daily-2026-10-17.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the handicapper at his desk on a bright Saturday morning in a scarlet-and-gray sweater, a steaming coffee mug beside his papers and a red football helmet on the desk; the whiteboard behind him carries Saturday's card: Wisconsin ML +120, Tennessee +7.5, Indiana +3.5, Nebraska +7, Rays ML -112" width="1600" height="1067">
+            <img src="assets/brutus-daily-2026-10-18.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus the handicapper at his desk on Sunday morning in his scarlet jersey, pencil raised; the whiteboard behind him carries Sunday's card: Packers -1.5, Panthers -3, Chiefs -7.5, Under 38.5, Rays ML -132, and his research papers lie on the desk beside a scarlet cap at its front-left corner" width="1600" height="1067">
             <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
             <span class="egg-puck" id="egg-puck" aria-hidden="true"></span>
           </figure>
           <p class="egg-caption" id="egg-caption" role="status"></p>
+          <div class="egg-popover" id="egg-popover" role="dialog" aria-label="The Backup's Cap" hidden>
+            <p class="egg-popover-title">The Backup’s Cap</p>
+            <p class="egg-popover-text" id="egg-popover-text"></p>
+            <button class="egg-popover-close" id="egg-popover-close" type="button" aria-label="Close">✕</button>
+          </div>
         </div>
     </div>
 
@@ -2433,7 +2510,7 @@ and loads nothing.
         <div class="list-controls">
           <div class="filters" aria-label="Filter today’s picks">
             <button class="filter" type="button" data-filter="all" aria-pressed="true">All 5</button>
-            <button class="filter" type="button" data-filter="CFB" aria-pressed="false">CFB 4</button>
+            <button class="filter" type="button" data-filter="NFL" aria-pressed="false">NFL 4</button>
             <button class="filter" type="button" data-filter="MLB" aria-pressed="false">MLB 1</button>
           </div>
           <div class="sort-control" role="group" aria-label="Sort today’s picks">

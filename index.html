@@ -6088,6 +6088,22 @@ and loads nothing.
           NHL: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/nhl.json'
         };
         var REFRESH_MS = 60000;
+        // Conditional cadence (queue item 19, 2026-10-19): while any
+        // pick game is live, the poll tightens to LIVE_REFRESH_MS and
+        // the server publisher tightens in step (its scheduler reads
+        // the publisher's LIVE_PICK_GAMES marker), so the worst-case
+        // publish-to-screen lag drops to ESPN lag + ~40s. Idle, both
+        // cycles stay at 60s. The feed-freshness limit tightens with
+        // the same signal: while a pick game is live the gist
+        // republishes every ~20s, so a gist older than
+        // FEED_FRESH_LIVE_MS means the publisher is broken and the
+        // fallback ladder should take over; idle keeps the 180s limit
+        // the 60s publish cadence needs.
+        var LIVE_REFRESH_MS = 20000;
+        var FEED_FRESH_MS = 180000;
+        var FEED_FRESH_LIVE_MS = 90000;
+        var anyPickLive = false;
+        var liveBySport = {};
         var TIMEOUT_MS = 8000;
 
         function cardSpec(card) {
@@ -7529,7 +7545,8 @@ and loads nothing.
           var parsed = Date.parse(data.feed_ts);
           if (!Number.isFinite(parsed)) return false;
           var age = nowMs - parsed;
-          return age <= 180000 && age >= -60000;
+          var limit = anyPickLive ? FEED_FRESH_LIVE_MS : FEED_FRESH_MS;
+          return age <= limit && age >= -60000;
         }
 
         // The transport chain, in order: our server-fed feed → ESPN
@@ -7570,13 +7587,25 @@ and loads nothing.
             Object.keys(sports).forEach(function (sport) {
               fetchScoreboardWithFallback(ENDPOINTS[sport], sport).then(function (data) {
                 var events = (data && data.events) || [];
+                var sportLive = false;
                 specs.forEach(function (spec) {
                   if (spec.sport !== sport) return;
                   try {
                     var match = findMatch(events, spec);
-                    if (match) renderLiveLine(spec, match);
+                    if (match) {
+                      var mType = (match.status && match.status.type) || {};
+                      if (mType.state === 'in') sportLive = true;
+                      renderLiveLine(spec, match);
+                    }
                   } catch (error) { /* leave this card untouched */ }
                 });
+                // Cadence signal (queue item 19): remember per sport
+                // whether any pick game is live in the freshest data
+                // seen; the poll delay follows the aggregate. A failed
+                // fetch (the catch below) leaves the sport's last
+                // known state untouched — keep-last-good.
+                liveBySport[sport] = sportLive;
+                noteLiveState(Object.keys(liveBySport).some(function (k) { return liveBySport[k]; }));
               }).catch(function () {
                 // Silent fallback + keep-last-good: a refresh that failed on
                 // both hosts never touches the DOM — a card that already
@@ -7588,18 +7617,46 @@ and loads nothing.
           } catch (error) { /* silent fallback */ }
         }
 
-        // Poll hygiene: the same 60s cadence, but the timer pauses while
-        // the tab is hidden and resumes when it becomes visible again.
+        // Poll hygiene: the timer pauses while the tab is hidden and
+        // resumes when it becomes visible again. The cadence is
+        // dynamic (queue item 19): LIVE_REFRESH_MS while any pick
+        // game is live, REFRESH_MS otherwise. noteLiveState re-arms
+        // the pending timer the moment the live flag flips, so the
+        // tightened cadence starts with the refresh that first saw
+        // the live game instead of up to a minute later.
         var pollTimer = null;
+        var polling = false;
+        function pollDelay() {
+          return anyPickLive ? LIVE_REFRESH_MS : REFRESH_MS;
+        }
+        function schedulePoll() {
+          if (!polling) return;
+          pollTimer = window.setTimeout(function () {
+            pollTimer = null;
+            refreshLiveScores();
+            schedulePoll();
+          }, pollDelay());
+        }
         function startPolling() {
-          if (pollTimer === null) {
-            pollTimer = window.setInterval(refreshLiveScores, REFRESH_MS);
-          }
+          if (polling) return;
+          polling = true;
+          schedulePoll();
         }
         function stopPolling() {
+          polling = false;
           if (pollTimer !== null) {
-            window.clearInterval(pollTimer);
+            window.clearTimeout(pollTimer);
             pollTimer = null;
+          }
+        }
+        function noteLiveState(isLive) {
+          var next = !!isLive;
+          if (next === anyPickLive) return;
+          anyPickLive = next;
+          if (polling && pollTimer !== null) {
+            window.clearTimeout(pollTimer);
+            pollTimer = null;
+            schedulePoll();
           }
         }
 

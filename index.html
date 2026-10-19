@@ -234,6 +234,11 @@
       font-weight: 600;
       line-height: 1.4;
     }
+    /* Day streak segment (Q117, 2026-10-19): only the W/L token is
+       colored, in the page's win/loss hues; size and weight stay the
+       line's own. */
+    .masthead-last .day-streak.win { color: #69e898; }
+    .masthead-last .day-streak.loss { color: #ff8a8a; }
     .masthead-next {
       margin-top: 3px;
       color: #fff;
@@ -737,10 +742,12 @@
       display: block;
     }
 
-    /* "The Backup's Cap" egg (2026-10-18): a fact POPOVER anchored over
-       the hero's front-left corner, where the scarlet cap sits in the
-       scene — a different mechanic from the caption eggs: it stays
-       until dismissed (close control, a tap anywhere else, or Escape).
+    /* "The Backup's Cap" egg (2026-10-18): a fact POPOVER anchored to
+       the hero's bottom-left corner, under the scene — a different
+       mechanic from the caption eggs: it stays until dismissed
+       (close control, a tap anywhere else, or Escape). It never
+       auto-opens; only a tap inside the day's configured target
+       zone (the cap itself, in the DAILY_EGG config) opens it.
        Positioned inside .egg-slot, so it tracks the hero at any width. */
     .egg-popover {
       position: absolute;
@@ -1043,6 +1050,14 @@
     .pick-result.push strong { color: #eec25e; }
     .pick-result.void { background: #3b3216; color: #f3ddab; }
     .pick-result.void strong { color: #eec25e; }
+    /* Mathematically-dead live mark (Q114, 2026-10-19): a pick that
+       becomes provably dead mid-game (a crossed under) wears the
+       lost colors on its band while the game is still live. Display
+       only — the band keeps its pending class, so live updates keep
+       flowing and the final settle + official grade still land at
+       the true final. */
+    .pick-result.pending.is-dead { background: #401718; color: #ffc1c1; }
+    .pick-result.pending.is-dead strong { color: #ff8a8a; }
 
     .live-score {
       display: flex;
@@ -5496,13 +5511,40 @@ and loads nothing.
         if (badge) badge.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units)).replace(/-/g, '−');
         if (last) {
           var days = BRUTUS_DATA.days;
-          for (var i = days.length - 1; i >= 0; i -= 1) {
-            var dayGraded = days[i].picks.filter(function (pick) { return pick.result !== 'pending'; });
-            if (dayGraded.length) {
-              var s = summarize(dayGraded);
-              last.textContent = 'Last card: ' + (recordText(s) + ' · ' + signedUnits(s.units)).replace(/-/g, '−');
-              break;
+          // D199 (2026-10-19): the line names the last COMPLETED
+          // card — a day qualifies only when it is fully graded (at
+          // least one pick, zero pending; voids count as graded).
+          // A partial current day never takes the line: until the
+          // day completes, the most recent completed card stays up.
+          // Q117 (2026-10-19): the same line carries the day streak,
+          // computed mechanically from the same completed days — net
+          // units per day (voids 0): net > 0 is a WIN day, net < 0 a
+          // LOSS day, net exactly 0 NEUTRAL (a neutral day neither
+          // extends nor breaks the streak — the run passes through
+          // it). The streak is the run of same-sign days ending at
+          // the most recent non-neutral completed day. A day in
+          // progress never counts, so the value cannot flip
+          // mid-evening. DISPLAY ONLY, forever: never a bet input.
+          var completed = days.filter(function (day) {
+            return day.picks.length > 0 && day.picks.every(function (pick) { return pick.result !== 'pending'; });
+          });
+          if (completed.length) {
+            var s = summarize(completed[completed.length - 1].picks);
+            var html = ('Last card: ' + recordText(s) + ' · ' + signedUnits(s.units)).replace(/-/g, '−');
+            var streakSign = 0;
+            var streakCount = 0;
+            for (var i = completed.length - 1; i >= 0; i -= 1) {
+              var net = summarize(completed[i].picks).units;
+              var sign = Math.abs(net) < .005 ? 0 : (net > 0 ? 1 : -1);
+              if (!sign) continue;
+              if (!streakSign) { streakSign = sign; streakCount = 1; }
+              else if (sign === streakSign) streakCount += 1;
+              else break;
             }
+            if (streakSign) {
+              html += ' · Day streak <span class="day-streak ' + (streakSign > 0 ? 'win' : 'loss') + '">' + (streakSign > 0 ? 'W' : 'L') + streakCount + '</span>';
+            }
+            last.innerHTML = html;
           }
         }
       }
@@ -6387,6 +6429,61 @@ and loads nothing.
           span.textContent = detail;
           band.appendChild(strong);
           band.appendChild(span);
+        }
+
+        // MATHEMATICALLY-DEAD LIVE MARKING (Q114, 2026-10-19,
+        // Scott): a pick that becomes provably dead before the final
+        // displays LOST on its band at the moment it dies — LOST
+        // ONLY, never a pick marked won early, however safe it
+        // looks. DISPLAY state only: the band keeps its pending
+        // class (live updates keep flowing, settleBand still owns
+        // the final), the stored record is untouched, and official
+        // grading still happens at the true final — a score
+        // correction before the final still governs (and un-marks
+        // the band below). The provable class is the crossed total:
+        // points never come off the board, so an UNDER whose number
+        // the running total has passed cannot recover; combined
+        // exactly ON the number can still push, so it is NOT dead.
+        // Sides and overs are never marked from the score alone —
+        // a deficit can always be recovered while the clock runs,
+        // so no strict impossibility exists to mark.
+        function deadOutcome(spec, awayScore, homeScore) {
+          if (!spec.isTotal || spec.lineNumber === null || spec.lineNumber === undefined) return null;
+          if (spec.totalDirection !== 'Under') return null;
+          return (awayScore + homeScore) > spec.lineNumber ? 'loss' : null;
+        }
+
+        function markDeadBand(spec, awayLabel, homeLabel, awayScore, homeScore) {
+          var band = spec.card.querySelector('.pick-result.pending');
+          if (!band) return;
+          if (deadOutcome(spec, awayScore, homeScore)) {
+            if (band.getAttribute('data-dead') === '1') return;
+            band.setAttribute('data-dead', '1');
+            band.classList.add('is-dead');
+            band.textContent = '';
+            var strong = document.createElement('strong');
+            strong.textContent = 'LOST';
+            var span = document.createElement('span');
+            var combined = awayScore + homeScore;
+            span.textContent = awayLabel + ' ' + awayScore + ', ' + homeLabel + ' ' + homeScore +
+              ' — combined ' + combined + ' ' + totalNoun(spec.sport, combined) + ', past the under ' + fmtNum(spec.lineNumber);
+            band.appendChild(strong);
+            band.appendChild(span);
+          } else if (band.getAttribute('data-dead') === '1') {
+            // A score correction un-crossed the total before the
+            // final: the pick is alive again — restore the pending
+            // face (the same text the card bakes for a live pending
+            // pick). The record was never touched either way.
+            band.removeAttribute('data-dead');
+            band.classList.remove('is-dead');
+            band.textContent = '';
+            var rStrong = document.createElement('strong');
+            rStrong.textContent = 'PENDING';
+            var rSpan = document.createElement('span');
+            rSpan.textContent = 'Game not final';
+            band.appendChild(rStrong);
+            band.appendChild(rSpan);
+          }
         }
 
         function runnersText(sit) {
@@ -7356,6 +7453,12 @@ and loads nothing.
           if (state === 'post' && !notPlayed && awayScore !== null && homeScore !== null) {
             settleBand(spec, match, awayLabel, homeLabel, awayScore, homeScore);
           }
+          // Q114 (2026-10-19): while the game is still live, a pick
+          // that has become mathematically dead shows LOST on its
+          // band in this same pass — display only (see markDeadBand).
+          if (state === 'in' && awayScore !== null && homeScore !== null) {
+            markDeadBand(spec, awayLabel, homeLabel, awayScore, homeScore);
+          }
           if (notPlayed) {
             // Queue item 20, postponed-not-yet-voided: the result band
             // carries the disposition wording while the scorebug's
@@ -7522,11 +7625,13 @@ and loads nothing.
       date: '2026-10-18',
       target: 'scarlet cap',
       name: "The Backup's Cap",
-      // The cap sits at the front-left corner of the desk in today's
-      // scene — only its brim tip enters the frame, at the image's
-      // extreme bottom-left; the zone hugs that corner.
-      zone: { x0: 0.0, y0: 0.85, x1: 0.06, y1: 0.995 },
-      spot: { x: 0.016, y: 0.93 },
+      // The cap is the red ballcap on Brutus's head, top-center of
+      // the frame; the zone hugs its true bounds and nothing else
+      // in the hero fires the popover. (Page-pass fix, 2026-10-19:
+      // the zone previously sat at the image's extreme bottom-left,
+      // far from the cap, so a stray tap there opened the card.)
+      zone: { x0: 0.36, y0: 0.04, x1: 0.555, y1: 0.32 },
+      spot: { x: 0.457, y: 0.185 },
       // Popover mode (new mechanic, 2026-10-18): instead of the timed
       // caption pill, tapping the cap opens a fact popover card over
       // the hero that stays until dismissed — the close control, a tap

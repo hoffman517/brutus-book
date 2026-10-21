@@ -1155,6 +1155,59 @@
       height: 56px;
     }
 
+    /* Court strip (NBA + CBB): ONE shared court for both basketball
+       leagues — the same 56px surface band as the field bar and the
+       rink. Real state only: one segment per quarter (plus an OT
+       segment when the feed's linescores carry a 5th+ period); a
+       segment fills only when that quarter is complete in the feed's
+       linescores, the quarter being played is marked, and later
+       quarters stay empty — no invented progress. */
+    .live-court {
+      margin: 2px 10px 12px;
+    }
+
+    .live-court .court-track {
+      display: flex;
+      height: 56px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #c68a4e 0%, #b57a3e 55%, #a06a33 100%);
+      box-shadow: inset 0 0 0 1px rgba(60,32,8,.55);
+      overflow: hidden;
+    }
+
+    .live-court .court-seg {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      border-right: 1px solid rgba(60,32,8,.35);
+      color: rgba(46,26,8,.62);
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .live-court .court-seg:last-child { border-right: 0; }
+
+    .live-court .court-seg.done {
+      background: rgba(255,244,224,.34);
+      color: #2e1a08;
+    }
+
+    .live-court .court-seg.cur {
+      background: rgba(187,0,0,.32);
+      color: #fff;
+      box-shadow: inset 0 0 0 2px rgba(187,0,0,.65);
+    }
+
+    .live-court .court-seg-score {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
     .live-field {
       margin: -6px 10px 12px;
     }
@@ -5155,7 +5208,7 @@ and loads nothing.
       }
 
       function espnScoresURL(pick) {
-        var sportPaths = { MLB: 'mlb', CFB: 'college-football', NFL: 'nfl', NHL: 'nhl' };
+        var sportPaths = { MLB: 'mlb', CFB: 'college-football', NFL: 'nfl', NHL: 'nhl', NBA: 'nba', CBB: 'college-basketball' };
         var sportPath = sportPaths[pick.sport] || '';
         if (!sportPath) return 'https://www.espn.com/';
         if (pick.espnGameId) {
@@ -6334,7 +6387,9 @@ and loads nothing.
           MLB: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
           NFL: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
           CFB: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard',
-          NHL: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard'
+          NHL: 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+          NBA: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+          CBB: 'https://site.api.espn.com/apis/site/v2/sports/basketball/college-basketball/scoreboard'
         };
         // First rung of the chain: our own server-fed pipe. Our server
         // polls ESPN and republishes the scoreboard JSON (exactly ESPN's
@@ -6347,7 +6402,11 @@ and loads nothing.
           MLB: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/mlb.json',
           NFL: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/nfl.json',
           CFB: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/cfb.json',
-          NHL: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/nhl.json'
+          NHL: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/nhl.json',
+          NBA: 'https://gist.githubusercontent.com/hoffman517/069485bce5a716e36f91449845e1e39e/raw/nba.json'
+          // No CBB feed file exists yet: CBB falls through to the ESPN
+          // endpoint rung of fetchScoreboardWithFallback (no feed URL
+          // is invented for it).
         };
         var REFRESH_MS = 60000;
         // Conditional cadence (queue item 19, 2026-10-19): while any
@@ -6535,7 +6594,7 @@ and loads nothing.
         // the pre-game purity rule: a card whose game has not started
         // shows its baked face only.
         function clearLiveLayer(card) {
-          ['.scorebug', '.live-rink', '.live-field', '.live-situation', '.live-score', '.live-last-play'].forEach(function (sel) {
+          ['.scorebug', '.live-rink', '.live-court', '.live-field', '.live-situation', '.live-score', '.live-last-play'].forEach(function (sel) {
             Array.prototype.forEach.call(card.querySelectorAll(sel), function (el) {
               if (el.parentNode) el.parentNode.removeChild(el);
             });
@@ -7604,6 +7663,115 @@ and loads nothing.
           rink.appendChild(buildRinkTrack(spec, match));
         }
 
+        // Court strip (NBA + CBB): ONE court shared by both basketball
+        // leagues, league-parameterized exactly as the football leagues
+        // share the field bar. The track is one segment per quarter
+        // (4), plus one segment per overtime period when the feed's
+        // linescores carry a 5th+ period. Real state only: a segment
+        // is filled ('done') only for a quarter the feed's linescores
+        // show complete — every period before the current one while
+        // live, or every period present on a final — the quarter
+        // being played is marked 'cur', and later quarters stay
+        // 'todo' (empty). The number under a played quarter's label
+        // is that quarter's combined points, summed from the same
+        // linescores; a quarter with no linescore entry carries no
+        // number — no fabricated state.
+        function buildCourtTrack(spec, match, state) {
+          var a = (match.away && match.away.linescores) || [];
+          var h = (match.home && match.home.linescores) || [];
+          function byPeriod(list) {
+            var byP = {};
+            list.forEach(function (ls) {
+              var p = parseInt(ls.period, 10);
+              if (Number.isFinite(p) && p > 0) byP[p] = ls;
+            });
+            return byP;
+          }
+          var aBy = byPeriod(a);
+          var hBy = byPeriod(h);
+          var maxP = 0;
+          [aBy, hBy].forEach(function (byP) {
+            Object.keys(byP).forEach(function (k) {
+              var p = parseInt(k, 10);
+              if (p > maxP) maxP = p;
+            });
+          });
+          var cur = (match.status && parseInt(match.status.period, 10)) || 0;
+          var cols = Math.max(4, maxP);
+          if (state === 'in' && cur > cols) cols = cur;
+          var track = document.createElement('div');
+          track.className = 'court-track';
+          track.setAttribute('data-sport', spec.sport);
+          for (var col = 1; col <= cols; col += 1) {
+            var hasLine = !!(aBy[col] || hBy[col]);
+            var cls;
+            if (state === 'post') cls = hasLine ? 'done' : 'todo';
+            else if (cur > 0) {
+              if (col < cur) cls = hasLine ? 'done' : 'todo';
+              else if (col === cur) cls = 'cur';
+              else cls = 'todo';
+            } else cls = hasLine ? 'done' : 'todo';
+            var seg = document.createElement('div');
+            seg.className = 'court-seg ' + cls;
+            seg.setAttribute('data-period', String(col));
+            seg.setAttribute('data-state', cls);
+            var label = document.createElement('span');
+            label.className = 'court-seg-label';
+            label.textContent = col <= 4 ? 'Q' + col : (col === 5 ? 'OT' : 'OT' + (col - 4));
+            seg.appendChild(label);
+            if (hasLine && cls !== 'todo') {
+              var combined = 0;
+              var anyVal = false;
+              [aBy[col], hBy[col]].forEach(function (ls) {
+                if (ls && ls.value !== undefined && ls.value !== null && ls.value !== '') {
+                  var v = Number(ls.value);
+                  if (Number.isFinite(v)) { combined += v; anyVal = true; }
+                }
+              });
+              if (anyVal) {
+                var score = document.createElement('span');
+                score.className = 'court-seg-score';
+                score.textContent = String(Math.round(combined));
+                seg.appendChild(score);
+              }
+            }
+            track.appendChild(seg);
+          }
+          return track;
+        }
+
+        function renderCourt(spec, match, state) {
+          if (spec.sport !== 'NBA' && spec.sport !== 'CBB') return;
+          // Surfaces render under live state only (2026-10-15 rule,
+          // applied to the court 2026-10-21): the dispatch in
+          // renderLiveLine calls this ONLY while state is 'in', the
+          // same one-anatomy rule as the rink. The fill itself is
+          // derived purely from the match's linescores + period, so
+          // a direct call carrying a final's linescores fills every
+          // completed quarter — which is how the frozen-final
+          // harness case is proven without a live game.
+          var existing = spec.card.querySelector('.live-court');
+          var court = existing;
+          if (!court) {
+            court = document.createElement('div');
+            court.className = 'live-court';
+            var strip = spec.card.querySelector('.live-score');
+            if (strip && strip.parentNode) {
+              strip.parentNode.insertBefore(court, strip.nextSibling);
+            } else {
+              spec.card.appendChild(court);
+            }
+          }
+          // Anchor: directly under the scoreboard (the strip is merged
+          // into it while a game is live), else under the strip.
+          var anchorEl = spec.card.querySelector('.scorebug') || spec.card.querySelector('.live-score');
+          if (anchorEl && anchorEl.parentNode && court.previousSibling !== anchorEl) {
+            anchorEl.parentNode.insertBefore(court, anchorEl.nextSibling);
+          }
+          court.textContent = '';
+          court.appendChild(buildCourtTrack(spec, match, state));
+        }
+
         function totalNoun(sport, combined) {
           var base = sport === 'MLB' ? 'run' : (sport === 'NHL' ? 'goal' : 'point');
           return combined === 1 ? base : base + 's';
@@ -7748,7 +7916,7 @@ and loads nothing.
           }
 
           // SURFACES UNDER REAL LIVE STATE ONLY (2026-10-15): the
-          // field bar, the rink and the diamond render only while the
+          // field bar, the rink, the court and the diamond render only while the
           // game is actually being played (state 'in') — never on a
           // pre-game card, never on a final. (Supersedes the 2026-10-14
           // one-anatomy-in-every-state rendering for surfaces; the
@@ -7756,6 +7924,7 @@ and loads nothing.
           if (state === 'in') {
             renderSituation(spec, match, state);
             renderRink(spec, match, state);
+            renderCourt(spec, match, state);
           }
         }
 

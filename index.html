@@ -227,6 +227,10 @@
     /* Last-card sub-line under the record pill — the old record
        band's only unique content, folded into the masthead. Rendered
        from BRUTUS_DATA by renderRecordBand(), like the pill itself. */
+    .masthead-through { margin-top: 3px; font-size: 11px; letter-spacing: 0.04em; color: #9aa3ab; }
+    .units-curve { margin: 0 0 14px; }
+    .units-curve img { width: 100%; max-width: 360px; height: auto; display: block; border-radius: 8px; }
+    .units-curve figcaption { margin-top: 6px; font-size: 12px; color: #9aa3ab; max-width: 420px; }
     .masthead-last {
       margin-top: 5px;
       color: rgba(255, 255, 255, .85);
@@ -2528,6 +2532,7 @@ and loads nothing.
       <div class="date" data-card-date="2026-10-21"><span class="live-dot" aria-hidden="true"></span>Wednesday · Oct 21, 2026</div>
       <div class="masthead-record-block">
         <div class="record-badge"><span>Season</span><strong id="masthead-record">28–25–1 · +0.01u</strong><span>ROI</span><strong id="masthead-roi">+0.0%</strong></div>
+        <div class="masthead-through" id="masthead-through">Record through Oct 20</div>
         <div class="masthead-last" id="masthead-last"></div>
         <div class="masthead-next" id="masthead-next" hidden></div>
       </div>
@@ -2650,6 +2655,10 @@ and loads nothing.
           <h2 class="section-title" id="history-title">Card History</h2>
           <p class="section-note">Every pick, result and unit</p>
         </div>
+        <figure class="units-curve">
+          <img src="assets/units_curve.svg" alt="Cumulative units over time line chart: season low minus 2.39 units on October 15, back to plus 0.01 units through October 20" width="360" height="132">
+          <figcaption>Season units over time — every graded pick at a flat 0.5u. Low −2.39u (Oct 15) · Now +0.01u (through Oct 20). Regenerated at every grading; its endpoint always matches the season record above.</figcaption>
+        </figure>
         <div class="history-list" id="history-list"></div>
       </section>
 
@@ -5919,6 +5928,18 @@ and loads nothing.
         var graded = picks.filter(function (pick) { return pick.result !== 'pending'; });
         var overall = summarize(graded);
         if (badge) badge.textContent = (recordText(overall) + ' · ' + signedUnits(overall.units)).replace(/-/g, '−');
+        var throughEl = document.getElementById('masthead-through');
+        if (throughEl) {
+          var throughDay = null;
+          BRUTUS_DATA.days.forEach(function (day) {
+            if (day.picks.length && day.picks.every(function (pick) { return pick.result !== 'pending'; })) throughDay = day;
+          });
+          if (throughDay) {
+            var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var parts = throughDay.date.split('-');
+            throughEl.textContent = 'Record through ' + MONTHS[Number(parts[1]) - 1] + ' ' + Number(parts[2]);
+          } else { throughEl.textContent = ''; }
+        }
         if (last) {
           var days = BRUTUS_DATA.days;
           // D199 (2026-10-19): the line names the last COMPLETED

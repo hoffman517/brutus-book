@@ -6924,7 +6924,37 @@ and loads nothing.
           }).join(' ');
         }
 
-        function teamMatches(competitor, name) {
+        // CFB school-name aliases (2026-10-22): ESPN's college feed
+        // replaces some school names wholesale with the short form —
+        // displayName "App State Mountaineers" for Appalachian State,
+        // "UConn" for Connecticut, "Pitt" for Pittsburgh — where our
+        // cards carry the full school name. No token rule above can
+        // join those ("app" never expands to "appalachian"), so the
+        // App State card sat dead through a whole live game while the
+        // NHL cards on the same page painted. Expand the known
+        // substitutions on an already-normalized name; teamMatches
+        // applies this to BOTH sides, and ONLY for CFB specs, so the
+        // join is symmetric for college football and every other
+        // sport's matching is byte-for-byte what it was. The table is
+        // local so function-extraction harnesses stay self-contained.
+        function expandSchoolAliases(normalized) {
+          var aliases = [
+            [/\bapp state\b/g, 'appalachian state'],
+            [/\bole miss\b/g, 'mississippi'],
+            [/\bsouthern miss\b/g, 'southern mississippi'],
+            [/\bmiddle tenn\b/g, 'middle tennessee'],
+            [/\bwestern ky\b/g, 'western kentucky'],
+            [/\buconn\b/g, 'connecticut'],
+            [/\bumass\b/g, 'massachusetts'],
+            [/\bpitt\b/g, 'pittsburgh'],
+            [/\bapp\b/g, 'appalachian']
+          ];
+          var out = String(normalized || '');
+          aliases.forEach(function (pair) { out = out.replace(pair[0], pair[1]); });
+          return out;
+        }
+
+        function teamMatches(competitor, name, sport) {
           if (!competitor || !competitor.team || !name) return false;
           var target = name.toLowerCase();
           var normTarget = normalizeTeamName(name);
@@ -6945,6 +6975,7 @@ and loads nothing.
             if (normCandidate.indexOf(normTarget + ' ') === 0) return true;
             var normWords = normCandidate.split(' ');
             if (normWords[normWords.length - 1] === normTarget) return true;
+            if (sport === 'CFB' && expandSchoolAliases(normCandidate) === expandSchoolAliases(normTarget)) return true;
           }
           return false;
         }
@@ -6976,7 +7007,7 @@ and loads nothing.
               if (competitor.homeAway === 'home') home = competitor;
             });
             if (!away || !home) { away = competitors[0]; home = competitors[1]; }
-            if (!teamMatches(away, spec.awayName) || !teamMatches(home, spec.homeName)) continue;
+            if (!teamMatches(away, spec.awayName, spec.sport) || !teamMatches(home, spec.homeName, spec.sport)) continue;
             // EXACT-EVENT JOIN (2026-10-15): a card may only ever
             // attach to its OWN game. The same teams meet again
             // (playoff series, rematches) and the feed can carry
@@ -7043,8 +7074,8 @@ and loads nothing.
 
         function ourMatchup(spec, match) {
           if (!spec.ourSide) return null;
-          if (teamMatches(match.away, spec.ourSide)) return { ours: match.away, opp: match.home };
-          if (teamMatches(match.home, spec.ourSide)) return { ours: match.home, opp: match.away };
+          if (teamMatches(match.away, spec.ourSide, spec.sport)) return { ours: match.away, opp: match.home };
+          if (teamMatches(match.home, spec.ourSide, spec.sport)) return { ours: match.home, opp: match.away };
           return null;
         }
 

@@ -9533,7 +9533,9 @@ and loads nothing.
       // data-espn-game-id, data-game-time (minutes) and
       // data-day-date. The bar is the button alone — there is
       // no bet-card note in the design, and this pass never
-      // creates one. Legs whose FanDuel line moved are included
+      // creates one. Scope: every pick card on the page that
+      // carries a game id — the card grid and the Research
+      // tab's cloned cards alike. Legs whose FanDuel line moved are included
       // by construction (the embedded slips resolve at
       // FanDuel's live line); this pass only subtracts legs
       // whose games have started.
@@ -9582,9 +9584,11 @@ and loads nothing.
       }
       function captureLegs() {
         var legs = [];
-        document.querySelectorAll('#pick-grid article.pick-card').forEach(function (card) {
+        var seen = {};
+        document.querySelectorAll('article.pick-card[data-espn-game-id]').forEach(function (card) {
           var gid = card.getAttribute('data-espn-game-id');
-          if (!gid) return;
+          if (!gid || seen[gid]) return;
+          seen[gid] = true;
           legs.push({
             gid: gid,
             minutes: Number(card.getAttribute('data-game-time')),
@@ -9605,13 +9609,14 @@ and loads nothing.
             var startMs = etStartMs(leg.dateStr, leg.minutes);
             var started = !isNaN(startMs) && now >= startMs;
             if (started) { startedGids[leg.gid] = true; anyStarted = true; }
-            var card = document.querySelector('#pick-grid article.pick-card[data-espn-game-id="' + leg.gid + '"]');
-            var btn = card ? card.querySelector('a.fd-bet-btn') : null;
-            if (!btn) return;
             var map = maps[leg.gid];
             var url = map ? (map[st] || '') : '';
-            if (started || !url) btn.style.display = 'none';
-            else { btn.style.display = ''; btn.setAttribute('href', url); }
+            document.querySelectorAll('article.pick-card[data-espn-game-id="' + leg.gid + '"]').forEach(function (card) {
+              var btn = card.querySelector('a.fd-bet-btn');
+              if (!btn) return;
+              if (started || !url) btn.style.display = 'none';
+              else { btn.style.display = ''; btn.setAttribute('href', url); }
+            });
           });
           var bar = document.querySelector('.bet-card-btn');
           if (!bar || !anyStarted) return;

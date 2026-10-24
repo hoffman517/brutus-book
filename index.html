@@ -7890,8 +7890,8 @@ and loads nothing.
             var margin = diff + spec.lineNumber;
             var lead = 'Our bet: ' + label + ' ' + fmtSigned(spec.lineNumber);
             if (margin > 0) return lead + ' — covering by ' + fmtNum(margin);
-            if (margin < 0) return lead + ' — not covering';
-            return lead + ' — on the number';
+            if (margin < 0) return lead + ' — not covering by ' + fmtNum(Math.abs(margin));
+            return lead + ' — pushing';
           }
           return '';
         }
@@ -9052,7 +9052,9 @@ and loads nothing.
             if (spec.isTotal) {
               if (spec.totalDirection && spec.lineNumber !== null && spec.lineNumber !== undefined) {
                 var combined = awayScore + homeScore;
-                footText = 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' ' + totalNoun(spec.sport, combined);
+                var totalGap = combined - spec.lineNumber;
+                var totalVerdict = totalGap > 0 ? 'over by ' + fmtNum(totalGap) : (totalGap < 0 ? 'under by ' + fmtNum(Math.abs(totalGap)) : 'pushing');
+                footText = 'Our bet: ' + spec.totalDirection + ' ' + fmtNum(spec.lineNumber) + ' — combined ' + combined + ' ' + totalNoun(spec.sport, combined) + ', ' + totalVerdict;
               }
             } else {
               footText = betStatusText(spec, match);

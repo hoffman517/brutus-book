@@ -8283,24 +8283,29 @@ and loads nothing.
           // saves + goals), never attempts. Mirrored exactly.
           var rinkLogos = spec.card ? spec.card.querySelectorAll('.matchup-row .team-logo img') : [];
           function rinkEnd(isAway, competitor, value) {
+            // D258: both ends are inset from the ice edge (logo outer
+            // edge 7.4 units in, mirrored) and the SOG label row is
+            // lifted clear of the rounded-corner arc — at phone width
+            // the old x=4/196 placement sat in the corner zone with
+            // ~5px of margin and rendered half-cut at the rink's edge.
             var g = el('g', { 'class': 'rink-end' });
             var imgEl = rinkLogos[isAway ? 0 : 1];
             var src = imgEl ? (imgEl.getAttribute('src') || '') : '';
             if (src) {
-              g.appendChild(el('image', { 'class': 'rink-end-logo', x: isAway ? 4 : 184, y: 12, width: 12, height: 12, href: src }));
-              var nt = el('text', { 'class': 'rink-sog', x: isAway ? 18.5 : 181.5, y: 20.5, 'font-size': 6.5, 'font-weight': 800, fill: '#22333f' });
+              g.appendChild(el('image', { 'class': 'rink-end-logo', x: isAway ? 8 : 180, y: 12, width: 12, height: 12, href: src }));
+              var nt = el('text', { 'class': 'rink-sog', x: isAway ? 22.5 : 177.5, y: 20.5, 'font-size': 6.5, 'font-weight': 800, fill: '#22333f' });
               if (!isAway) nt.setAttribute('text-anchor', 'end');
               nt.textContent = value;
               g.appendChild(nt);
             } else {
               // No logo on the card to borrow — the abbreviation
               // carries the end, as the strip did before logos.
-              var at = el('text', { 'class': 'rink-sog', x: isAway ? 5 : 195, y: 20.5, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
+              var at = el('text', { 'class': 'rink-sog', x: isAway ? 9 : 191, y: 20.5, 'font-size': 6, 'font-weight': 800, fill: '#22333f', 'letter-spacing': '.03em' });
               if (!isAway) at.setAttribute('text-anchor', 'end');
               at.textContent = teamAbbr(competitor, '') + ' ' + value;
               g.appendChild(at);
             }
-            var lt = el('text', { 'class': 'rink-sog-label', x: isAway ? 4 : 196, y: 28.5, 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
+            var lt = el('text', { 'class': 'rink-sog-label', x: isAway ? 8 : 192, y: 27.5, 'font-size': 4.1, 'font-weight': 700, fill: 'rgba(34,51,63,.78)', 'letter-spacing': '.12em' });
             if (!isAway) lt.setAttribute('text-anchor', 'end');
             lt.textContent = 'SOG';
             g.appendChild(lt);

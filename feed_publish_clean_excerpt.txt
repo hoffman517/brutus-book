@@ -1,0 +1,91 @@
+# against GitHub's ~100-write secondary limit and froze until reset.
+# Non-live runs keep the 75s floor (<=48 PATCH/hr).
+# Live runs (live_pick_games non-empty) use the 45s floor instead:
+# worst-case live gist age is therefore ~45s + one run's
+# fetch->PATCH time (~15s, measured 2026-10-24) + CDN seconds,
+# comfortably inside the page's 90s live bound
+# (FEED_FRESH_LIVE_MS = 90000). The earlier premise of "~20s
+# republish while live" was false under a single 75s floor — the
+# hook's 20s burst runs mostly skipped at that floor, putting
+# worst-case live age at ~90-105s+ and repeatedly breaching 90s
+# (worst 183.3s on 2026-10-24; no reader harm, as the page falls
+# back to ESPN when the feed is not fresh). Write ceiling at the
+# live floor: 3600/45 = 80 PATCH/hr theoretical max while live,
+# still under the ~100/hr GitHub secondary limit.
+MIN_PUBLISH_INTERVAL_SEC = 75
+MIN_PUBLISH_INTERVAL_LIVE_SEC = 45
+
+# D259 served-stamp verification (instrumented C build, 2026-10-26):
+# after a successful PATCH, the publisher polls the SERVED raw payload
+# of each live-pick file for the feed_ts it just published. The 52.0s
+# deadline is the priced value from the settling tests (false-fire at
+# 52s pooled 5/131 = 3.82%, Wilson upper 8.62% < 10%); elapsed time is
+# compared at full float precision — never rounded to whole seconds.
+# A stamp still unserved at the deadline earns exactly ONE re-PATCH
+# (a byte-identical PATCH still creates a new gist revision —
+# SETTLED-PASS, 2026-10-26), then a bounded confirmation poll.
+VERIFY_SERVED_DEADLINE_SEC = 52.0
+VERIFY_SERVED_POLL_SEC = 4.0
+VERIFY_SERVED_CONFIRM_SEC = 15.0
+
+
+def live_feed_files(live):
+    """Sorted feed file names for the sports in a live_pick_games()
+    list (entries "SPORT: matchup"). Unknown sports are ignored —
+    they cannot name a feed file, so there is nothing to verify."""
+    out = set()
+    for entry in live or []:
+        sport = str(entry).split(":", 1)[0].strip().upper()
+        name = FEED_FILE_BY_SPORT.get(sport)
+        if name:
+            out.add(name)
+    return sorted(out)
+
+
+def published_feed_ts(files, filename):
+    """The feed_ts a build_files() result carries for one file, or
+    None when the content is unparseable / carries no stamp — such a
+    file has no stamp to verify and is left out of verification."""
+    entry = (files or {}).get(filename)
+    if entry is None:
+        return None
+    content = entry["content"] if isinstance(entry, dict) else str(entry)
+    try:
+        payload = json.loads(content)
+    except Exception:
+        return None
+    if isinstance(payload, dict):
+        return payload.get("feed_ts")
+    return None
+
+
+def fetch_served_payload(raw_base, filename):
+    """The SERVED payload of one gist raw file, cache-busted the way
+    the page fetches it (?t=<now>). Uses fetch() (curl); any failure
+    raises, and the caller treats a failed read as not-served."""
+    bust = int(time.time() * 1000)
+    return fetch(f"{raw_base}/{filename}?t={bust}")
+
+
+def verify_served_and_repatch(files, live, raw_base, repatch_fn=None,
+                              fetch_fn=None, clock=None, sleep_fn=None,
+                              poll_sec=VERIFY_SERVED_POLL_SEC,
+                              deadline_sec=VERIFY_SERVED_DEADLINE_SEC,
+                              confirm_sec=VERIFY_SERVED_CONFIRM_SEC):
+    """Post-PATCH served-stamp verification, LIVE-PICK FILES ONLY.
+
+    Polls the served raw payload of each live file for the feed_ts
+    just published. Returns (served_verified, repatches,
+    repatch_response): served_verified maps each live file name to
+    True/False; repatches lists the file names still unserved at the
+    deadline that the single re-PATCH was fired for ([] when none);
+    repatch_response is repatch_fn()'s return value (None when no
+    re-PATCH fired or it failed). An empty live list (or no live file
+    carrying a stamp) is a strict no-op: no fetches, no re-PATCH.
+
+    At most ONE re-PATCH per call, however long the confirmation poll
+    runs. Dependencies are injectable for tests: fetch_fn(filename)
+    -> served payload dict (default: fetch_served_payload over
+    raw_base), clock() -> float seconds (default time.monotonic),
+    sleep_fn(seconds) (default time.sleep).
+    """

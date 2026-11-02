@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -5.05 units on 2026-11-01">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -5.55 units on 2026-11-01">
   <rect width="360" height="132" fill="#111417"/>
-  <line x1="34" y1="29.7" x2="352" y2="29.7" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
-  <text x="30" y="32.7" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
-  <polyline points="34.0,18.9 48.5,41.2 62.9,47.7 77.4,25.0 91.8,41.7 106.3,63.9 120.7,58.0 135.2,52.9 149.6,34.6 164.1,36.3 178.5,29.6 193.0,29.9 207.5,37.7 221.9,44.9 236.4,59.9 250.8,60.1 265.3,60.7 279.7,47.3 294.2,62.1 308.6,90.7 323.1,105.1 337.5,100.4 352.0,101.8" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="352.0" cy="101.8" r="3" fill="#bb0000"/>
-  <text x="352.0" y="95.8" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-5.05u</text>
-  <text x="323.1" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.28u · 10-30</text>
+  <line x1="34" y1="29.3" x2="352" y2="29.3" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="30" y="32.3" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
+  <polyline points="34.0,18.9 48.5,40.2 62.9,46.5 77.4,24.8 91.8,40.8 106.3,61.9 120.7,56.3 135.2,51.4 149.6,33.9 164.1,35.6 178.5,29.1 193.0,29.4 207.5,36.9 221.9,43.8 236.4,58.1 250.8,58.4 265.3,58.9 279.7,46.1 294.2,60.3 308.6,87.6 323.1,101.4 337.5,96.9 352.0,105.1" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="352.0" cy="105.1" r="3" fill="#bb0000"/>
+  <text x="352.0" y="99.1" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-5.55u</text>
+  <text x="352.0" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
   <text x="34" y="127" fill="#9aa3ab" font-size="8">10-10</text>
   <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-01</text>
 </svg>

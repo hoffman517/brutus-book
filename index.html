@@ -2616,7 +2616,7 @@ and loads nothing.
           <div class="egg-popover" id="egg-popover" role="dialog" aria-label="The Lodged Baseball" hidden>
             <p class="egg-popover-title">Tuesday at the Desk</p>
             <p class="egg-popover-text" id="egg-popover-text"></p>
-            <button class="egg-popover-close" id="egg-popover-close" type="button" aria-label="Close">✕</button>
+            <button class="egg-popover-close" id="egg-popover-close" type="button" aria-label="Close">×</button>
           </div>
         </div>
     </div>
@@ -7864,7 +7864,7 @@ and loads nothing.
     </section>
   </div>
 
-  <button class="dossier-pill" id="dossier-pill" type="button" hidden>✕ Close dossier</button>
+  <button class="dossier-pill" id="dossier-pill" type="button" hidden>× Close dossier</button>
 
   <div class="export-card" id="picks-card-export" aria-hidden="true"></div>
 
@@ -9225,7 +9225,7 @@ and loads nothing.
           toggle.className = 'drill-toggle';
           toggle.setAttribute('aria-expanded', 'false');
           toggle.setAttribute('aria-controls', panelId);
-          toggle.innerHTML = '<span>Drill down — the full dossier</span><span class="drill-chevron" aria-hidden="true">⌄</span>';
+          toggle.innerHTML = '<span>Drill down — the full dossier</span><span class="drill-chevron" aria-hidden="true">▼</span>';
           var wrap = document.createElement('div');
           wrap.className = 'dossier';
           wrap.id = panelId;
@@ -9236,7 +9236,7 @@ and loads nothing.
           var endClose = document.createElement('button');
           endClose.type = 'button';
           endClose.className = 'dossier-end-close';
-          endClose.textContent = '✕ Close dossier';
+          endClose.textContent = '× Close dossier';
           endClose.setAttribute('aria-controls', panelId);
           endClose.addEventListener('click', function () {
             closeEntry(entry, true);
@@ -9290,7 +9290,7 @@ and loads nothing.
           toggle.className = 'drill-toggle';
           toggle.setAttribute('aria-expanded', 'false');
           toggle.setAttribute('aria-controls', panelId);
-          toggle.innerHTML = '<span>Drill down — the full dossier</span><span class="drill-chevron" aria-hidden="true">⌄</span>';
+          toggle.innerHTML = '<span>Drill down — the full dossier</span><span class="drill-chevron" aria-hidden="true">▼</span>';
           var wrap = document.createElement('div');
           wrap.className = 'dossier';
           wrap.id = panelId;
@@ -9301,7 +9301,7 @@ and loads nothing.
           var endClose = document.createElement('button');
           endClose.type = 'button';
           endClose.className = 'dossier-end-close';
-          endClose.textContent = '✕ Close dossier';
+          endClose.textContent = '× Close dossier';
           endClose.setAttribute('aria-controls', panelId);
           endClose.addEventListener('click', function () {
             closeEntry(entry, true);
@@ -9686,7 +9686,7 @@ and loads nothing.
             '<p class="history-still-out"><strong>Still out:</strong> ' + (day.stillOutNote ? escapeHTML(day.stillOutNote) : pendingPicks.map(function (pick) { return escapeHTML(pick.line); }).join(', ') + ' — grades in the overnight window; closing lines post at grading.') + '</p>' : '';
           var open = dayIndex === 0;
           return '<article class="history-day">' +
-            '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">⌄</span></button>' +
+            '<button class="history-toggle" type="button" aria-expanded="' + open + '"><span><span class="history-date">' + escapeHTML(day.label) + ' — ' + day.picks.length + ' picks</span><span class="history-summary">' + summary.wins + '–' + summary.losses + (summary.pushes ? '–' + summary.pushes : '') + ' · ' + winPct(summary) + ' · ' + signedUnits(summary.units) + (pending ? ' · ' + pending + ' pending' : '') + '</span></span><span class="history-chevron" aria-hidden="true">▼</span></button>' +
             '<div class="history-details"' + (open ? '' : ' hidden') + '>' + day.picks.map(function (pick, index) {
               var resultLabel = pick.result === 'pending' ? 'Pending' : (pick.result === 'win' ? 'W' : pick.result === 'loss' ? 'L' : pick.result === 'void' ? 'VOID' : 'P') + ' ' + signedUnits(profitForPick(pick));
               return '<div class="history-pick" data-matchup="' + escapeHTML(pick.matchup) + '"><span class="history-number">' + String(index + 1).padStart(2, '0') + '</span><span><strong>' + escapeHTML(pick.line) + ' <span>' + escapeHTML(pick.odds) + '</span></strong><span>' + escapeHTML(pick.matchup) + ' · ' + escapeHTML(pick.sport) + '</span>' + (pick.finalScore ? '<span class="history-score">' + escapeHTML(pick.finalScore) + '</span>' : '') + (pick.result === 'void' && pick.voidReason ? '<span class="history-void">VOID — ' + escapeHTML(pick.voidReason) + '</span>' : '') + (pick.angleCheck ? '<span class="history-angle"><strong>Angle check:</strong> ' + escapeHTML(pick.angleCheck) + '</span>' : '') + '</span>' + stakeChip(pick, true) + '<span class="result-chip ' + pick.result + '">' + resultLabel + '</span></div>';

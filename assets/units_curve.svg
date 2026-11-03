@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -3.95 units on 2026-11-02">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -4.45 units on 2026-11-02">
   <rect width="360" height="132" fill="#111417"/>
   <line x1="34" y1="29.3" x2="352" y2="29.3" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
   <text x="30" y="32.3" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
-  <polyline points="34.0,18.9 47.8,40.2 61.7,46.5 75.5,24.8 89.3,40.8 103.1,61.9 117.0,56.3 130.8,51.4 144.6,33.9 158.4,35.6 172.3,29.1 186.1,29.4 199.9,36.9 213.7,43.8 227.6,58.1 241.4,58.4 255.2,58.9 269.0,46.1 282.9,60.3 296.7,87.6 310.5,101.4 324.3,96.9 338.2,105.1 352.0,83.2" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="352.0" cy="83.2" r="3" fill="#bb0000"/>
-  <text x="352.0" y="77.2" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-3.95u</text>
+  <polyline points="34.0,18.9 47.8,40.2 61.7,46.5 75.5,24.8 89.3,40.8 103.1,61.9 117.0,56.3 130.8,51.4 144.6,33.9 158.4,35.6 172.3,29.1 186.1,29.4 199.9,36.9 213.7,43.8 227.6,58.1 241.4,58.4 255.2,58.9 269.0,46.1 282.9,60.3 296.7,87.6 310.5,101.4 324.3,96.9 338.2,105.1 352.0,90.1" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="352.0" cy="90.1" r="3" fill="#bb0000"/>
+  <text x="352.0" y="84.1" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-4.45u</text>
   <text x="338.2" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
   <text x="34" y="127" fill="#9aa3ab" font-size="8">10-10</text>
   <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-02</text>

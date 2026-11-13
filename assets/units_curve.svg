@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -2.15 units on 2026-11-12">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -3.15 units on 2026-11-12">
   <rect width="360" height="132" fill="#111417"/>
   <line x1="34" y1="29.3" x2="352" y2="29.3" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
   <text x="30" y="32.3" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
-  <polyline points="34.0,18.9 43.6,40.2 53.3,46.5 62.9,24.8 72.5,40.8 82.2,61.9 91.8,56.3 101.5,51.4 111.1,33.9 120.7,35.6 130.4,29.1 140.0,29.4 149.6,36.9 159.3,43.8 168.9,58.1 178.5,58.4 188.2,58.9 197.8,46.1 207.5,60.3 217.1,87.6 226.7,101.4 236.4,96.9 246.0,105.1 255.6,90.1 265.3,89.7 274.9,74.6 284.5,83.0 294.2,69.4 303.8,76.5 313.5,79.0 323.1,73.4 332.7,55.5 342.4,57.8 352.0,58.7" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="352.0" cy="58.7" r="3" fill="#bb0000"/>
-  <text x="352.0" y="52.7" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-2.15u</text>
+  <polyline points="34.0,18.9 43.6,40.2 53.3,46.5 62.9,24.8 72.5,40.8 82.2,61.9 91.8,56.3 101.5,51.4 111.1,33.9 120.7,35.6 130.4,29.1 140.0,29.4 149.6,36.9 159.3,43.8 168.9,58.1 178.5,58.4 188.2,58.9 197.8,46.1 207.5,60.3 217.1,87.6 226.7,101.4 236.4,96.9 246.0,105.1 255.6,90.1 265.3,89.7 274.9,74.6 284.5,83.0 294.2,69.4 303.8,76.5 313.5,79.0 323.1,73.4 332.7,55.5 342.4,57.8 352.0,72.3" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="352.0" cy="72.3" r="3" fill="#bb0000"/>
+  <text x="352.0" y="66.3" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-3.15u</text>
   <text x="246.0" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
   <text x="34" y="127" fill="#9aa3ab" font-size="8">10-10</text>
   <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-12</text>

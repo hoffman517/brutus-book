@@ -2741,7 +2741,29 @@ and loads nothing.
         </div>
       </section>
 
-      <section id="history-panel" data-view="history" role="tabpanel" aria-labelledby="tab-history history-title" hidden>
+      <section id="stats-panel" data-view="stats" role="tabpanel" aria-labelledby="tab-stats stats-title" hidden>
+        <div class="section-heading">
+          <h2 class="section-title" id="stats-title">Performance</h2>
+          <p class="section-note" id="stats-period">All tracked picks</p>
+        </div>
+        <div class="stats-row" aria-label="Overall performance">
+          <div class="stat"><span class="stat-value" id="overall-record">0–0–0</span><span class="stat-label">W–L–Push</span></div>
+          <div class="stat"><span class="stat-value" id="overall-win-pct">—</span><span class="stat-label">Win %</span></div>
+          <div class="stat"><span class="stat-value" id="overall-roi">—</span><span class="stat-label">ROI</span></div>
+          <div class="stat"><span class="stat-value" id="overall-units">0.00u</span><span class="stat-label">Units</span></div>
+        </div>
+        <p class="conventions-note">How to read these numbers: win % counts wins and losses only — pushes sit outside it. A push refunds the stake, and refunded stakes are not counted in “staked.” The season began Oct 10, 2026.<span id="conventions-push-note"></span></p>
+        <div class="empty-state" id="stats-empty"><strong>Stats build as picks are graded.</strong><br>Today’s card is logged; results, ROI and splits will populate after grading.</div>
+        <div class="performance-grid">
+          <article class="performance-card"><h3>By sport</h3><div class="breakdown-list" id="sport-breakdown"></div></article>
+          <article class="performance-card"><h3>By bet type</h3><div class="breakdown-list" id="type-breakdown"></div></article>
+          <article class="performance-card"><h3>By confidence</h3><p class="breakdown-note">Stakes through Oct 14: Conf 1 = 0.25u · Conf 2 = 0.5u · Conf 3 = 0.75u · Conf 4–5 = 1u. Flat 0.5u from Oct 15.</p><div class="breakdown-list" id="confidence-breakdown"></div></article>
+          <article class="performance-card"><h3>By date</h3><div class="breakdown-list" id="date-breakdown"></div></article>
+          <article class="performance-card"><h3>As favorite or dog</h3><p class="breakdown-note">Sides only, by the points — moneylines slot by the game's prices. Totals aren't here: a total is never a favorite or a dog.</p><div class="breakdown-list" id="odds-breakdown"></div></article>
+          <article class="performance-card"><h3>Last 10 picks</h3><div class="form-strip" id="last-ten" aria-label="Last 10 graded picks"></div><p class="source-note" id="form-note">No graded picks yet.</p></article>
+        </div>
+      </section>
+        <section id="history-panel" data-view="history" role="tabpanel" aria-labelledby="tab-history history-title" hidden>
         <div class="section-heading">
           <h2 class="section-title" id="history-title">Card History</h2>
           <p class="section-note">Every pick, result and unit</p>

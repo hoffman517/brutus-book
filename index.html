@@ -252,6 +252,49 @@
     }
     .masthead-next[hidden] { display: none; }
 
+    /* Recent form strip (2026-11-14): one slim line at the top of
+       Today's Card, directly under the masthead block. Static values,
+       refreshed per publish from results/picks.csv — see the
+       RECENT-FORM marker comment at the element. */
+    .recent-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin: 0 0 12px;
+      padding: 8px 12px;
+      background: var(--panel);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      font-size: .78rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+    .recent-form .rf-label {
+      font-family: var(--display);
+      font-size: .85rem;
+      letter-spacing: .06em;
+      color: var(--text);
+    }
+    .recent-form strong { color: var(--text); }
+    .recent-form .rf-pos { color: #69e898; font-weight: 700; }
+    .recent-form .rf-neg { color: #ff8a8a; font-weight: 700; }
+    .recent-form .rf-dots { display: inline-flex; gap: 4px; margin-left: auto; }
+    .recent-form .rf-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      border: 1px solid;
+    }
+    .recent-form .rf-dot.w { color: #69e898; border-color: #69e898; background: rgba(105, 232, 152, .12); }
+    .recent-form .rf-dot.l { color: #ff8a8a; border-color: #ff8a8a; background: rgba(255, 138, 138, .12); }
+    .recent-form .rf-dot.p { color: var(--muted); border-color: var(--muted); background: rgba(167, 177, 185, .12); }
+
     /* The identity one-liner lives BELOW Today's Card now (small
        type, with the how-it-works material) — out of the masthead. */
     .identity-line {
@@ -2635,6 +2678,13 @@ and loads nothing.
 
     <main>
       <section id="card-panel" data-view="today" role="tabpanel" aria-labelledby="tab-today card-title">
+        <!-- RECENT-FORM — Recent form strip (added 2026-11-14). Static values computed from ~/workspace/sports-betting/results/picks.csv graded rows via pick_tracker.calculate_units (the record — never prose); values as of 2026-11-14, through Nov 13: last 20 graded = 11-9, +0.46u; dots chronological W L W W L L W W L L L L W W L W L W W W. The picks-run page build refreshes the numbers and dots between these RECENT-FORM markers on each publish. -->
+        <div class="recent-form" aria-label="Recent form">
+          <span class="rf-label">Recent form</span>
+          <span class="rf-item">Last 20: <strong>11–9</strong> <span class="rf-pos">+0.46u</span></span>
+          <span class="rf-dots" role="img" aria-label="Last 20 graded picks, oldest to newest: win, loss, win, win, loss, loss, win, win, loss, loss, loss, loss, win, win, loss, win, loss, win, win, win"><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span></span>
+        </div>
+        <!-- /RECENT-FORM -->
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-11-14T09:45:00-05:00">Picks as of Saturday, November 14 — 9:45 AM ET</time></p>
         <div class="section-heading card-heading">
           <h2 class="section-title" id="card-title">Today's Card<span class="new-tag" data-new-tag data-feature="live-scores" data-ship-date="2026-10-14">NEW · Live scores</span></h2>

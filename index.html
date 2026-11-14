@@ -2659,16 +2659,7 @@ and loads nothing.
         <div class="egg-slot">
           <figure class="daily-hero" id="daily-hero">
             <img src="assets/brutus-daily-2026-11-14.webp" onerror="this.onerror=null;this.src='assets/brutus-handicapper.webp';" alt="Brutus at his handicapping desk on a big college-football Saturday morning, subtle confident smile after a 4–2 winning card, a football on the desk, chart monitors, and a packed college stadium with a goalpost through the window behind him" width="1920" height="1280">
-            <span class="egg-ring" id="egg-ring" aria-hidden="true"></span>
-            <span class="egg-puck" id="egg-puck" aria-hidden="true"></span>
           </figure>
-          <p class="egg-caption" id="egg-caption" role="status"></p>
-          <div class="egg-popover" id="egg-popover" role="dialog" aria-label="The Lodged Baseball" hidden>
-            <p class="egg-popover-title">Wednesday at the Desk</p>
-            <p class="egg-popover-text" id="egg-popover-text"></p>
-            <button class="egg-popover-close" id="egg-popover-close" type="button" aria-label="Close">×</button>
-          </div>
-        </div>
     </div>
 
     <nav class="tab-nav" role="tablist" aria-label="Dashboard views">
@@ -16165,144 +16156,8 @@ and loads nothing.
     }());
   </script>
 
-  <script>
-    // DAILY EGG — the daily build sets this ONE config block: what to tap
-    // in the hero scene and what it says. Rotating the egg (new target
-    // and/or payload every card) = editing this block only; the handler
-    // below is generic. zone/spot are fractions of the hero image
-    // (x right, y down); spot is where the marker ring blooms.
-    window.DAILY_EGG = {
-      date: '2026-11-14',
-      target: 'the football on the desk',
-      name: "Saturday in the Press Box",
-      // Today's scene (2026-11-14): Brutus at a press-box desk on a
-      // college football Saturday; the zone hugs the football on the desk.
-      zone: { x0: 0.55, y0: 0.46, x1: 0.68, y1: 0.57 },
-      spot: { x: 0.615, y: 0.515 },
-      caption: "Saturday in the press box: line charts on both screens and a full stadium outside — eight picks on today's card, five of them college football."
-    };
-  </script>
-  <script>
-    // Daily Easter egg handler — data-driven from window.DAILY_EGG above.
-    // Tapping the configured spot in the hero scene blooms a ring over
-    // it and reveals the day's hidden note: either the timed caption
-    // under the hero (caption mode) or, when the config carries a
-    // popover payload, a fact card over the hero that stays until
-    // dismissed (today: "The Backup's Cap"). Pure presentation — no
-    // data touched. Replays on every qualifying tap.
-    (function () {
-      var cfg = window.DAILY_EGG;
-      var hero = document.getElementById('daily-hero');
-      var img = hero ? hero.querySelector('img') : null;
-      var ring = document.getElementById('egg-ring');
-      var puck = document.getElementById('egg-puck');
-      var caption = document.getElementById('egg-caption');
-      if (!cfg || !hero || !img || !ring || !caption) return;
-      caption.textContent = cfg.caption;
-
-      // Popover mode ("The Backup's Cap", 2026-10-18): when the config
-      // carries a popover payload, the tap opens a card over the hero
-      // that stays up until dismissed — the close control, a tap
-      // anywhere else (the qualifying cap tap stops propagation below,
-      // so it never reads as an "elsewhere" tap), or Escape.
-      var popover = document.getElementById('egg-popover');
-      var popoverText = document.getElementById('egg-popover-text');
-      var popoverClose = document.getElementById('egg-popover-close');
-      var popoverMode = !!(cfg.popover && popover && popoverText);
-      if (popoverMode) {
-        popoverText.textContent = cfg.popover;
-        var closePopover = function () { popover.hidden = true; };
-        if (popoverClose) {
-          popoverClose.addEventListener('click', function (event) {
-            event.stopPropagation();
-            closePopover();
-          });
-        }
-        document.addEventListener('click', function (event) {
-          if (popover.hidden) return;
-          if (popover.contains(event.target)) return;
-          closePopover();
-        });
-        document.addEventListener('keydown', function (event) {
-          if (event.key === 'Escape') closePopover();
-        });
-      }
-
-      var timers = [];
-      function later(fn, ms) { timers.push(window.setTimeout(fn, ms)); }
-
-      // The config's zone/spot are fractions of the IMAGE. If the
-      // hero were ever cropped (object-fit: cover), the image's
-      // box and its content would no longer coincide — map through the
-      // real object-fit geometry so the tap stays exact at any crop.
-      function heroGeometry() {
-        var rect = img.getBoundingClientRect();
-        var natW = img.naturalWidth || 0;
-        var natH = img.naturalHeight || 0;
-        if (!rect.width || !rect.height || !natW || !natH) return null;
-        var style = window.getComputedStyle ? getComputedStyle(img) : null;
-        var fit = style ? style.objectFit : 'fill';
-        var scale = null;
-        if (fit === 'cover') scale = Math.max(rect.width / natW, rect.height / natH);
-        else if (fit === 'contain') scale = Math.min(rect.width / natW, rect.height / natH);
-        if (scale === null) return { rect: rect, dispW: rect.width, dispH: rect.height, offX: 0, offY: 0 };
-        var pos = ((style && style.objectPosition) || '50% 50%').split(/\s+/);
-        function pf(tok) {
-          if (!tok) return 0.5;
-          if (tok.charAt(tok.length - 1) === '%') return parseFloat(tok) / 100;
-          if (tok === 'left' || tok === 'top') return 0;
-          if (tok === 'right' || tok === 'bottom') return 1;
-          return 0.5;
-        }
-        var dispW = natW * scale;
-        var dispH = natH * scale;
-        return { rect: rect, dispW: dispW, dispH: dispH, offX: (rect.width - dispW) * pf(pos[0]), offY: (rect.height - dispH) * pf(pos[1]) };
-      }
-
-      img.addEventListener('click', function (event) {
-        var g = heroGeometry();
-        if (!g) return;
-        var fx = (event.clientX - g.rect.left - g.offX) / g.dispW;
-        var fy = (event.clientY - g.rect.top - g.offY) / g.dispH;
-        var z = cfg.zone;
-        if (fx < z.x0 || fx > z.x1 || fy < z.y0 || fy > z.y1) return;
-        // A qualifying tap is the egg firing, not an "elsewhere" tap:
-        // keep it from reaching the popover's dismiss listener.
-        event.stopPropagation();
-
-        timers.forEach(function (timer) { window.clearTimeout(timer); });
-        timers = [];
-        var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-        ring.style.left = ((cfg.spot.x * g.dispW + g.offX) / g.rect.width * 100) + '%';
-        ring.style.top = ((cfg.spot.y * g.dispH + g.offY) / g.rect.height * 100) + '%';
-        ring.classList.remove('is-firing');
-        // Restart the ring animation from its first frame on replay.
-        void ring.offsetWidth;
-        if (!reduced) ring.classList.add('is-firing');
-
-        // Puck Drop (2026-10-15): when the day's egg carries slide: true,
-        // a puck disc starts at the tapped spot and slides across the
-        // desk as the caption lands. Same restart discipline as the ring.
-        if (puck && cfg.slide) {
-          puck.style.left = ring.style.left;
-          puck.style.top = ring.style.top;
-          puck.classList.remove('is-sliding');
-          void puck.offsetWidth;
-          if (!reduced) puck.classList.add('is-sliding');
-          later(function () { puck.classList.remove('is-sliding'); }, 1500);
-        }
-
-        if (popoverMode) {
-          popover.hidden = false;
-        } else {
-          caption.classList.add('is-visible');
-          later(function () { caption.classList.remove('is-visible'); }, 6000);
-        }
-        later(function () { ring.classList.remove('is-firing'); }, 1400);
-      });
-    }());
-  </script>
+  
+  
   <script>
     // NEW feature tags (registry of record: sports-betting
     // data/page_features.json). The pill's visible text is

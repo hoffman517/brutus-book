@@ -281,8 +281,8 @@
     .recent-form .rf-neg { color: #ff8a8a; font-weight: 700; }
     .recent-form .rf-dots { flex: 1 1 100%; display: grid; grid-template-columns: repeat(20, 1fr); justify-items: center; gap: 3px; min-width: 0; }
     .recent-form .rf-dot {
-      width: 14px;
-      height: 14px;
+      width: min(14px, 100%);
+      aspect-ratio: 1;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;

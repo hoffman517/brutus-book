@@ -258,14 +258,18 @@
        RECENT-FORM marker comment at the element.
        ONE ROW, GUARANTEED (Scott, 2026-11-15): the strip is a grid —
        the label block (Recent form / Last 20 line) sits left and the
-       20 dots fill the rest of the SAME row, spanning both label
-       lines, so the dots can never drop to a second row; they shrink
+       20 results fill the rest of the SAME row, spanning both label
+       lines, so they can never drop to a second row; they shrink
        as the phone narrows. Enforced by publish gate A.54 at
-       393/360/320. */
+       393/360/320.
+       LETTER RUN (Scott, 2026-11-15, replacing the dot row he did
+       not love): the 20 results render as plain W/L letters — green
+       win, red loss, bold — no circles, no dots. The full sequence
+       also lives in the letters' aria-label. */
     .recent-form {
       display: grid;
       grid-template-columns: max-content minmax(0, 1fr);
-      grid-template-areas: "label dots" "item dots";
+      grid-template-areas: "label letters" "item letters";
       align-items: center;
       column-gap: 10px;
       row-gap: 1px;
@@ -290,33 +294,24 @@
     .recent-form strong { color: var(--text); }
     .recent-form .rf-pos { color: #69e898; font-weight: 700; }
     .recent-form .rf-neg { color: #ff8a8a; font-weight: 700; }
-    .recent-form .rf-dots { grid-area: dots; align-self: center; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); justify-items: center; gap: 2px; min-width: 0; }
-    .recent-form .rf-dot {
-      width: min(14px, 100%);
+    .recent-form .rf-letters { grid-area: letters; align-self: center; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); justify-items: center; min-width: 0; }
+    .recent-form .rf-letter {
       min-width: 0;
-      overflow: hidden;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 7px;
+      font-size: 13px;
       font-weight: 800;
-      border: 1px solid;
+      line-height: 1.2;
     }
-    .recent-form .rf-dot.w { color: #69e898; border-color: #69e898; background: rgba(105, 232, 152, .12); }
-    .recent-form .rf-dot.l { color: #ff8a8a; border-color: #ff8a8a; background: rgba(255, 138, 138, .12); }
-    .recent-form .rf-dot.p { color: var(--muted); border-color: var(--muted); background: rgba(167, 177, 185, .12); }
+    .recent-form .rf-letter.w { color: #69e898; }
+    .recent-form .rf-letter.l { color: #ff8a8a; }
+    .recent-form .rf-letter.p { color: var(--muted); }
     /* Narrow phones: the one-row strip tightens — tighter strip
-       padding/gaps and the dot letters drop out (the W/L sequence
-       stays in the dots' aria-label; the color carries it) so the
-       dots themselves stay as large as the row allows. The row
-       never wraps at any width; gate A.54 enforces it. */
+       padding/gaps and the letters scale down with the viewport
+       (fluid size, floored at 9px) so all 20 stay on the one row
+       at any width; the row never wraps; gate A.54 enforces it. */
     @media (max-width: 560px) {
       .recent-form { padding: 8px 10px; column-gap: 8px; font-size: .74rem; }
       .recent-form .rf-label { font-size: .8rem; }
-      .recent-form .rf-dots { gap: 1px; }
-      .recent-form .rf-dot { font-size: 0; }
+      .recent-form .rf-letter { font-size: clamp(9px, 3.3vw, 12px); }
     }
 
     /* The identity one-liner lives BELOW Today's Card now (small
@@ -2511,15 +2506,28 @@
     :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 
     @media (max-width: 760px) {
-      .page-shell { padding: max(12px, env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom)); }
+      /* Bottom clearance = docked nav height (61px: 1px top border
+         + 5px pad + 50px button + 5px pad) + the safe-area inset
+         the nav itself carries + breathing room, so no content is
+         ever hidden beneath the docked bar. */
+      .page-shell { padding: max(12px, env(safe-area-inset-top)) 12px calc(76px + env(safe-area-inset-bottom)); }
+      /* Tab nav DOCKED FLUSH (Scott, 2026-11-15): the bar used to
+         float (10px side gaps, lifted off the bottom, full border)
+         and hover over the cards. Now it docks to the screen
+         edges — left/right/bottom 0, solid background, top border
+         only, no radius — and the safe-area inset lives inside the
+         bar's own bottom padding. Enforced by publish gate A.54. */
       .tab-nav {
         position: fixed;
         top: auto;
-        left: 10px;
-        right: 10px;
-        bottom: max(8px, env(safe-area-inset-bottom));
+        left: 0;
+        right: 0;
+        bottom: 0;
         margin: 0;
-        border-color: #4a4f4e;
+        padding-bottom: calc(5px + env(safe-area-inset-bottom));
+        border: 0;
+        border-top: 1px solid #4a4f4e;
+        border-radius: 0;
       }
       .tab-button { min-height: 50px; padding-inline: 2px; font-size: .72rem; white-space: nowrap; }
       .masthead { padding: 8px 12px 6px; border-radius: 14px; }
@@ -2714,11 +2722,11 @@ and loads nothing.
 
     <main>
       <section id="card-panel" data-view="today" role="tabpanel" aria-labelledby="tab-today card-title">
-        <!-- RECENT-FORM — Recent form strip. Values computed from ~/workspace/sports-betting/results/picks.csv graded rows via pick_tracker.calculate_units (the record — never prose); through 2026-11-14: last 20 graded = 10-10, -0.41u; dots chronological L L L L W W L W L W W W W W L L W W L L. Refreshed by scripts/recent_form_refresh.py in the picks-run page build — do not hand-edit between these markers. -->
+        <!-- RECENT-FORM — Recent form strip. Values computed from ~/workspace/sports-betting/results/picks.csv graded rows via pick_tracker.calculate_units (the record — never prose); through 2026-11-14: last 20 graded = 10-10, -0.41u; letters chronological L L L L W W L W L W W W W W L L W W L L. Refreshed by scripts/recent_form_refresh.py in the picks-run page build — do not hand-edit between these markers. -->
         <div class="recent-form" aria-label="Recent form">
           <span class="rf-label">Recent form</span>
           <span class="rf-item">Last 20: <strong>10–10</strong> <span class="rf-neg">-0.41u</span></span>
-          <span class="rf-dots" role="img" aria-label="Last 20 graded picks, oldest to newest: loss, loss, loss, loss, win, win, loss, win, loss, win, win, win, win, win, loss, loss, win, win, loss, loss"><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span><span class="rf-dot w">W</span><span class="rf-dot w">W</span><span class="rf-dot l">L</span><span class="rf-dot l">L</span></span>
+          <span class="rf-letters" role="img" aria-label="Last 20 graded picks, oldest to newest: loss, loss, loss, loss, win, win, loss, win, loss, win, win, win, win, win, loss, loss, win, win, loss, loss"><span class="rf-letter l">L</span><span class="rf-letter l">L</span><span class="rf-letter l">L</span><span class="rf-letter l">L</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter l">L</span><span class="rf-letter w">W</span><span class="rf-letter l">L</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter l">L</span><span class="rf-letter l">L</span><span class="rf-letter w">W</span><span class="rf-letter w">W</span><span class="rf-letter l">L</span><span class="rf-letter l">L</span></span>
         </div>
         <!-- /RECENT-FORM -->
         <p class="picks-as-of" id="picks-as-of"><time datetime="2026-11-15T09:50:00-05:00">Picks as of Sunday, November 15 — 9:50 AM ET</time></p>

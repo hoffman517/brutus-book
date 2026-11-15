@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -1.97 units on 2026-11-14">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -1.04 units on 2026-11-14">
   <rect width="360" height="132" fill="#111417"/>
   <line x1="34" y1="29.3" x2="352" y2="29.3" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
   <text x="30" y="32.3" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
-  <polyline points="34.0,18.9 43.1,40.2 52.2,46.5 61.3,24.8 70.3,40.8 79.4,61.9 88.5,56.3 97.6,51.4 106.7,33.9 115.8,35.6 124.9,29.1 133.9,29.4 143.0,36.9 152.1,43.8 161.2,58.1 170.3,58.4 179.4,58.9 188.5,46.1 197.5,60.3 206.6,87.6 215.7,101.4 224.8,96.9 233.9,105.1 243.0,90.1 252.1,89.7 261.1,74.6 270.2,83.0 279.3,69.4 288.4,76.5 297.5,79.0 306.6,73.4 315.7,55.5 324.7,57.8 333.8,66.0 342.9,55.5 352.0,56.2" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="352.0" cy="56.2" r="3" fill="#bb0000"/>
-  <text x="352.0" y="50.2" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-1.97u</text>
+  <polyline points="34.0,18.9 43.1,40.2 52.2,46.5 61.3,24.8 70.3,40.8 79.4,61.9 88.5,56.3 97.6,51.4 106.7,33.9 115.8,35.6 124.9,29.1 133.9,29.4 143.0,36.9 152.1,43.8 161.2,58.1 170.3,58.4 179.4,58.9 188.5,46.1 197.5,60.3 206.6,87.6 215.7,101.4 224.8,96.9 233.9,105.1 243.0,90.1 252.1,89.7 261.1,74.6 270.2,83.0 279.3,69.4 288.4,76.5 297.5,79.0 306.6,73.4 315.7,55.5 324.7,57.8 333.8,66.0 342.9,55.5 352.0,43.5" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="352.0" cy="43.5" r="3" fill="#bb0000"/>
+  <text x="352.0" y="37.5" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-1.04u</text>
   <text x="233.9" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
   <text x="34" y="127" fill="#9aa3ab" font-size="8">10-10</text>
   <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-14</text>

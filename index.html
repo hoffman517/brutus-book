@@ -255,12 +255,20 @@
     /* Recent form strip (2026-11-14): one slim line at the top of
        Today's Card, directly under the masthead block. Static values,
        refreshed per publish from results/picks.csv — see the
-       RECENT-FORM marker comment at the element. */
+       RECENT-FORM marker comment at the element.
+       ONE ROW, GUARANTEED (Scott, 2026-11-15): the strip is a grid —
+       the label block (Recent form / Last 20 line) sits left and the
+       20 dots fill the rest of the SAME row, spanning both label
+       lines, so the dots can never drop to a second row; they shrink
+       as the phone narrows. Enforced by publish gate A.54 at
+       393/360/320. */
     .recent-form {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      grid-template-areas: "label dots" "item dots";
       align-items: center;
-      gap: 6px 10px;
+      column-gap: 10px;
+      row-gap: 1px;
       margin: 0 0 12px;
       padding: 8px 12px;
       background: var(--panel);
@@ -271,17 +279,22 @@
       color: var(--muted);
     }
     .recent-form .rf-label {
+      grid-area: label;
+      white-space: nowrap;
       font-family: var(--display);
       font-size: .85rem;
       letter-spacing: .06em;
       color: var(--text);
     }
+    .recent-form .rf-item { grid-area: item; white-space: nowrap; }
     .recent-form strong { color: var(--text); }
     .recent-form .rf-pos { color: #69e898; font-weight: 700; }
     .recent-form .rf-neg { color: #ff8a8a; font-weight: 700; }
-    .recent-form .rf-dots { flex: 1 1 100%; display: grid; grid-template-columns: repeat(20, 1fr); justify-items: center; gap: 3px; min-width: 0; }
+    .recent-form .rf-dots { grid-area: dots; align-self: center; display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); justify-items: center; gap: 2px; min-width: 0; }
     .recent-form .rf-dot {
       width: min(14px, 100%);
+      min-width: 0;
+      overflow: hidden;
       aspect-ratio: 1;
       border-radius: 50%;
       display: inline-flex;
@@ -294,6 +307,17 @@
     .recent-form .rf-dot.w { color: #69e898; border-color: #69e898; background: rgba(105, 232, 152, .12); }
     .recent-form .rf-dot.l { color: #ff8a8a; border-color: #ff8a8a; background: rgba(255, 138, 138, .12); }
     .recent-form .rf-dot.p { color: var(--muted); border-color: var(--muted); background: rgba(167, 177, 185, .12); }
+    /* Narrow phones: the one-row strip tightens — tighter strip
+       padding/gaps and the dot letters drop out (the W/L sequence
+       stays in the dots' aria-label; the color carries it) so the
+       dots themselves stay as large as the row allows. The row
+       never wraps at any width; gate A.54 enforces it. */
+    @media (max-width: 560px) {
+      .recent-form { padding: 8px 10px; column-gap: 8px; font-size: .74rem; }
+      .recent-form .rf-label { font-size: .8rem; }
+      .recent-form .rf-dots { gap: 1px; }
+      .recent-form .rf-dot { font-size: 0; }
+    }
 
     /* The identity one-liner lives BELOW Today's Card now (small
        type, with the how-it-works material) — out of the masthead. */
@@ -964,15 +988,28 @@
       margin: -2px 0 18px;
     }
 
+    /* ONE ROW, GUARANTEED (Scott, 2026-11-15): the league filter
+       never wraps — the pills share the row equally and shrink to
+       fit, counts stay in the labels, so even a 7-league day
+       (All + NFL/NBA/CBB/CFB/NHL/MLB) stays on one line at 320px.
+       Enforced by publish gate A.54 at 393/360/320. */
     .filters {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 7px;
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 560px;
     }
 
     .filter {
+      flex: 1 1 0;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       min-height: 36px;
-      padding: 0 14px;
+      padding: 0 8px;
       border: 1px solid var(--line);
       border-radius: 999px;
       background: transparent;
@@ -981,6 +1018,12 @@
       font-weight: 700;
       cursor: pointer;
       transition: border-color .18s ease, background .18s ease, color .18s ease;
+    }
+    /* Narrow phones: smaller pill type/padding so 7 pills keep
+       their full labels on the one row. */
+    @media (max-width: 560px) {
+      .filters { gap: 5px; }
+      .filter { font-size: .65rem; padding: 0 2px; }
     }
 
     .filter:hover { border-color: #52605a; color: var(--text); }

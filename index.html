@@ -1242,11 +1242,12 @@
 
     /* Court strip (NBA + CBB): ONE shared court for both basketball
        leagues — the same 56px surface band as the field bar and the
-       rink. Real state only: one segment per quarter (plus an OT
-       segment when the feed's linescores carry a 5th+ period); a
-       segment fills only when that quarter is complete in the feed's
-       linescores, the quarter being played is marked, and later
-       quarters stay empty — no invented progress. */
+       rink. Real state only: one segment per regulation period —
+       quarters for the NBA, halves for college — plus an OT segment
+       when the feed's linescores carry a period past regulation; a
+       segment fills only when that period is complete in the feed's
+       linescores, the period being played is marked, and later
+       periods stay empty — no invented progress. */
     .live-court {
       margin: 2px 10px 12px;
     }
@@ -15935,6 +15936,7 @@ and loads nothing.
             var base = 4;
             if (spec.sport === 'NHL') base = 3;
             else if (spec.sport === 'MLB') base = 9;
+            else if (spec.sport === 'CBB') base = 2;
             var maxP = 0;
             a.concat(h).forEach(function (ls) {
               var p = parseInt(ls.period, 10);
@@ -16251,16 +16253,17 @@ and loads nothing.
 
         // Court strip (NBA + CBB): ONE court shared by both basketball
         // leagues, league-parameterized exactly as the football leagues
-        // share the field bar. The track is one segment per quarter
-        // (4), plus one segment per overtime period when the feed's
-        // linescores carry a 5th+ period. Real state only: a segment
-        // is filled ('done') only for a quarter the feed's linescores
+        // share the field bar. The track is one segment per regulation
+        // period (NBA 4 quarters, CBB 2 halves), plus one segment per
+        // overtime period when the feed's linescores carry a period
+        // past regulation. Real state only: a segment
+        // is filled ('done') only for a period the feed's linescores
         // show complete — every period before the current one while
-        // live, or every period present on a final — the quarter
-        // being played is marked 'cur', and later quarters stay
-        // 'todo' (empty). The number under a played quarter's label
-        // is that quarter's combined points, summed from the same
-        // linescores; a quarter with no linescore entry carries no
+        // live, or every period present on a final — the period
+        // being played is marked 'cur', and later periods stay
+        // 'todo' (empty). The number under a played period's label
+        // is that period's combined points, summed from the same
+        // linescores; a period with no linescore entry carries no
         // number — no fabricated state.
         function buildCourtTrack(spec, match, state) {
           var a = (match.away && match.away.linescores) || [];
@@ -16283,7 +16286,8 @@ and loads nothing.
             });
           });
           var cur = (match.status && parseInt(match.status.period, 10)) || 0;
-          var cols = Math.max(4, maxP);
+          var reg = spec.sport === 'CBB' ? 2 : 4;
+          var cols = Math.max(reg, maxP);
           if (state === 'in' && cur > cols) cols = cur;
           var track = document.createElement('div');
           track.className = 'court-track';
@@ -16303,7 +16307,7 @@ and loads nothing.
             seg.setAttribute('data-state', cls);
             var label = document.createElement('span');
             label.className = 'court-seg-label';
-            label.textContent = col <= 4 ? 'Q' + col : (col === 5 ? 'OT' : 'OT' + (col - 4));
+            label.textContent = col <= reg ? (spec.sport === 'CBB' ? 'H' + col : 'Q' + col) : (col === reg + 1 ? 'OT' : 'OT' + (col - reg));
             seg.appendChild(label);
             if (hasLine && cls !== 'todo') {
               var combined = 0;

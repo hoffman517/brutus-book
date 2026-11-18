@@ -14039,7 +14039,7 @@ and loads nothing.
 
       function matchupMarkup(pick) {
         var text = '<p class="matchup">' + escapeHTML(pick.matchup) + '</p>';
-        var logos = TEAM_LOGOS[pick.matchup];
+        var logos = TEAM_LOGOS[pick.matchup] || TEAM_LOGOS[pick.matchup.replace(/'/g, '\u2019')];
         if (!logos) return text;
         return '<div class="matchup-row">' +
           '<span class="team-logo"><img src="' + logos.away[0] + '" alt="' + logos.away[1] + '" width="34" height="34"></span>' +

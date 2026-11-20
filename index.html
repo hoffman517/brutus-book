@@ -14416,7 +14416,13 @@ and loads nothing.
     }
   ]
 }
-      ]
+      ],
+      // Q209 next_card_override (2026-11-20): optional dated override for the
+      // masthead card-posts estimate consumed by renderNextCard(). Shape:
+      // { date: "YYYY-MM-DD", est_minutes: <minutes after midnight ET> }.
+      // null (absent) = inert: weekday default applies. Stamp a dated object
+      // here the evening before a moved run; it self-expires after its date.
+      next_card_override: null
     };
 
     (function () {
@@ -15409,7 +15415,9 @@ and loads nothing.
       // hides the moment a card dated today exists. Estimates are the
       // scheduled run start + the typical build/publish time, rounded
       // conservatively: Sat run 9:15 -> ~10:00, Sun 9:45 -> ~10:30,
-      // Mon-Fri 13:45 -> ~2:30 PM (all ET).
+      // Mon-Fri 13:45 -> ~2:30 PM (all ET). A dated BRUTUS_DATA
+      // next_card_override {date, est_minutes} for today overrides the
+      // weekday estimate (Q209, e.g. a holiday-morning run); otherwise inert.
       function renderNextCard() {
         var el = document.getElementById('masthead-next');
         if (!el) return;
@@ -15425,6 +15433,10 @@ and loads nothing.
         if (cardDate && cardDate > latest) latest = cardDate;
         if (latest >= today) { el.hidden = true; return; }
         var estMin = parts.weekday === 'Sat' ? 600 : (parts.weekday === 'Sun' ? 660 : 870);
+        // Q209: a dated next_card_override for TODAY (ET) replaces the weekday
+        // default. Absent, null, malformed, stale, or another date = inert.
+        var nco = (typeof BRUTUS_DATA !== 'undefined' && BRUTUS_DATA) ? BRUTUS_DATA.next_card_override : null;
+        if (nco && nco.date === today && typeof nco.est_minutes === 'number' && isFinite(nco.est_minutes) && nco.est_minutes >= 0 && nco.est_minutes < 1440) { estMin = Math.floor(nco.est_minutes); }
         var nowMin = parseInt(parts.hour, 10) * 60 + parseInt(parts.minute, 10);
         var h = Math.floor(estMin / 60), m = estMin % 60;
         var ampm = h >= 12 ? 'PM' : 'AM';

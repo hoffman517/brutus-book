@@ -17867,7 +17867,20 @@ and loads nothing.
               if (competitor.homeAway === 'home') home = competitor;
             });
             if (!away || !home) { away = competitors[0]; home = competitors[1]; }
-            if (!teamMatches(away, spec.awayName, spec.sport) || !teamMatches(home, spec.homeName, spec.sport)) continue;
+            // ORIENTATION-FREE PAIR MATCH (2026-11-26): the card's
+            // away/home split comes from the schedule source, but at a
+            // neutral site ESPN designates the home team its own way —
+            // SDSU vs Maryland (Las Vegas) sat on the card as SDSU @
+            // Maryland while the feed carried Maryland @ SDSU, so the
+            // orientation-strict check never attached and the card read
+            // "PENDING — Game not final" for hours after a final the
+            // feed already carried (Scott catch). Accept the pair in
+            // either orientation; the returned match keeps the EVENT's
+            // own away/home, ourMatchup resolves our side by name, and
+            // the exact-event join below still bars a wrong game.
+            var pairStraight = teamMatches(away, spec.awayName, spec.sport) && teamMatches(home, spec.homeName, spec.sport);
+            var pairFlipped = teamMatches(away, spec.homeName, spec.sport) && teamMatches(home, spec.awayName, spec.sport);
+            if (!pairStraight && !pairFlipped) continue;
             // EXACT-EVENT JOIN (2026-10-15): a card may only ever
             // attach to its OWN game. The same teams meet again
             // (playoff series, rematches) and the feed can carry

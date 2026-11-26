@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -3.06 units on 2026-11-24">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 132" role="img" aria-label="Cumulative units over time: ends at -2.62 units on 2026-11-25">
   <rect width="360" height="132" fill="#111417"/>
   <line x1="34" y1="29.3" x2="352" y2="29.3" stroke="#5a626a" stroke-width="1" stroke-dasharray="3 3"/>
   <text x="30" y="32.3" fill="#9aa3ab" font-size="8" text-anchor="end">0</text>
-  <polyline points="34.0,18.9 41.1,40.2 48.1,46.5 55.2,24.8 62.3,40.8 69.3,61.9 76.4,56.3 83.5,51.4 90.5,33.9 97.6,35.6 104.7,29.1 111.7,29.4 118.8,36.9 125.9,43.8 132.9,58.1 140.0,58.4 147.1,58.9 154.1,46.1 161.2,60.3 168.3,87.6 175.3,101.4 182.4,96.9 189.5,105.1 196.5,90.1 203.6,89.7 210.7,74.6 217.7,83.0 224.8,69.4 231.9,76.5 238.9,79.0 246.0,73.4 253.1,55.5 260.1,57.8 267.2,66.0 274.3,55.5 281.3,57.2 288.4,34.2 295.5,35.8 302.5,63.4 309.6,72.2 316.7,32.0 323.7,53.3 330.8,62.5 337.9,86.4 344.9,62.5 352.0,71.1" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
-  <circle cx="352.0" cy="71.1" r="3" fill="#bb0000"/>
-  <text x="352.0" y="65.1" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-3.06u</text>
-  <text x="189.5" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
+  <polyline points="34.0,18.9 40.9,40.2 47.8,46.5 54.7,24.8 61.7,40.8 68.6,61.9 75.5,56.3 82.4,51.4 89.3,33.9 96.2,35.6 103.1,29.1 110.0,29.4 117.0,36.9 123.9,43.8 130.8,58.1 137.7,58.4 144.6,58.9 151.5,46.1 158.4,60.3 165.3,87.6 172.3,101.4 179.2,96.9 186.1,105.1 193.0,90.1 199.9,89.7 206.8,74.6 213.7,83.0 220.7,69.4 227.6,76.5 234.5,79.0 241.4,73.4 248.3,55.5 255.2,57.8 262.1,66.0 269.0,55.5 276.0,57.2 282.9,34.2 289.8,35.8 296.7,63.4 303.6,72.2 310.5,32.0 317.4,53.3 324.3,62.5 331.3,86.4 338.2,62.5 345.1,71.1 352.0,65.1" fill="none" stroke="#bb0000" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="352.0" cy="65.1" r="3" fill="#bb0000"/>
+  <text x="352.0" y="59.1" fill="#e8ecea" font-size="9" font-weight="bold" text-anchor="end">-2.62u</text>
+  <text x="186.1" y="117.1" fill="#9aa3ab" font-size="8" text-anchor="middle">low -5.55u · 11-01</text>
   <text x="34" y="127" fill="#9aa3ab" font-size="8">10-10</text>
-  <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-24</text>
+  <text x="352" y="127" fill="#9aa3ab" font-size="8" text-anchor="end">11-25</text>
 </svg>
